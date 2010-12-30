@@ -8,6 +8,10 @@ import ConfigParser
 
 import gettext
 
+from PyQt4 import QtCore
+from PyQt4 import QtGui
+from PyQt4 import uic
+
 from kernel.plugin import plugin as pyplugin
 from kernel.optionmgr import OptionManager
 
@@ -29,10 +33,13 @@ class PyClient():
 		self.modules = {}
 
 		self.settings = OptionManager('.'.join((os.path.basename(sys.argv[0]).split('.')[0], 'ini')))
-
 		self.initialize()
 		self.run()
 
+		self.ui = QtGui.QApplication(sys.argv)
+		self.widget = MainWindow(self)
+		self.widget.show()
+		self.ui.exec_()
 
 
 
@@ -67,7 +74,7 @@ class PyClient():
 								self.modified = True
 
  
-	def getupdate(self, username, password, category):
+	def getupdate(self, self2, username, password, category):
 		proxydata = {}
 		for option in ('user', 'pass', 'host', 'port'):
 			proxydata[option] = self.settings.option('PROXY', option, '', True)
@@ -110,9 +117,6 @@ class PyClient():
 			xmlfile.write(urldata)
 
 		return urldata
-
-
-
 
 
 	def parseupdate(self, data):
@@ -302,7 +306,7 @@ class PyClient():
 			self.exit()
 
 		###
-
+"""
 		# получение данных по категориям
 		for category in systemcategories:
 			# получение данных
@@ -340,8 +344,63 @@ class PyClient():
 
 		print
 		print 'Well done!'
+"""
 
 #######################
+
+
+class MainWindow(QtGui.QMainWindow):
+
+	def __init__(self, parent, *args):
+		super(MainWindow, self).__init__(*args)
+		uic.loadUi('ui/window.ui', self)
+		self.w = QWorker(parent.getupdate, None, 'jack', 'passwd', 'Components')
+		self.connect(self.w, QtCore.SIGNAL("data(QString)"), self.do)
+		self.connect(self.w, QtCore.SIGNAL("ok(QString)"), self.end)
+
+	@QtCore.pyqtSlot()
+	def on_goButton_clicked(self):
+		self.w.start()
+
+	def do(self, text):
+		self.m_label.setText(text)
+
+	def end(self, data):
+		self.m_label.setText(data)
+
+
+
+class QWorker(QtCore.QThread):
+
+	def __init__(self, callable, parent=None, *args, **kwargs):
+		QtCore.QThread.__init__(self, parent)
+		self.callable = callable
+		self.args = args
+		self.kwargs = kwargs
+		print self.args, self.kwargs
+
+	def run(self):
+		data = ''
+
+		try:
+			data = self.callable(self, *self.args, **self.kwargs)
+
+			print data
+		except Exception, e:
+			print e
+			self.emit(QtCore.SIGNAL("exception()"), e)
+
+		else:
+			self.emit(QtCore.SIGNAL("ok(QString)"), data)
+
+
+
+	def it(self, data=None):
+		print data
+		self.emit(QtCore.SIGNAL("data(QString)"), data)
+
+
+
 
 if __name__ == '__main__':
 	# modules directory
@@ -366,4 +425,4 @@ if __name__ == '__main__':
 	sysstrfields = ('M', 'MN', 'PN', 'PC', 'D', 'URL', 'SYM', 'PKG', 'MDL', 'A')
 	sysdtfields = ('CD', 'MD')
 
-	PyClient()
+	PyClient(sys.argv)
