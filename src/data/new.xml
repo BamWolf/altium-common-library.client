@@ -1,0 +1,18 @@
+<dataroot>
+ <Component m="Taiwan" mn="cr50">
+
+   <Description />
+   <URL />
+   <SYM type="string">RES</SYM>
+   <PKG />
+   <MDL />
+   <MD type="datetime">2010-11-29 22:15:33</MD>
+   <CD type="datetime">2010-11-29 22:15:33</CD>
+   <Author type="string">Василий</A>
+
+   <Voltage type="float">25</Voltage>
+   <Current type="float">0.125</Current>
+   <SampleParam type="string">Пример</SampleParam>
+
+ </Component>
+</dataroot>

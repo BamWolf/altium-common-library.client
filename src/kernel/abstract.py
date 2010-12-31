@@ -13,7 +13,10 @@ class QWindow(QtGui.QMainWindow):
 	def __init__(self, interface, *args):
 		super(QWindow, self).__init__(*args)
 		uic.loadUi(interface, self)
+		self.prepare()
 
+	def prepare(self):
+		pass
 
 
 class QWorker(QtCore.QThread):
@@ -36,6 +39,8 @@ class QWorker(QtCore.QThread):
 		else:
 			self.emit(QtCore.SIGNAL("exit(PyQt_PyObject)"), self.result)
 
+	def iter(self, num=None):
+		pass
 
 	def __on_start(self, callable):
 		print 'Qworker started'

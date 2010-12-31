@@ -1,12 +1,14 @@
 #-*- coding: utf-8 -*-
 
+import time
+
 from kernel.db import database
 
 from kernel.objects import QueryMessage
 
-def do_put_process(self, data, parent=None):
+def do_put_process(parent, data):
 
-	print 'PARENT', self
+	print 'PARENT', parent
 
 	result = data.name
 	print 'PUT', result
@@ -28,12 +30,12 @@ def do_put_process(self, data, parent=None):
 
 
 
-def dosmthng(*args, **kwargs):
+def dosmthng(parent, *args, **kwargs):
 	print kwargs
 	i = 0
 	while i < 16:
 		print i
-		kwargs['parent'].emit(QtCore.SIGNAL("data(PyQt_PyObject)"), i)
+		parent.iter(i)
 		i = i + 1
 		time.sleep(0.2)
 

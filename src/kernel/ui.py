@@ -9,6 +9,9 @@ from kernel import wrapper
 
 class PyMainWindow(abstract.QWindow):
 
+	def prepare(self):
+		wrapper.prepare_main_form(self)
+
 	# getButton
 
 	@QtCore.pyqtSlot()
@@ -33,19 +36,37 @@ class PyMainWindow(abstract.QWindow):
 
 	@QtCore.pyqtSlot()
 	def on_addButton_clicked(self):
-		self.second = AddDialogWindow('ui/parameterdialog.ui')
+		self.second = AddDialogWindow('ui/parameterdialog.ui', self)
+
+		self.connect(self.second, QtCore.SIGNAL('add(PyQt_PyObject)'), QtCore.SLOT('on_addButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)
+
 		self.second.show()
 
 	@QtCore.pyqtSignature('PyQt_PyObject')
 	def on_addButton_respond(self, data=None):
-		pass
+		wrapper.on_addButton_respond(self, data)
 
+
+	# delButton
+
+	@QtCore.pyqtSlot()
+	def on_delButton_clicked(self):
+		self.parametersTable.removeRow(self.parametersTable.currentRow())
+
+	@QtCore.pyqtSignature('PyQt_PyObject')
+	def on_delButton_respond(self, data=None):
+		pass
 
 
 
 class AddDialogWindow(abstract.QWindow):
 
+	# okButton
+
 	@QtCore.pyqtSlot()
 	def on_okButton_clicked(self):
-		print 'cool'
+		wrapper.add_parameter_start(self)
 
+	@QtCore.pyqtSignature('PyQt_PyObject')
+	def on_okButton_respond(self, data=None):
+		wrapper.add_parameter_respond(self)

@@ -20,17 +20,19 @@ class OptionManager():
 
 
 
-	def option(self, section, option, value='', force=False):
+	def read(self):
 		try:
 			# Open the file with the correct encoding
 			with codecs.open(self.cfgfilename, 'r', encoding='windows-1251') as f:
 				self.cfg.readfp(f)
 
-			#self.cfg.read(self.cfgfilename)
-
 		except ConfigParser.ParsingError, e:
 			self.error = e
-			return
+
+
+
+	def option(self, section, option, value='', force=False):
+		#self.read()
 
 		try:
 			value = self.cfg.get(section, option)

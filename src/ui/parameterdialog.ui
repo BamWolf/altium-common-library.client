@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>AddParameterDialog</class>
+ <widget class="QMainWindow" name="AddParameterDialog">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>386</width>
-    <height>400</height>
+    <width>350</width>
+    <height>200</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>350</width>
+    <height>200</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>350</width>
+    <height>200</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
-  </property>
-  <property name="toolButtonStyle">
-   <enum>Qt::ToolButtonTextUnderIcon</enum>
-  </property>
-  <property name="tabShape">
-   <enum>QTabWidget::Triangular</enum>
+   <string>Add New Parameter</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -30,107 +36,118 @@
        <enum>QLayout::SetMaximumSize</enum>
       </property>
       <item>
-       <widget class="QGroupBox" name="dataBox">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
+       <widget class="QGroupBox" name="topBox">
         <property name="title">
-         <string/>
+         <string>New Parameter</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0">
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>Main parameters</string>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="0" column="2">
+          <widget class="QFrame" name="frameTop">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
            </property>
-           <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="3">
-             <widget class="QLineEdit" name="pn_line"/>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="1" column="0">
+             <widget class="QComboBox" name="nameBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <item>
+               <property name="text">
+                <string/>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Value</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Tolerance</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Class</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Standard</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="nameLabel">
+              <property name="text">
+               <string>Name:</string>
+              </property>
+             </widget>
             </item>
             <item row="0" column="2">
-             <widget class="QLineEdit" name="m_line"/>
-            </item>
-            <item row="0" column="4">
-             <widget class="QComboBox" name="categoryBox">
-              <item>
-               <property name="text">
-                <string>C</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>R</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>L</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>T</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>DD</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>DA</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="3" column="3">
-             <widget class="QCommandLinkButton" name="commandLinkButton">
+             <widget class="QLabel" name="valueLabel">
               <property name="text">
-               <string>CommandLinkButton</string>
+               <string>Value:</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="2">
-             <widget class="QFrame" name="frame">
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+            <item row="1" column="2">
+             <widget class="QLineEdit" name="valueEdit"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Type:</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="leftMargin">
+             <number>9</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="stringRadio">
+              <property name="text">
+               <string>string</string>
               </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+              <property name="checked">
+               <bool>true</bool>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_3">
-               <item>
-                <widget class="QRadioButton" name="radioButton_3">
-                 <property name="text">
-                  <string>RadioButton</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radioButton">
-                 <property name="text">
-                  <string>RadioButton</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="radioButton_2">
-                 <property name="text">
-                  <string>RadioButton</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="floatRadio">
+              <property name="text">
+               <string>float</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="datetimeRadio">
+              <property name="text">
+               <string>datetime</string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -140,30 +157,26 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="controlBox">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>60</height>
-         </size>
+       <widget class="QGroupBox" name="bottomBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="title">
          <string/>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QPushButton" name="exitButton">
-           <property name="text">
-            <string>Exit</string>
-           </property>
-          </widget>
-         </item>
+         <property name="leftMargin">
+          <number>9</number>
+         </property>
+         <property name="topMargin">
+          <number>6</number>
+         </property>
+         <property name="bottomMargin">
+          <number>6</number>
+         </property>
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -171,16 +184,16 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>516</width>
+             <width>40</width>
              <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="getButton">
+          <widget class="QPushButton" name="exitButton">
            <property name="text">
-            <string>GET</string>
+            <string>Cancel</string>
            </property>
           </widget>
          </item>
@@ -198,23 +211,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>386</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuDo">
-    <property name="title">
-     <string>Action</string>
-    </property>
-    <addaction name="actionExit"/>
-   </widget>
-   <addaction name="menuDo"/>
-  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
@@ -226,7 +222,7 @@
   <connection>
    <sender>actionExit</sender>
    <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>AddParameterDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -242,7 +238,7 @@
   <connection>
    <sender>exitButton</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>AddParameterDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
