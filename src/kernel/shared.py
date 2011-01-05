@@ -2,25 +2,26 @@
 
 import time
 
-from kernel.db import database
+from kernel import db
+from kernel import objects
 
-from kernel.objects import QueryMessage
+
 
 def do_put_process(parent, data):
 
-	print 'PARENT', parent
-
-	result = data.name
+	result = data.id
 	print 'PUT', result
 
-	ldb = database('data/local.db')
+	ldb = db.Database('data/pyclient.db')
 	ldb.init()
+
+	print ldb
 
 	ldb.set_element(data)
 
 	data = ldb.get_elements()
 
-	query = QueryMessage()
+	query = objects.QueryMessage()
 	for element in data:
 		query.additem(element)
 

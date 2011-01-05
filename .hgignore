@@ -1,1 +1,3 @@
 glob:*.pyc
+glob:exe/*
+glob:pyclient.db

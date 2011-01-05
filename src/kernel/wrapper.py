@@ -6,7 +6,9 @@ from PyQt4 import QtGui
 from kernel import abstract
 from kernel import shared
 from kernel import objects
+from kernel import db
 
+from datetime import datetime
 
 ###############################
 
@@ -31,7 +33,40 @@ class PutWrapper():
 ### Add New Component ###
 
 def put_start(self):
-	component = objects.Component(unicode(self.m_line.text()), unicode(self.pn_line.text()))
+	self.putButton.setEnabled(False)
+
+	component = objects.Component(unicode(self.manufacturerBox.currentText()), unicode(self.pn_line.text()))
+
+	value = unicode(self.symbolBox.currentText())
+	parameter = objects.cParameter(u'SYM', value, 'string')
+	component.add_parameter(parameter)
+
+	value = unicode(self.packageBox.currentText())
+	parameter = objects.cParameter(u'PKG', value, 'string')
+	component.add_parameter(parameter)
+
+	value = unicode(self.modelBox.currentText())
+	parameter = objects.cParameter(u'MDL', value, 'string')
+	component.add_parameter(parameter)
+
+	value = unicode(self.descriptionEdit.toPlainText())
+	parameter = objects.cParameter(u'D', value, 'string')
+	component.add_parameter(parameter)
+
+	value = unicode(self.linkEdit.text())
+	parameter = objects.cParameter(u'URL', value, 'string')
+	component.add_parameter(parameter)
+
+#	value = datetime.now()
+#	parameter = objects.cParameter(u'CD', value, 'datetime')
+#	component.add_parameter(parameter)
+
+#	parameter = objects.cParameter(u'MD', value, 'datetime')
+#	component.add_parameter(parameter)
+
+#	value = self.settings.option('ACCOUNT', 'username', '', True)
+#	parameter = objects.cParameter(u'Author', value, 'string')
+#	component.add_parameter(parameter)
 
 	row = 0
 	while row < self.parametersTable.rowCount():
@@ -57,16 +92,18 @@ def put_respond(self, data):
 	self.m_label.setText("Component %s have been added" % (data,))
 	print "Component %s have been added" % (data,)
 
-	self.m_line.clear()
+	self.manufacturerBox.clearEditText()
 	self.pn_line.clear()
 	self.parametersTable.clearContents()
 	self.parametersTable.setRowCount(0)
 
-
+	self.putButton.setEnabled(True)
 
 ### Get Update ###
 
 def get_start(self):
+	self.getButton.setEnabled(False)
+
 	self.w = abstract.QWorker(self, shared.dosmthng, 'get')
 	self.connect(self.w, QtCore.SIGNAL('exit(PyQt_PyObject)'), QtCore.SLOT('on_getButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)
 	self.w.start()
@@ -77,29 +114,39 @@ def get_respond(self, data):
 
 	self.m_label.setText(str(data))
 
-
+	self.getButton.setEnabled(True)
 
 
 def do_get_iter(self, data=None):
 	self.m_label.setText(str(data))
 
 
-
+### Preparing Main Window ###
 
 def prepare_main_form(self):
-	pl = ['CR0805', 'CR1206', 'CR0603', 'CR0402']
-	pl.sort()
 
-	for i in pl:
-		self.packageBox.addItem(i)
+	database = db.Database(self.dbname)
+	database.init()
 
-	sl = ['RES', 'CAP', 'VD']
+	set = database.get_symbols()
+	set.sort()
+
+	for i in set:
+		self.manufacturerBox.addItem(i)
+
+	sl = database.get_symbols()
 	sl.sort()
 
 	for i in sl:
 		self.symbolBox.addItem(i)
 
-	ml = ['RES', 'CAP']
+	pl = database.get_packages()
+	pl.sort()
+
+	for i in pl:
+		self.packageBox.addItem(i)
+
+	ml = database.get_models()
 	ml.sort()
 
 	for i in ml:

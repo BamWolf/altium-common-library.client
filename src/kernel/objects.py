@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
-#import xml.etree.ElementTree as eltree
+import datetime
+import xml.etree.ElementTree as eltree
 
 #######################
 
@@ -9,27 +10,67 @@ class QueryMessage():
 	Name = 'XML Query'
 
 	def __init__(self):
-		pass
+
+		self.type = ''
+		self.items = []
 
 
 	def type(self):
 		pass
 
 	def additem(self, item):
-		pass
+		self.items.append(item)
 
 	def build(self):
-		pass
+		xmldata = eltree.TreeBuilder()
+		xmldata.start('data', {})
+
+		for item in self.items:
+			xmldata.start('Component', {'man': item.manufacturer, 'num': item.number})
+
+
+			for parameter in item.parameters:
+
+				"""
+				if isinstance(parameter.type, datetime.datetime):
+					atr = {'type': 'datetime'}
+#					item[field] = item[field].isoformat(' ')
+
+				elif type(item[field]) == 'int':
+					atr = {'type': 'float'}
+#					item[field] = str(item[field])
+
+				elif item[field] is None:
+					atr = {}
+#					item[field] = ''
+
+				else:
+					atr = {'type': 'string'}
+				"""
+
+				xmldata.start(parameter.name, {'type': parameter.type})
+				xmldata.data(parameter.value)
+				xmldata.end(parameter.name)
+
+			xmldata.end('Component')
+
+		res = xmldata.end('data')
+
+		print eltree.tostring(res, encoding="utf-8")
+
+
 
 
 
 class Component():
 	Name = 'CAD Component'
 
-	def __init__(self, manufacturer, part_number):
-		self.name = '.'.join((manufacturer, part_number))
-		self.m = manufacturer
-		self.pn = part_number
+	def __init__(self, manufacturer, number):
+		self.manufacturer = manufacturer or 'Unknown'
+		self.number = number or 'Unknown'
+
+		self.id = '.'.join((self.manufacturer, self.number))
+
 		self.category = None
 		self.description = None
 		self.parameters = []

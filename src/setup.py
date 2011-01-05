@@ -8,9 +8,9 @@ sys.argv.append('py2exe')
 
 opts =	{
 	"py2exe":	{
-			'includes': 'decimal, datetime',
+			'includes': 'decimal, datetime, sip',
 			'excludes' : [],
-			'dll_excludes': ['msvcr71.dll'],
+			'dll_excludes': ['msvcr71.dll', 'MSVCP90.dll'],
 			'packages': 'modules',
 			'bundle_files': 2,
 			'dist_dir': '../exe',
@@ -23,11 +23,11 @@ print opts
 
 setup	(
 	name = 'PyClient',
-	version = '0.1',
+	version = '0.2',
 	description = '<Description>',
 	author = 'Jack Krieger',
 
-	console = ['pyclient.py'],
+	console = ['pyclient2.py'],
 	options = opts,
 	zipfile = None
 	)

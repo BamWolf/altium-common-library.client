@@ -13,10 +13,15 @@ class QWindow(QtGui.QMainWindow):
 	def __init__(self, interface, *args):
 		super(QWindow, self).__init__(*args)
 		uic.loadUi(interface, self)
-		self.prepare()
 
-	def prepare(self):
-		pass
+		self.settings = None
+
+		self.dbname = 'data/pyclient.db'
+#		self.db = Database(self.dbname)
+#		self.db.init()
+#		self.db.commit()
+
+
 
 
 class QWorker(QtCore.QThread):
@@ -29,14 +34,14 @@ class QWorker(QtCore.QThread):
 		self.result = None
 
 	def run(self):
-		try:
+#		try:
 			self.result = self.callable(self, *self.args, **self.kwargs)
 
-		except Exception, e:
-			print e
-			self.emit(QtCore.SIGNAL("exception(PyQt_PyObject)"), e)
+#		except Exception, e:
+#			print e
+#			self.emit(QtCore.SIGNAL("exception(PyQt_PyObject)"), e)
 
-		else:
+#		else:
 			self.emit(QtCore.SIGNAL("exit(PyQt_PyObject)"), self.result)
 
 	def iter(self, num=None):

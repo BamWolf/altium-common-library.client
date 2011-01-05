@@ -26,6 +26,10 @@ class OptionManager():
 			with codecs.open(self.cfgfilename, 'r', encoding='windows-1251') as f:
 				self.cfg.readfp(f)
 
+		except IOError, e:
+			print e
+			self.error = e
+
 		except ConfigParser.ParsingError, e:
 			self.error = e
 

@@ -4,21 +4,16 @@
 
 import os
 import sqlite3
-
 import inspect
-
-#from kernel.objects import Component
-#from kernel.objects import cParameter
-
-from objects import Component
-from objects import cParameter
 
 from datetime import datetime
 
+from kernel.objects import Component
+from kernel.objects import cParameter
 
 ################################################################################
 
-class database:
+class Database:
 
 	def __init__(self, filename):
 #		if not os.access(DBDIR, os.F_OK):
@@ -48,27 +43,32 @@ class database:
 
 
 	def init(self):
-		pass
-		self.query('CREATE TABLE IF NOT EXISTS components (m VARCHAR(64), pn VARCHAR(64), PRIMARY KEY (m, pn))')
+#		print u'Инициализация'
+
+		# создание таблицы компонентов и параметров
+		self.query('CREATE TABLE IF NOT EXISTS components (manufacturer VARCHAR(64), number VARCHAR(64), description VARCHAR(255), link VARCHAR (255), UNIQUE (manufacturer, number))')
 		self.query('CREATE TABLE IF NOT EXISTS parameters (id INTEGER NOT NULL, parameter VARCHAR(64), value VARCHAR(64), type INTEGER NOT NULL)')
 
+		# создание таблицы производителей
+		self.query('CREATE TABLE IF NOT EXISTS manufacturers (id INTEGER PRIMARY KEY, manufacturer VARCHAR(128))')
+
+		# создание таблицы символов, корпусов и моделей
+		self.query('CREATE TABLE IF NOT EXISTS symbols (id INTEGER PRIMARY KEY, symbol VARCHAR(64))')
+		self.query('CREATE TABLE IF NOT EXISTS packages (id INTEGER PRIMARY KEY, package VARCHAR(64))')
+		self.query('CREATE TABLE IF NOT EXISTS models (id INTEGER PRIMARY KEY, model VARCHAR(64))')
+
+#		self.commit()
 
 
-
-
-
-	def set_manufacturers(self, manufacturer):
-		print manufacturer
-
+	### таблица компонентов и параметров ###
 
 	def set_element(self, element):
-		print element
 
 		if not isinstance(element, Component):
 			raise TypeError, 'should be Component instance'
 
-		query = 'INSERT INTO components VALUES (?, ?)'
-		self.query(query, (element.m, element.pn))
+		query = 'INSERT INTO components VALUES (?, ?, ?, ?)'
+		self.query(query, (element.manufacturer, element.number, element.description, None))
 
 		id = self.cursor.lastrowid
 
@@ -89,20 +89,25 @@ class database:
 
 	def get_elements(self):
 
-#		print self.query('select rowid, m ,pn from components').fetchall()
-#		print self.query('select * from parameters').fetchall()
+#		print self.query('SELECT rowid, manufacturer, number, description, link FROM components').fetchall()
+#		print self.query('SELECT * FROM parameters').fetchall()
 
 
 
 
-		elements = self.query('select rowid, m, pn from components').fetchall()
+		elements = self.query('SELECT rowid, manufacturer, number, description, link FROM components').fetchall()
 
 		data = []
 
 		for element in elements:
 			i = Component(element[1], element[2])
+
+			# добавляем предустановленные параметры (строковый тип)
+			i.add_parameter(cParameter('Description', element[3] or '', 'string'))
+			i.add_parameter(cParameter('URL', element[4] or '', 'string'))
+
 			id = element[0]
-			parameters = self.query('select * from parameters where id = ?', str(id)).fetchall()
+			parameters = self.query('SELECT * FROM parameters where id = ?', str(id)).fetchall()
 
 			for parameter in parameters:
 				p = cParameter(parameter[1], parameter[2], parameter[3])
@@ -113,28 +118,83 @@ class database:
 		return data
 
 
+	### таблица производителей ###
 
-if __name__ == '__main__':
+	def set_manufacturer(self, manufacturer):
+		self.query('INSERT INTO manufacturers (id, manufacturer) VALUES (?, ?)', (None, manufacturer))
+		id = self.cursor.lastrowid
 
-	print 'TESTING'
+		return id
 
-	i = database('../data/pyjick.db')
-	i.init()
 
-	el = Component(u'Taiwan', u'cr0805')
-	el.add_parameter(cParameter(u'Voltage', u'50', u'float'))
-	el.add_parameter(cParameter(u'Tolerance', u'10', u'float'))
-	el.add_parameter(cParameter(u'Standard', u'IEEE', u'string'))
 
-	i.set_element(el)
+	def get_manufacturers(self):
+		answer = self.query('SELECT manufacturer FROM manufacturers').fetchall()
 
-	el = Component(u'exUSSR', u'С-33Н')
-	el.add_parameter(cParameter(u'Voltage', u'25', u'float'))
-	el.add_parameter(cParameter(u'Tolerance', u'5', u'float'))
+		result = []
+		for i in answer:
+			result.append(i[0])
 
-	i.set_element(el)
+		return result
 
-	data = i.get_elements()
 
-	print data
 
+
+
+	# таблица символов
+
+	def set_symbol(self, symbol):
+
+		self.query('INSERT INTO symbols (id, symbol) VALUES (?, ?)', (None, symbol))
+		id = self.cursor.lastrowid
+
+		return id
+
+
+	def get_symbols(self):
+		answer = self.query('SELECT symbol FROM symbols').fetchall()
+
+		result = []
+		for i in answer:
+			result.append(i[0])
+
+		return result
+
+
+	### таблица корпусов ###
+
+	def set_package(self, package):
+
+		self.query('INSERT INTO packages (id, package) VALUES (?, ?)', (None, package))
+		id = self.cursor.lastrowid
+
+		return id
+
+
+	def get_packages(self):
+		answer = self.query('SELECT package FROM packages').fetchall()
+
+		result = []
+		for i in answer:
+			result.append(i[0])
+
+		return result
+
+	### таблица моделей ###
+
+	def set_model(self, model):
+
+		self.query('INSERT INTO models (id, model) VALUES (?, ?)', (None, model))
+		id = self.cursor.lastrowid
+
+		return id
+
+
+	def get_models(self):
+		answer = self.query('SELECT model FROM models').fetchall()
+
+		result = []
+		for i in answer:
+			result.append(i[0])
+
+		return result

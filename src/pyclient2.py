@@ -8,7 +8,9 @@ from PyQt4 import QtGui
 from kernel.ui import PyMainWindow
 
 from kernel.plugin import plugin as pyplugin
+
 from kernel.utils import OptionManager
+#from kernel.db import Database
 
 #import gettext
 from kernel import i18n
@@ -21,8 +23,12 @@ class PyClient(QtGui.QApplication):
 		QtGui.QApplication.__init__(self, *argv)
 
 		self.settings = OptionManager(configfile)
+		self.settings.read()
 
 		self.ui = PyMainWindow('ui/mainwindow.ui')
+		self.ui.settings = self.settings
+
+		self.ui.prepare()
 		self.ui.show()
 
 
