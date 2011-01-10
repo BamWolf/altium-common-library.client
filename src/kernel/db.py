@@ -46,18 +46,32 @@ class Database:
 #		print u'Инициализация'
 
 		# создание таблицы компонентов и параметров
-		self.query('CREATE TABLE IF NOT EXISTS components (manufacturer VARCHAR(64), number VARCHAR(64), description VARCHAR(255), link VARCHAR (255), UNIQUE (manufacturer, number))')
+		self.query('CREATE TABLE IF NOT EXISTS components (manufacturer VARCHAR(64), number VARCHAR(64), UNIQUE (manufacturer, number))')
 		self.query('CREATE TABLE IF NOT EXISTS parameters (id INTEGER NOT NULL, parameter VARCHAR(64), value VARCHAR(64), type INTEGER NOT NULL)')
 
 		# создание таблицы производителей
 		self.query('CREATE TABLE IF NOT EXISTS manufacturers (id INTEGER PRIMARY KEY, manufacturer VARCHAR(128))')
 
 		# создание таблицы символов, корпусов и моделей
-		self.query('CREATE TABLE IF NOT EXISTS symbols (id INTEGER PRIMARY KEY, symbol VARCHAR(64))')
-		self.query('CREATE TABLE IF NOT EXISTS packages (id INTEGER PRIMARY KEY, package VARCHAR(64))')
-		self.query('CREATE TABLE IF NOT EXISTS models (id INTEGER PRIMARY KEY, model VARCHAR(64))')
+		self.query('CREATE TABLE IF NOT EXISTS symbols (symbol VARCHAR(64))')
+		self.query('CREATE TABLE IF NOT EXISTS packages (package VARCHAR(64))')
+		self.query('CREATE TABLE IF NOT EXISTS models (model VARCHAR(64))')
 
-#		self.commit()
+#		self.test()
+
+		self.commit()
+
+
+	def test(self):
+		for item in ('CAP', 'RES', 'VD', 'TRANS_PNP'):
+			self.set_symbol(item)
+
+		for item in ('D2PAK', 'CR1206', 'CC0805', 'CC1206'):
+			self.set_package(item)
+
+		for item in ('CAP', 'RES'):
+			self.set_model(item)
+
 
 
 	### таблица компонентов и параметров ###
@@ -67,20 +81,25 @@ class Database:
 		if not isinstance(element, Component):
 			raise TypeError, 'should be Component instance'
 
-		query = 'INSERT INTO components VALUES (?, ?, ?, ?)'
-		self.query(query, (element.manufacturer, element.number, element.description, None))
+#		sid = (lambda x: x and x[0] or None)(self.query('SELECT id FROM symbols WHERE symbol = ?', (element.get('SYM').value,)).fetchone())
+#		pid = (lambda x: x and x[0] or None)(self.query('SELECT id FROM packages WHERE package = ?', (element.get('PKG').value,)).fetchone())
+#		mid = (lambda x: x and x[0] or None)(self.query('SELECT id FROM models WHERE model = ?', (element.get('MDL').value,)).fetchone())
+
+#		print sid, pid, mid
+
+		query = 'INSERT INTO components VALUES (?, ?)'
+		self.query(query, (element.manufacturer, element.number))
 
 		id = self.cursor.lastrowid
 
-		for p in element.parameters:
+		for key in element.parameters.keys():
+			p = element.parameters[key]
 			q = 'INSERT INTO parameters VALUES (?, ?, ?, ?)'
 
-			typelist = (basestring, int, datetime)
-
-			for i in xrange(len(typelist)):
-				if isinstance(p.value, typelist[i]):
-					t = i
-					break
+#			for i in xrange(len(typelist)):
+#				if isinstance(p.value, typelist[i]):
+#					t = i
+#					break
 
 			self.query(q, (id, p.name, p.value, p.type))
 
@@ -89,29 +108,24 @@ class Database:
 
 	def get_elements(self):
 
-#		print self.query('SELECT rowid, manufacturer, number, description, link FROM components').fetchall()
-#		print self.query('SELECT * FROM parameters').fetchall()
-
-
-
-
-		elements = self.query('SELECT rowid, manufacturer, number, description, link FROM components').fetchall()
+		elements = self.query('SELECT rowid, manufacturer, number FROM components').fetchall()
 
 		data = []
 
-		for element in elements:
-			i = Component(element[1], element[2])
+		for id, manufacturer, number in elements:
 
-			# добавляем предустановленные параметры (строковый тип)
-			i.add_parameter(cParameter('Description', element[3] or '', 'string'))
-			i.add_parameter(cParameter('URL', element[4] or '', 'string'))
+#			symbol = (lambda x: x and x[0] or None)(self.query('SELECT symbol FROM symbols WHERE id = ?', (sid,)).fetchone())
+#			package = (lambda x: x and x[0] or None)(self.query('SELECT package FROM packages WHERE id = ?', (pid,)).fetchone())
+#			model = (lambda x: x and x[0] or None)(self.query('SELECT model FROM models WHERE id = ?', (mid,)).fetchone())
 
-			id = element[0]
+
+			i = Component(manufacturer, number)
+
 			parameters = self.query('SELECT * FROM parameters where id = ?', str(id)).fetchall()
 
-			for parameter in parameters:
-				p = cParameter(parameter[1], parameter[2], parameter[3])
-				i.add_parameter(p)
+			for id, parameter, value, mode in parameters:
+				p = cParameter(parameter, value, mode)
+				i.set(p)
 
 			data.append(i)
 
@@ -121,7 +135,7 @@ class Database:
 	### таблица производителей ###
 
 	def set_manufacturer(self, manufacturer):
-		self.query('INSERT INTO manufacturers (id, manufacturer) VALUES (?, ?)', (None, manufacturer))
+		self.query('INSERT INTO manufacturers (manufacturer) VALUES (?)', (manufacturer))
 		id = self.cursor.lastrowid
 
 		return id
@@ -145,7 +159,7 @@ class Database:
 
 	def set_symbol(self, symbol):
 
-		self.query('INSERT INTO symbols (id, symbol) VALUES (?, ?)', (None, symbol))
+		self.query('INSERT INTO symbols (symbol) VALUES (?)', (symbol,))
 		id = self.cursor.lastrowid
 
 		return id
@@ -161,11 +175,21 @@ class Database:
 		return result
 
 
+
+	def get_symbol(self, name):
+		answer = self.query('SELECT rowid FROM symbols WHERE symbol = ?', (name,)).fetchone()
+
+		result = answer and answer[0] or None
+
+		print result
+		return result
+
+
 	### таблица корпусов ###
 
 	def set_package(self, package):
 
-		self.query('INSERT INTO packages (id, package) VALUES (?, ?)', (None, package))
+		self.query('INSERT INTO packages (package) VALUES (?)', (package,))
 		id = self.cursor.lastrowid
 
 		return id
@@ -184,7 +208,7 @@ class Database:
 
 	def set_model(self, model):
 
-		self.query('INSERT INTO models (id, model) VALUES (?, ?)', (None, model))
+		self.query('INSERT INTO models (model) VALUES (?)', (model,))
 		id = self.cursor.lastrowid
 
 		return id

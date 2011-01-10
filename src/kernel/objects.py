@@ -11,42 +11,34 @@ class QueryMessage():
 
 	def __init__(self):
 
-		self.type = ''
+		self.type = 'add'
+		self.target = 'components'
 		self.items = []
 
 
 	def type(self):
 		pass
 
-	def additem(self, item):
+	def add(self, item):
 		self.items.append(item)
+
 
 	def build(self):
 		xmldata = eltree.TreeBuilder()
+		xmldata.start('query', {})
+
+		# header section
+		xmldata.start('action', {'type': self.type, 'source': self.target})
+		xmldata.end('action')
+
+		# data section
 		xmldata.start('data', {})
 
 		for item in self.items:
 			xmldata.start('Component', {'man': item.manufacturer, 'num': item.number})
 
 
-			for parameter in item.parameters:
-
-				"""
-				if isinstance(parameter.type, datetime.datetime):
-					atr = {'type': 'datetime'}
-#					item[field] = item[field].isoformat(' ')
-
-				elif type(item[field]) == 'int':
-					atr = {'type': 'float'}
-#					item[field] = str(item[field])
-
-				elif item[field] is None:
-					atr = {}
-#					item[field] = ''
-
-				else:
-					atr = {'type': 'string'}
-				"""
+			for parameter in item.parameters.values():
 
 				xmldata.start(parameter.name, {'type': parameter.type})
 				xmldata.data(parameter.value)
@@ -54,10 +46,15 @@ class QueryMessage():
 
 			xmldata.end('Component')
 
-		res = xmldata.end('data')
+		xmldata.end('data')
 
-		print eltree.tostring(res, encoding="utf-8")
+		res = xmldata.end('query')
 
+		res = eltree.tostring(res, encoding="utf-8") 
+		print res
+
+		with (open('data/gen.xml', 'wb')) as xmlfile:
+			xmlfile.write(res)
 
 
 
@@ -69,35 +66,57 @@ class Component():
 		self.manufacturer = manufacturer or 'Unknown'
 		self.number = number or 'Unknown'
 
-		self.id = '.'.join((self.manufacturer, self.number))
+		self.parameters = {}
 
-		self.category = None
-		self.description = None
-		self.parameters = []
+
+
+	def id(self):
+		return '.'.join((self.manufacturer, self.number))
+
+
 
 	def add_parameter(self, parameter):
-		if isinstance(parameter, cParameter):
-			self.parameters.append(parameter)
+		print 'DEPRECATED add_parameter'
+		self.set(parameter)
 
-		else:
+
+
+	def set(self, parameter):
+		if not isinstance(parameter, cParameter):
 			raise TypeError, "should be cParameter object"
 
-	def build(self):
-		pass
+		self.parameters[parameter.name] = parameter		
+
+
+
+	def get(self, parametername):
+		return self.parameters.get(parametername)
+
+
 
 
 class cParameter():
 	Name = 'Component Parameter'
 
-	def __init__(self, name, value, mode):
+	def __init__(self, name, value, mode='string'):
 		self.name = name
 		self.value = value
 		self.type = mode
 
+		def __t(self):
 
-if __name__ == '__main__':
-	i = Component('m', 'pn')
+			if isinstance(parameter.type, datetime.datetime):
+				atr = {'type': 'datetime'}
+#				item[field] = item[field].isoformat(' ')
 
-	p = cParameter('Value', 'My', 'string')
-	i.add_parameter(p)
-	i.add_parameter('')
+			elif type(item[field]) == 'int':
+				atr = {'type': 'float'}
+#				item[field] = str(item[field])
+
+			elif item[field] is None:
+				atr = {}
+#				item[field] = ''
+
+			else:
+				atr = {'type': 'string'}
+

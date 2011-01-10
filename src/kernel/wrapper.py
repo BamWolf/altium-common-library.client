@@ -38,35 +38,29 @@ def put_start(self):
 	component = objects.Component(unicode(self.manufacturerBox.currentText()), unicode(self.pn_line.text()))
 
 	value = unicode(self.symbolBox.currentText())
-	parameter = objects.cParameter(u'SYM', value, 'string')
-	component.add_parameter(parameter)
+	if value:
+		parameter = objects.cParameter(u'SYM', value)
+		component.set(parameter)
 
 	value = unicode(self.packageBox.currentText())
-	parameter = objects.cParameter(u'PKG', value, 'string')
-	component.add_parameter(parameter)
+	if value:
+		parameter = objects.cParameter(u'PKG', value)
+		component.set(parameter)
 
 	value = unicode(self.modelBox.currentText())
-	parameter = objects.cParameter(u'MDL', value, 'string')
-	component.add_parameter(parameter)
+	if value:
+		parameter = objects.cParameter(u'MDL', value)
+		component.set(parameter)
 
 	value = unicode(self.descriptionEdit.toPlainText())
-	parameter = objects.cParameter(u'D', value, 'string')
-	component.add_parameter(parameter)
+	if value:
+		parameter = objects.cParameter(u'Description', value)
+		component.set(parameter)
 
 	value = unicode(self.linkEdit.text())
-	parameter = objects.cParameter(u'URL', value, 'string')
-	component.add_parameter(parameter)
-
-#	value = datetime.now()
-#	parameter = objects.cParameter(u'CD', value, 'datetime')
-#	component.add_parameter(parameter)
-
-#	parameter = objects.cParameter(u'MD', value, 'datetime')
-#	component.add_parameter(parameter)
-
-#	value = self.settings.option('ACCOUNT', 'username', '', True)
-#	parameter = objects.cParameter(u'Author', value, 'string')
-#	component.add_parameter(parameter)
+	if value:
+		parameter = objects.cParameter(u'URL', value)
+		component.set(parameter)
 
 	row = 0
 	while row < self.parametersTable.rowCount():
@@ -76,7 +70,7 @@ def put_start(self):
 		ptype = unicode(self.parametersTable.item(row, 2).text())
 
 		parameter = objects.cParameter(pname, pvalue, ptype)
-		component.add_parameter(parameter)
+		component.set(parameter)
 		row = row + 1
 
 	self.pw = abstract.QWorker(self, shared.do_put_process, component)
@@ -156,7 +150,7 @@ def prepare_main_form(self):
 
 ### Adding New Parameter ###
 
-def add_parameter_start(self):
+def set_start(self):
 	name = unicode(self.nameBox.currentText())
 	value = unicode(self.valueEdit.text())
 

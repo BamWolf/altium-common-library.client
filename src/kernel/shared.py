@@ -9,7 +9,7 @@ from kernel import objects
 
 def do_put_process(parent, data):
 
-	result = data.id
+	result = data.id()
 	print 'PUT', result
 
 	ldb = db.Database('data/pyclient.db')
@@ -23,7 +23,7 @@ def do_put_process(parent, data):
 
 	query = objects.QueryMessage()
 	for element in data:
-		query.additem(element)
+		query.add(element)
 
 	query.build()
 
