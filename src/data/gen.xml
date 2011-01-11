@@ -1,1 +1,1 @@
-<query><action source="components" type="add" /><data><Component man="Unknown" num="Unknown" /></data></query>
+<query><action source="components" type="add" /><data><Component man="Unknown" num="Unknown"><PKG type="string">CC1206</PKG><SYM type="string">VD</SYM></Component></data></query>

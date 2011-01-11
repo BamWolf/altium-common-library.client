@@ -10,23 +10,32 @@ from kernel import objects
 def do_put_process(parent, data):
 
 	result = data.id()
+
 	print 'PUT', result
 
 	ldb = db.Database('data/pyclient.db')
-	ldb.init()
-
-	print ldb
-
 	ldb.set_element(data)
 
+	# обновление пользовательских источников данных
+
+
+	# отправка новых компонентов на сервер
+	# выборка компонентов из базы данных
 	data = ldb.get_elements()
 
+
+	# формирование XML
 	query = objects.QueryMessage()
 	for element in data:
 		query.add(element)
 
 	query.build()
 
+	# отправка XML
+
+	# отмечаем отправленные компоненты
+
+	# возвращаем результат (что отправлено, что нет)
 	return result
 
 

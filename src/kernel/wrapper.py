@@ -87,6 +87,11 @@ def put_respond(self, data):
 	print "Component %s have been added" % (data,)
 
 	self.manufacturerBox.clearEditText()
+
+	self.symbolBox.setCurrentIndex(0)
+	self.packageBox.setCurrentIndex(0)
+	self.modelBox.setCurrentIndex(0)
+
 	self.pn_line.clear()
 	self.parametersTable.clearContents()
 	self.parametersTable.setRowCount(0)
@@ -150,7 +155,7 @@ def prepare_main_form(self):
 
 ### Adding New Parameter ###
 
-def set_start(self):
+def add_parameter_start(self):
 	name = unicode(self.nameBox.currentText())
 	value = unicode(self.valueEdit.text())
 
