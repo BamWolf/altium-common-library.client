@@ -1,78 +1,95 @@
 #-*- coding: utf-8 -*-
 
-import ConfigParser
-import codecs
+from configobj import ConfigObj
 
 class OptionManager():
-	def __init__(self, filename):
-		self.cfg = ConfigParser.SafeConfigParser()
-		self.cfgfilename = filename
-
+	def __init__(self, filename, encoding='cp1251'):
 		self.modified = False
 		self.error = None
+
+		try:
+			self.parser = ConfigObj(filename, encoding=encoding)
+
+		except ConfigObjError, e:
+			self.error = e
 
 
 
 	def initialize(self, section, optionlist):
-		if optionlist:
-			for option in optionlist:
-				self.option(section, option, optionlist[option], True)
+		pass
+#		if optionlist:
+#			for option in optionlist:
+#				self.option(section, option, optionlist[option], True)
 
 
 
-	def read(self):
+	def save(self):
 		try:
-			# Open the file with the correct encoding
-			with codecs.open(self.cfgfilename, 'r', encoding='windows-1251') as f:
-				self.cfg.readfp(f)
+			self.parser.write()
 
 		except IOError, e:
 			print e
 			self.error = e
 
-		except ConfigParser.ParsingError, e:
-			self.error = e
+
+	def load(self):
+		pass
+#		try:
+			# Open the file with the correct encoding
+#			with codecs.open(self.filename, 'r', encoding='windows-1251') as f:
+#			with open(self.filename, 'r', encoding='windows-1251') as f:
+#				self.parser.readfp(f)
+
+#		except IOError, e:
+#			print e
+#			self.error = e
+
+#		except ConfigParser.ParsingError, e:
+#			self.error = e
 
 
 
-	def option(self, section, option, value='', force=False):
-		#self.read()
+	def option(self, section, option, default=u'', debug=False):
+#		print 'DEBUG:', section, option
 
-		try:
-			value = self.cfg.get(section, option)
+		section = section.upper()
+		option = option.lower()
+			
+		if not debug:
+			if not section in self.parser:
+				self.parser[section] = {}
 
-		except ConfigParser.NoOptionError:
-			if force:
-				self.cfg.set(section, option, str(value))
-				self.modified = True
+			value = self.parser[section].setdefault(option, default)
 
-		except ConfigParser.NoSectionError:
-			if force:
-				self.cfg.add_section(section)
-				self.cfg.set(section, option, str(value))
-				self.modified = True
+			self.modified = True
+#			self.save()
 
-		if self.modified:
-			with open(self.cfgfilename, 'w') as cfgfile:
-				self.cfg.write(cfgfile)
+		else:
+			if not section in self.parser:
+				value = default
+
+			else:
+				value = self.parser[section].get(option, default)
 
 		return value
 
 
+
 	def options(self, section, force=False):
-		self.cfg.read(self.cfgfilename)
+		self.parser.read(self.filename)
 		values = []
 
 		try:
-			values = self.cfg.items(section)
+			values = self.parser.items(section)
 
 		except ConfigParser.NoSectionError:
 			if force:
-				self.cfg.add_section(section)
+				self.parser.add_section(section)
 				self.modified = True
 
-		if self.modified:
-			with open(self.cfgfilename, 'w') as cfgfile:
-				self.cfg.write(cfgfile)
-
 		return values
+
+
+if __name__ == '__main__':
+
+	pass

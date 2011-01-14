@@ -14,12 +14,10 @@ class QWindow(QtGui.QMainWindow):
 		super(QWindow, self).__init__(*args)
 		uic.loadUi(interface, self)
 
+		self.inifile = 'pyclient.ini'
 		self.settings = None
 
 		self.dbname = 'data/pyclient.db'
-#		self.db = Database(self.dbname)
-#		self.db.init()
-#		self.db.commit()
 
 
 

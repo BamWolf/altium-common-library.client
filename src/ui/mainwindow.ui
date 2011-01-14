@@ -38,6 +38,12 @@
          <string>Main parameters</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="margin">
+          <number>3</number>
+         </property>
          <item>
           <widget class="QFrame" name="frame_2">
            <property name="frameShape">
@@ -50,21 +56,24 @@
             <property name="margin">
              <number>0</number>
             </property>
-            <property name="spacing">
-             <number>6</number>
-            </property>
-            <item row="1" column="3">
-             <widget class="QLineEdit" name="pn_line"/>
-            </item>
-            <item row="0" column="3">
-             <widget class="QLabel" name="label_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>Manufacturer Number</string>
+               <string>Category</string>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
              <widget class="QComboBox" name="categoryBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
               <item>
                <property name="text">
                 <string>C</string>
@@ -97,14 +106,35 @@
               </item>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Category</string>
+            <item row="1" column="1">
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
-             </widget>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>556</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
-            <item row="1" column="2">
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="frame_4">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item row="1" column="0">
              <widget class="QComboBox" name="manufacturerBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -115,15 +145,25 @@
               <property name="editable">
                <bool>true</bool>
               </property>
-              <property name="modelColumn">
-               <number>1</number>
+              <property name="currentIndex">
+               <number>-1</number>
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="pn_line"/>
+            </item>
+            <item row="0" column="0">
              <widget class="QLabel" name="label">
               <property name="text">
                <string>Manufacturer</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Manufacturer Number</string>
               </property>
              </widget>
             </item>
@@ -148,7 +188,17 @@
           </widget>
          </item>
          <item>
-          <widget class="QPlainTextEdit" name="descriptionEdit"/>
+          <widget class="QPlainTextEdit" name="descriptionEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="tabChangesFocus">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QFrame" name="frame_3">
@@ -159,6 +209,9 @@
             <enum>QFrame::Raised</enum>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QComboBox" name="symbolBox">
               <property name="sizePolicy">
@@ -167,11 +220,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <item>
-               <property name="text">
-                <string/>
-               </property>
-              </item>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item>
@@ -205,14 +256,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
               <property name="minimumContentsLength">
                <number>1</number>
               </property>
-              <item>
-               <property name="text">
-                <string/>
-               </property>
-              </item>
              </widget>
             </item>
             <item>
@@ -246,11 +295,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <item>
-               <property name="text">
-                <string/>
-               </property>
-              </item>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item>
@@ -271,10 +318,19 @@
       </item>
       <item>
        <widget class="QGroupBox" name="optionalBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Optional Parameters</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="margin">
+          <number>3</number>
+         </property>
          <item>
           <widget class="QLabel" name="m_label">
            <property name="text">
@@ -284,14 +340,14 @@
          </item>
          <item>
           <widget class="QTableWidget" name="parametersTable">
-           <property name="contextMenuPolicy">
-            <enum>Qt::CustomContextMenu</enum>
-           </property>
            <property name="autoScrollMargin">
-            <number>8</number>
+            <number>4</number>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+           </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
            </property>
            <property name="dragDropOverwriteMode">
             <bool>false</bool>
@@ -314,8 +370,11 @@
            <attribute name="horizontalHeaderVisible">
             <bool>true</bool>
            </attribute>
+           <attribute name="horizontalHeaderCascadingSectionResizes">
+            <bool>true</bool>
+           </attribute>
            <attribute name="horizontalHeaderDefaultSectionSize">
-            <number>200</number>
+            <number>150</number>
            </attribute>
            <attribute name="horizontalHeaderHighlightSections">
             <bool>false</bool>
@@ -348,6 +407,11 @@
            <column>
             <property name="text">
              <string>Type</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string/>
             </property>
            </column>
           </widget>
@@ -418,7 +482,16 @@
          <property name="spacing">
           <number>6</number>
          </property>
-         <property name="margin">
+         <property name="leftMargin">
+          <number>3</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>3</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>

@@ -24,49 +24,50 @@ class QueryMessage():
 
 
 	def build(self):
-		xmldata = eltree.TreeBuilder()
-		xmldata.start('query', {})
+		builder = eltree.TreeBuilder()
+		builder.start('query', {})
 
 		# header section
-		xmldata.start('action', {'type': self.type, 'source': self.target})
-		xmldata.end('action')
+		builder.start('action', {'type': self.type, 'source': self.target})
+		builder.end('action')
 
 		# data section
-		xmldata.start('data', {})
+		builder.start('data', {})
 
 		for item in self.items:
-			xmldata.start('Component', {'man': item.manufacturer, 'num': item.number})
+			builder.start('Component', {'man': item.manufacturer, 'num': item.number})
 
 
-			for parameter in item.parameters.values():
+			for parameter, value in item.get():
 
-				xmldata.start(parameter.name, {'type': parameter.type})
-				xmldata.data(parameter.value)
-				xmldata.end(parameter.name)
+				builder.start(parameter, {'type': 'string'})
+				builder.data(value)
+				builder.end(parameter)
 
-			xmldata.end('Component')
+			builder.end('Component')
 
-		xmldata.end('data')
+		builder.end('data')
 
-		res = xmldata.end('query')
+		xmldata = builder.end('query')
 
-		res = eltree.tostring(res, encoding="utf-8") 
-		print res
+		result = eltree.tostring(xmldata, encoding="utf-8") 
 
 		with (open('data/gen.xml', 'wb')) as xmlfile:
-			xmlfile.write(res)
+			xmlfile.write(result)
+
+		return result
 
 
 
 
 class Component():
-	Name = 'CAD Component'
+	Name = 'Component'
 
 	def __init__(self, manufacturer, number):
 		self.manufacturer = manufacturer or 'Unknown'
 		self.number = number or 'Unknown'
 
-		self.parameters = {}
+		self._parameters = {}
 
 
 
@@ -74,29 +75,31 @@ class Component():
 		return '.'.join((self.manufacturer, self.number))
 
 
+	def set(self, parameter, value, mode='string'):
+		""" добавляет новый параметр """
+#		if not isinstance(parameter, Parameter):
+#			raise TypeError, "Parameter object expected"
 
-	def add_parameter(self, parameter):
-		print 'DEPRECATED add_parameter'
-		self.set(parameter)
-
-
-
-	def set(self, parameter):
-		if not isinstance(parameter, cParameter):
-			raise TypeError, "should be cParameter object"
-
-		self.parameters[parameter.name] = parameter		
+#		if paramter.name:
+		if parameter:
+			self._parameters[parameter] = value
 
 
+	def get(self, parameter=None):
+		""" возвращает  параметр parameter """
+		if parameter:
+			result = self._parameters.get(parameter)
 
-	def get(self, parametername):
-		return self.parameters.get(parametername)
+		else:
+			result = self._parameters.items()
+
+		return result
 
 
 
 
-class cParameter():
-	Name = 'Component Parameter'
+class Parameter():
+	Name = 'Parameter'
 
 	def __init__(self, name, value, mode='string'):
 		self.name = name
@@ -119,4 +122,3 @@ class cParameter():
 
 			else:
 				atr = {'type': 'string'}
-

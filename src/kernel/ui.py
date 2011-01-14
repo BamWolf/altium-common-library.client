@@ -12,6 +12,13 @@ class PyMainWindow(abstract.QWindow):
 	def prepare(self):
 		wrapper.prepare_main_form(self)
 
+
+	#
+	@QtCore.pyqtSlot()
+	def on_Error(self):
+		self.parent._exit()
+
+
 	# getButton
 
 	@QtCore.pyqtSlot()

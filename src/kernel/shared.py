@@ -3,7 +3,18 @@
 import time
 
 from kernel import db
+from kernel import utils
 from kernel import objects
+from kernel import transport
+
+###########################
+
+
+def application_start(application):
+	database = db.Database(application.dbname)
+	database.init()
+
+
 
 
 
@@ -14,7 +25,13 @@ def do_put_process(parent, data):
 	print 'PUT', result
 
 	ldb = db.Database('data/pyclient.db')
-	ldb.set_element(data)
+
+	try:
+		ldb.set_element(data)
+		ldb.commit()
+
+	except Exception, e:
+		print e
 
 	# обновление пользовательских источников данных
 
@@ -26,16 +43,28 @@ def do_put_process(parent, data):
 
 	# формирование XML
 	query = objects.QueryMessage()
+#	query = objects.QueryMessage('add', 'components')
+
 	for element in data:
 		query.add(element)
 
-	query.build()
+	xmldata = query.build()
+
+	print xmldata
 
 	# отправка XML
+	application = parent.parent()
+	answer = transport.send(application, xmldata)
 
 	# отмечаем отправленные компоненты
+#	for element in answer:
+#		ldb.set_sent(element)
+
 
 	# возвращаем результат (что отправлено, что нет)
+
+
+	ldb.close()
 	return result
 
 
