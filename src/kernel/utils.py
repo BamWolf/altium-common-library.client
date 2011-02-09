@@ -7,11 +7,11 @@ class OptionManager():
 		self.modified = False
 		self.error = None
 
-		try:
-			self.parser = ConfigObj(filename, encoding=encoding)
+#		try:
+		self.parser = ConfigObj(filename, encoding=encoding)
 
-		except ConfigObjError, e:
-			self.error = e
+#		except ConfigObjError, e:
+#			self.error = e
 
 
 
@@ -52,6 +52,8 @@ class OptionManager():
 	def option(self, section, option, default=u'', debug=False):
 #		print 'DEBUG:', section, option
 
+		self.parser.reload()
+
 		section = section.upper()
 		option = option.lower()
 			
@@ -62,7 +64,8 @@ class OptionManager():
 			value = self.parser[section].setdefault(option, default)
 
 			self.modified = True
-#			self.save()
+#######
+			self.save()
 
 		else:
 			if not section in self.parser:
@@ -75,15 +78,17 @@ class OptionManager():
 
 
 
-	def options(self, section, force=False):
-		self.parser.read(self.filename)
-		values = []
+	def options(self, section, debug=False):
+		self.parser.reload()
+
+		section = section.upper()
 
 		try:
-			values = self.parser.items(section)
+			values = self.parser[section]#.items()
 
-		except ConfigParser.NoSectionError:
-			if force:
+		except KeyError:
+			values = {}
+			if not debug:
 				self.parser.add_section(section)
 				self.modified = True
 

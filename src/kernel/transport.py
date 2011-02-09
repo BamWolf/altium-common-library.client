@@ -3,53 +3,84 @@
 import urllib
 import urllib2
 
+from kernel import objects
+
 # connection
-defaultgeturl = 'http://noxius.ru/index2.php'
-defaultseturl = 'http://noxius.ru/index2.php'
+defaultgeturl = 'http://altiumlib.noxius.ru/client/read'
+defaultseturl = 'http://altiumlib.noxius.ru/client/read'
 
 
-def send(application, xmldata):
-	proxydata = {}
-	for option in ('user', 'pass', 'host', 'port'):
-		proxydata[option] = application.settings.option('PROXY', option)
 
-	proxydata['port'] = int(application.settings.option('PROXY', 'port') or 0)
+class Transport():
+	def __init__(self, application):
+		self.session = None
+		self.error = None
+		self.settings = application.settings
 
-	print proxydata
 
-	if proxydata['host']:
-		proxy_support = urllib2.ProxyHandler({"http" : "http://%(user)s:%(pass)s@%(host)s:%(port)d" % proxydata})
-		opener = urllib2.build_opener(proxy_support)
-		urllib2.install_opener(opener)
 
-	data = urllib.urlencode({'xml': xmldata})
+	def authenticate(self):
+		""" аутентификация на сервере """
+		query = objects.QueryMessage('identify')
+		query.add_value('login', u'user')
+		query.add_value('password', u'user')
+		xmldata = query.build()
 
-	try:
-#		urldata = urllib2.urlopen(application.settings.option('CONNECTION', 'set url', defaultseturl, True), data).read()
-		urldata = 'urldata'
+		xmldata = self.send(xmldata, 'http://altiumlib.noxius.ru/?page=client&rem=read')
 
-		#херня вместо адреса
-		#<urlopen error [Errno 11004] getaddrinfo failed>
+		response = objects.ResponseMessage(xmldata).parse()
+		self.session = response.values['sessionid']
 
-		#левый порт
-		#<urlopen error [Errno 10049] The requested address is not valid in its context>
+		return self.session
 
-	except urllib2.HTTPError, e:
-		# неправильный адрес
-		#HTTP Error 407: Proxy Authentication Required
-		print 'yes'
-		print e
-#		application.exit()
+	def send(self, xmldata=None, url=defaultseturl):
+		if not xmldata:
+			self.error = 'nothing to send'
 
-	except urllib2.URLError, e:
-		# нет инета (сетевого подключения)
-		print e
-#		application.exit()
+		with (open('data/query.xml', 'wb')) as xmlfile:
+			xmlfile.write(xmldata)
 
-	print urldata
+		proxydata = {}
+		for option in ('user', 'pass', 'host', 'port'):
+			proxydata[option] = self.settings.option('PROXY', option)
 
-	with (open('data/answer.xml', 'wb')) as xmlfile:
-		xmlfile.write(urldata)
+		proxydata['port'] = int(self.settings.option('PROXY', 'port') or 0)
 
-	return urldata
+		print proxydata
+
+		if proxydata['host']:
+			proxy_support = urllib2.ProxyHandler({"http" : "http://%(user)s:%(pass)s@%(host)s:%(port)d" % proxydata})
+			opener = urllib2.build_opener(proxy_support)
+			urllib2.install_opener(opener)
+
+		data = urllib.urlencode({'form[value1]': xmldata})
+
+		try:
+#			urldata = urllib2.urlopen(self.settings.option('CONNECTION', 'set url', defaultseturl, True), data).read()
+			urldata = urllib2.urlopen(url, data).read()
+
+			#херня вместо адреса
+			#<urlopen error [Errno 11004] getaddrinfo failed>
+
+			#левый порт
+			#<urlopen error [Errno 10049] The requested address is not valid in its context>
+
+		except urllib2.HTTPError, e:
+			# неправильный адрес
+			#HTTP Error 407: Proxy Authentication Required
+			print 'yes'
+			print e
+#			application.exit()
+
+		except urllib2.URLError, e:
+			# нет инета (сетевого подключения)
+			print e
+#			application.exit()
+
+		print urldata
+
+		with (open('data/answer.xml', 'wb')) as xmlfile:
+			xmlfile.write(urldata)
+
+		return urldata
 

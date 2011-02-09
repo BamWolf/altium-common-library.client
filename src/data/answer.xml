@@ -1,1 +1,15 @@
-urldata
+<query type="response">
+﻿	<components>  
+		<manufacturer type="string"> exUSSR</manufacturer>  
+		<number type="string">120615</number>  
+		<description type="string">desc</description> 
+		<sym type="string">CAP</sym> 
+		<pkg type="string">CR1206</pkg> 
+		<mdl type="string"></mdl> 
+		<created type="timedate">2011-01-05 13:36:46</created> 
+		<author type="string"></author>
+		<parameters name="v" type="string">15</parameters>
+﻿		<parameters name="k" type="string">6</parameters> 
+﻿	</components>
+
+ </query>

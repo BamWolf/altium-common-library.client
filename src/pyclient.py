@@ -56,7 +56,6 @@ if __name__ == '__main__':
 	systempostvariable = 'xml'
 
 	# data
-	systemcategories = ('Components',)# 'Resistors')
 #	systemfieldlist = ('M', 'MN', 'PN', 'PC', 'D', 'URL', 'SYM', 'PKG', 'MDL', 'CD', 'MD', 'A')
 	sysstrfields = ('M', 'MN', 'PN', 'PC', 'D', 'URL', 'SYM', 'PKG', 'MDL', 'A')
 	sysdtfields = ('CD', 'MD')

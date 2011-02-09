@@ -5,59 +5,150 @@ import xml.etree.ElementTree as eltree
 
 #######################
 
-
 class QueryMessage():
 	Name = 'XML Query'
 
-	def __init__(self):
+	def __init__(self, method, mode='request'):
 
-		self.type = 'add'
-		self.target = 'components'
-		self.items = []
+		self.type = mode
+		self.method = method
+		self.values = {}
+		self.data = {}
+		self.id = 0
 
 
-	def type(self):
-		pass
 
-	def add(self, item):
-		self.items.append(item)
+	def add_value(self, name, value):
+		self.values[name] = value
+
 
 
 	def build(self):
 		builder = eltree.TreeBuilder()
-		builder.start('query', {})
+		builder.start('query', {'type': self.type})
 
 		# header section
-		builder.start('action', {'type': self.type, 'source': self.target})
-		builder.end('action')
+		builder.start('method', {'name': self.method})
+
+
+		print self.values
+		print self.data
+
+		def __t(value):
+
+			if isinstance(value, datetime.datetime):
+				atr = 'datetime'
+
+			elif type(value) == 'int':
+				atr = 'float'
+
+			elif value is None:
+				atr = 'none'
+
+			else:
+				atr = 'string'
+
+			return atr
+
+		for value in self.values:
+			print value
+			builder.start('value', {'name': value, 'type': __t(self.values[value])})
+			builder.data(self.values[value])
+			builder.end('value')
+
+		builder.end('method')
 
 		# data section
-		builder.start('data', {})
+		if self.data:
+			builder.start('data', {})
 
-		for item in self.items:
-			builder.start('Component', {'man': item.manufacturer, 'num': item.number})
+			for element in self.data:
+				element = QueryItem(element).build(builder)
 
-
-			for parameter, value in item.get():
-
-				builder.start(parameter, {'type': 'string'})
-				builder.data(value)
-				builder.end(parameter)
-
-			builder.end('Component')
-
-		builder.end('data')
+			builder.end('data')
 
 		xmldata = builder.end('query')
 
 		result = eltree.tostring(xmldata, encoding="utf-8") 
 
-		with (open('data/gen.xml', 'wb')) as xmlfile:
+		with (open('data/generated.xml', 'wb')) as xmlfile:
 			xmlfile.write(result)
 
 		return result
 
 
+
+
+class ResponseMessage():
+	Name = 'XML Query'
+
+	def __init__(self, xmldata=None):
+
+		self.xmldata = xmldata
+		self.error = None
+		self.items = []
+		self.method = None
+		self.values = {}
+
+
+
+	def parse(self):
+		if not self.xmldata:
+			print 'no data'
+			self.error = True
+			return
+
+		try:
+			xmldata = eltree.XML(self.xmldata)
+
+		except eltree.ParseError, e:
+			print 'parse error %s' % (e,)
+			self.error = True
+			return
+
+		print xmldata.tag
+
+		if not xmldata.tag == 'query':
+			print 'Warning: WFT?'
+
+		method = xmldata.find('method')
+
+		print method.tag
+
+		for value in method.findall('value'):
+			self.values[value.get('type')] = value.text.strip()
+
+		print 'VALUES', self.values
+
+
+
+#		elements = xmldata.findall('component')
+
+#		for element in elements:
+#			print element
+
+#		data = []
+
+		def _element2dict(element):
+
+			if len(element):
+				for child in element:
+					_element2dict(child)
+
+		return self
+
+class QueryItem():
+
+	def __init__(self, element):
+		self.element = element
+
+
+	def build(self, builder):
+
+		if isinstance(element, Component):
+			print 'it is objects.Component'
+		else:
+			print 'x3'
 
 
 class Component():
@@ -91,7 +182,7 @@ class Component():
 			result = self._parameters.get(parameter)
 
 		else:
-			result = self._parameters.items()
+			result = self._parameters.copy()
 
 		return result
 
@@ -122,3 +213,22 @@ class Parameter():
 
 			else:
 				atr = {'type': 'string'}
+
+
+if __name__ == '__main__':
+	i = QueryMessage('identify')
+	i.add_value('login', u'Джек')
+	i.add_value('password', u'blablabla')
+
+
+
+	i.build()
+
+
+	i = QueryMessage('getall')
+	i.add_value('sessionid', u'5dg54sd8th')
+
+
+
+	i.build()
+

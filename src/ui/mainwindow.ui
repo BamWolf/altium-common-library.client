@@ -76,22 +76,27 @@
               </property>
               <item>
                <property name="text">
+                <string>A</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>B</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string>C</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>R</string>
+                <string>D</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>L</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>T</string>
+                <string>DA</string>
                </property>
               </item>
               <item>
@@ -101,7 +106,52 @@
               </item>
               <item>
                <property name="text">
-                <string>DA</string>
+                <string>F</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>HG</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>HL</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>L</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>R</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>VD</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>VT</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>X</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>XT</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>XS</string>
                </property>
               </item>
              </widget>
@@ -223,15 +273,18 @@
               <property name="editable">
                <bool>true</bool>
               </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <property name="minimumContentsLength">
+               <number>8</number>
+              </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="addSymbolButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
               <property name="text">
-               <string>New Symbol</string>
+               <string>Add Symbol</string>
               </property>
              </widget>
             </item>
@@ -250,27 +303,21 @@
             </item>
             <item>
              <widget class="QComboBox" name="packageBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="editable">
                <bool>true</bool>
               </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
               <property name="minimumContentsLength">
-               <number>1</number>
+               <number>8</number>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="addPackageButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
               <property name="text">
-               <string>New Package</string>
+               <string>Add Package</string>
               </property>
              </widget>
             </item>
@@ -298,15 +345,18 @@
               <property name="editable">
                <bool>true</bool>
               </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <property name="minimumContentsLength">
+               <number>8</number>
+              </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="addModelButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
               <property name="text">
-               <string>New Model</string>
+               <string>Add Model</string>
               </property>
              </widget>
             </item>
@@ -331,13 +381,6 @@
          <property name="margin">
           <number>3</number>
          </property>
-         <item>
-          <widget class="QLabel" name="m_label">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QTableWidget" name="parametersTable">
            <property name="autoScrollMargin">
@@ -429,17 +472,86 @@
              <number>0</number>
             </property>
             <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+             <widget class="QComboBox" name="nameBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
+              <property name="editable">
+               <bool>true</bool>
               </property>
-             </spacer>
+              <item>
+               <property name="text">
+                <string/>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Value</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Tolerance</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Class</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Standard</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="valueEdit"/>
+            </item>
+            <item>
+             <widget class="QFrame" name="frame_5">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <property name="leftMargin">
+                <number>3</number>
+               </property>
+               <property name="topMargin">
+                <number>1</number>
+               </property>
+               <property name="rightMargin">
+                <number>3</number>
+               </property>
+               <property name="bottomMargin">
+                <number>1</number>
+               </property>
+               <item>
+                <widget class="QRadioButton" name="stringRadio">
+                 <property name="text">
+                  <string>string</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="numberRadio">
+                 <property name="text">
+                  <string>number</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="addButton">
@@ -495,9 +607,29 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="exitButton">
+          <widget class="QLabel" name="statusLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>Exit</string>
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="downloadButton">
+           <property name="text">
+            <string>Download</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="uploadButton">
+           <property name="text">
+            <string>Upload</string>
            </property>
           </widget>
          </item>
@@ -506,25 +638,28 @@
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>516</width>
+             <width>40</width>
              <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="getButton">
+          <widget class="QPushButton" name="exportButton">
            <property name="text">
-            <string>GET</string>
+            <string>Export</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="putButton">
            <property name="text">
-            <string>PUT</string>
+            <string>Add</string>
            </property>
           </widget>
          </item>
@@ -548,6 +683,8 @@
     <property name="title">
      <string>Menu</string>
     </property>
+    <addaction name="actionDrop"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <addaction name="menuDo"/>
@@ -555,6 +692,11 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionDrop">
+   <property name="text">
+    <string>Drop</string>
    </property>
   </action>
  </widget>
@@ -569,22 +711,6 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>319</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>exitButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>582</x>
-     <y>439</y>
     </hint>
     <hint type="destinationlabel">
      <x>319</x>

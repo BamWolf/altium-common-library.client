@@ -1,11 +1,15 @@
 #-*- coding: utf-8 -*-
 
 import time
+import datetime
 
-from kernel import db
+from kernel import database
 from kernel import utils
 from kernel import objects
 from kernel import transport
+
+from modules import csvfile
+#from modules import msaccess
 
 ###########################
 
@@ -24,22 +28,29 @@ def do_put_process(parent, data):
 
 	print 'PUT', result
 
-	ldb = db.Database('data/pyclient.db')
+	db = database.Database('data/pyclient.db')
 
 	try:
-		ldb.set_element(data)
-		ldb.commit()
+		db.set_element(data)
+		db.commit()
 
 	except Exception, e:
-		print e
+		print 'Error:', e
 
-	# обновление пользовательских источников данных
+#	print db.cursor.execute('SELECT * FROM components').fetchall()
+
+	db.close()
+
+	return result
 
 
-	# отправка новых компонентов на сервер
-	# выборка компонентов из базы данных
-	data = ldb.get_elements()
 
+
+def do_upload(parent):
+
+	db = database.Database('data/pyclient.db')
+
+	data = db.get_elements()
 
 	# формирование XML
 	query = objects.QueryMessage()
@@ -58,14 +69,163 @@ def do_put_process(parent, data):
 
 	# отмечаем отправленные компоненты
 #	for element in answer:
-#		ldb.set_sent(element)
+#		db.set_sent(element)
 
 
-	# возвращаем результат (что отправлено, что нет)
+	db.close()
 
 
-	ldb.close()
-	return result
+def do_download(worker, data):
+	# загрузка обновлений с сервера
+	print data
+
+	application = worker.parent()
+
+
+	tr = transport.Transport(worker.parent())
+	sessionid = tr.authenticate()
+
+	print 'Session: %s' % (sessionid,)
+
+#	if not tr.authenticated:
+#		worker.do_error()
+#		return
+
+
+	i = objects.QueryMessage('getall')
+	i.add_value('sessionid', sessionid)
+
+	xmldata = i.build()
+
+	i = tr.send(xmldata, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + sessionid)
+
+#	i = objects.ResponseMessage(tr.send(xmldata))
+
+#	result = i.parse()	# [components]
+
+#	if i.error:
+#		worker.do_error(i.error)
+#		return
+
+
+#	if not result:
+#		return
+
+#	db = database.Database('data\pyclient.db')
+
+#	for element in result:
+#		db.set_element(element, sent=True)
+
+#	db.close()
+		
+
+def do_export(parent, data):
+	# обновление пользовательских источников данных
+
+	db = database.Database('data/pyclient.db')
+
+	for category in systemcategories:
+		print 'CATEGORY:', category
+		content = db.get_nonexported(category)
+
+
+		result = sortupdate(category, content)
+
+		if result:
+			table, fieldlist, sorted = result
+
+			print 'sorted', sorted
+
+			tr = csvfile.CSVWriter()
+			tr.set(table, fieldlist, sorted)
+
+#			db.set_exported(category, content)
+#			db.commit()
+
+	db.close()
+
+
+def sortupdate(category, data):
+	if not data:
+		print 'nothing to sort'
+		return
+
+	print 'processing'
+	cfg = utils.OptionManager('data.ini')
+
+	if cfg.error:
+		print cfg.error
+		return
+
+	# наименование таблицы для текущей категории
+	table = cfg.option('TABLES', category)
+
+	if not table:
+		print 'no table %s' % (category,)
+		return
+
+	# dict наименования полей таблицы и их значения
+	tablefields = cfg.options(table + '_FIELDS', True) or {} # or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
+
+
+	if not tablefields:
+		print 'no fields in %s' % (table,)
+		return
+
+	content = []
+
+	def stringize(s):
+
+#		print s
+		if isinstance(s, datetime.datetime):
+			return s.isoformat(' ')
+
+		elif isinstance(s, bool) or isinstance(s, int) or isinstance(s, float):
+			return str(s)
+
+		elif s is None:
+			return ''
+
+		else:
+			return s
+
+
+
+	for element in data:
+		dataout = {}
+
+		### причесать, очень коряво ###
+		for field in tablefields.keys():
+			value = tablefields[field]
+
+#			parameters = component.get()
+
+			# тут отделяются поля которые относятся к datetime (их нельзя комбинировать с другими)
+			if value in [''.join(( '%', s, '%' )) for s in element.keys()]:
+				value = element[value[1:-1]] or None # заменяется на значение параметра с тем же типом
+
+			else:
+				#надо так: для каждой подстроки в скобочках [] заменить на строковое значение параметра
+				for parameter in element.keys():
+					value = value.replace(''.join(('[', parameter, ']')), stringize(element[parameter]) or '')
+
+			dataout[field] = value
+
+		content.append(dataout)
+
+	
+	print 'done'
+
+	fieldlist = tuple(tablefields.keys())
+
+	print fieldlist
+
+	return table, fieldlist, content
+
+
+
+
+
 
 
 
@@ -78,5 +238,23 @@ def dosmthng(parent, *args, **kwargs):
 		i = i + 1
 		time.sleep(0.2)
 
+
+#####################
+
+systemcategories = {
+	'A': 'Устройства (общее обозначение)',
+	'B': 'Преобразователи неэлектрических величин в электрические (кроме генераторов и источников питания) или наоборот',
+	'C': 'Конденсаторы',
+	'D': 'Схемы интегральные, микросборки',
+	'DA': 'Схема интегральные, аналоговые',
+	'E': '',
+	'F': '',
+	'G': '',
+	'H': '',
+	'K': '',
+	'L': '',
+	'R': '',
+	'VD': '',
+}
 
 
