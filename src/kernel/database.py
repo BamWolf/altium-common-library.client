@@ -9,7 +9,6 @@ import inspect
 from datetime import datetime
 
 from kernel import objects
-#import objects
 
 ################################################################################
 
@@ -93,10 +92,10 @@ class Database:
 		if not man_id:
 			man_id = self.set_man(element.manufacturer)
 
-		category = element.get('Category')
+		category = element.get('Category') or 'A'
 
 		query = 'INSERT INTO components VALUES (?, ?, ?, ?, ?)'
-		self.query(query, (man_id, element.number, category, False, sent, exported))
+		self.query(query, (man_id, element.number, category, sent, exported))
 
 		id = self.cursor.lastrowid
 
@@ -401,10 +400,4 @@ class Database:
 
 		return data
 
-
-
-if __name__ == '__main__':
-
-	db = Database('data/pyclient.db')
-	db.init()
 

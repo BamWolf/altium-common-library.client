@@ -29,6 +29,7 @@ def prepare_main_form(self):
 #	self.settings.initialize('ACCOUNT', accountoptionlist)
 
 	db = database.Database(self.dbname)
+	db.init()
 
 	self.manufacturerBox.clear()
 	set = db.get_man()
@@ -150,12 +151,32 @@ def download_respond(self, data):
 	self.disconnect(self.dw, QtCore.SIGNAL('exit(PyQt_PyObject)'), self.on_downloadButton_respond)
 	del self.dw
 
+	prepare_main_form(self)
+
 	self.statusLabel.setText(str(data))
 	self.downloadButton.setEnabled(True)
 
 
 def download_iter(self, data=None):
 	self.statusLabel.setText(str(data))
+
+
+### Send Update ###
+
+def upload_start(self):
+	self.uploadButton.setEnabled(False)
+
+	self.uw = abstract.QWorker(self, shared.do_upload, 'upload')
+	self.connect(self.uw, QtCore.SIGNAL('exit(PyQt_PyObject)'), QtCore.SLOT('on_uploadButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)
+	self.uw.start()
+
+
+def upload_respond(self, data):
+	self.disconnect(self.uw, QtCore.SIGNAL('exit(PyQt_PyObject)'), self.on_uploadButton_respond)
+	del self.uw
+
+	self.statusLabel.setText(str(data))
+	self.uploadButton.setEnabled(True)
 
 
 

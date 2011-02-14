@@ -104,6 +104,16 @@ class PyMainWindow(abstract.QWindow):
 	def on_downloadButton_respond(self, data=None):
 		wrapper.download_respond(self, data)
 
+	# uploadButton
+
+	@QtCore.pyqtSlot()
+	def on_uploadButton_clicked(self):
+		wrapper.upload_start(self)
+
+	@QtCore.pyqtSignature('PyQt_PyObject')
+	def on_uploadButton_respond(self, data=None):
+		wrapper.upload_respond(self, data)
+
 
 
 

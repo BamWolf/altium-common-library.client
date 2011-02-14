@@ -46,33 +46,54 @@ def do_put_process(parent, data):
 
 
 
-def do_upload(parent):
+def do_upload(worker, data=None):
 
 	db = database.Database('data/pyclient.db')
 
 	data = db.get_elements()
 
+
+	tr = transport.Transport(worker.parent())
+
+	request = objects.RequestMessage('identify')
+	request.add_value('login', u'user')
+	request.add_value('password', u'user')
+	xmlrequest = request.build()
+
+	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
+
+	response = objects.ResponseMessage(xmlresponse)
+	response.parse()
+
+	if response.error:
+		print response.error
+#		worker.do_error()
+		return
+
+	sessionid = response.values['sessionid']
+
 	# формирование XML
-	query = objects.QueryMessage()
-#	query = objects.QueryMessage('add', 'components')
+	request = objects.RequestMessage('set_components')
+	request.add_value('sessionid', sessionid)
 
 	for element in data:
-		query.add(element)
+		request.add_item(element)
 
-	xmldata = query.build()
+	xmlrequest = request.build()
 
-	print xmldata
+	print xmlrequest
 
 	# отправка XML
-	application = parent.parent()
-	answer = transport.send(application, xmldata)
+	application = worker.parent()
+	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + sessionid)
 
 	# отмечаем отправленные компоненты
 #	for element in answer:
 #		db.set_sent(element)
 
-
 	db.close()
+
+	return 'components sent'
 
 
 def do_download(worker, data):
@@ -83,41 +104,56 @@ def do_download(worker, data):
 
 
 	tr = transport.Transport(worker.parent())
-	sessionid = tr.authenticate()
+
+	request = objects.RequestMessage('identify')
+	request.add_value('login', u'user')
+	request.add_value('password', u'user')
+	xmlrequest = request.build()
+
+	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
+
+	response = objects.ResponseMessage(xmlresponse)
+	response.parse()
+
+	if response.error:
+		print response.error
+#		worker.do_error()
+		return
+
+	sessionid = response.values['sessionid']
 
 	print 'Session: %s' % (sessionid,)
 
-#	if not tr.authenticated:
-#		worker.do_error()
-#		return
+	request = objects.RequestMessage('get_components')
+	request.add_value('sessionid', sessionid)
+	request.add_value('since', datetime.datetime.min)
 
+	xmlrequest = request.build()
 
-	i = objects.QueryMessage('getall')
-	i.add_value('sessionid', sessionid)
+	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + sessionid)
 
-	xmldata = i.build()
+	response = objects.ResponseMessage(xmlresponse)
+	response.parse()
 
-	i = tr.send(xmldata, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + sessionid)
-
-#	i = objects.ResponseMessage(tr.send(xmldata))
-
-#	result = i.parse()	# [components]
-
-#	if i.error:
+	if response.type == 'error':
+		print 'Error parsing response'
 #		worker.do_error(i.error)
-#		return
+		return
 
+	if not response.data:
+		print 'No data fetched'
+#		worker.do_error(i.error)
+		return
 
-#	if not result:
-#		return
+	db = database.Database('data\pyclient.db')
 
-#	db = database.Database('data\pyclient.db')
+	for element in response.data:
+		db.set_element(element, sent=True)
 
-#	for element in result:
-#		db.set_element(element, sent=True)
+	db.close()
 
-#	db.close()
-		
+	return 'Downloaded %d new components' % (len(response.data),)
+
 
 def do_export(parent, data):
 	# обновление пользовательских источников данных
@@ -197,8 +233,6 @@ def sortupdate(category, data):
 		### причесать, очень коряво ###
 		for field in tablefields.keys():
 			value = tablefields[field]
-
-#			parameters = component.get()
 
 			# тут отделяются поля которые относятся к datetime (их нельзя комбинировать с другими)
 			if value in [''.join(( '%', s, '%' )) for s in element.keys()]:

@@ -19,25 +19,11 @@ class Transport():
 
 
 
-	def authenticate(self):
-		""" аутентификация на сервере """
-		query = objects.QueryMessage('identify')
-		query.add_value('login', u'user')
-		query.add_value('password', u'user')
-		xmldata = query.build()
-
-		xmldata = self.send(xmldata, 'http://altiumlib.noxius.ru/?page=client&rem=read')
-
-		response = objects.ResponseMessage(xmldata).parse()
-		self.session = response.values['sessionid']
-
-		return self.session
-
 	def send(self, xmldata=None, url=defaultseturl):
 		if not xmldata:
 			self.error = 'nothing to send'
 
-		with (open('data/query.xml', 'wb')) as xmlfile:
+		with (open('debug/query.xml', 'wb')) as xmlfile:
 			xmlfile.write(xmldata)
 
 		proxydata = {}
@@ -56,7 +42,6 @@ class Transport():
 		data = urllib.urlencode({'form[value1]': xmldata})
 
 		try:
-#			urldata = urllib2.urlopen(self.settings.option('CONNECTION', 'set url', defaultseturl, True), data).read()
 			urldata = urllib2.urlopen(url, data).read()
 
 			#херня вместо адреса
@@ -64,6 +49,9 @@ class Transport():
 
 			#левый порт
 			#<urlopen error [Errno 10049] The requested address is not valid in its context>
+
+			#таймаут
+			#<urlopen error [Errno 11006]>
 
 		except urllib2.HTTPError, e:
 			# неправильный адрес
@@ -79,7 +67,7 @@ class Transport():
 
 		print urldata
 
-		with (open('data/answer.xml', 'wb')) as xmlfile:
+		with (open('debug/answer.xml', 'wb')) as xmlfile:
 			xmlfile.write(urldata)
 
 		return urldata

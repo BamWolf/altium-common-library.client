@@ -5,7 +5,7 @@ import xml.etree.ElementTree as eltree
 
 #######################
 
-class QueryMessage():
+class RequestMessage():
 	Name = 'XML Query'
 
 	def __init__(self, method, mode='request'):
@@ -13,7 +13,7 @@ class QueryMessage():
 		self.type = mode
 		self.method = method
 		self.values = {}
-		self.data = {}
+		self.data = []
 		self.id = 0
 
 
@@ -21,6 +21,9 @@ class QueryMessage():
 	def add_value(self, name, value):
 		self.values[name] = value
 
+
+	def add_item(self, item):
+		self.data.append(item)
 
 
 	def build(self):
@@ -30,30 +33,9 @@ class QueryMessage():
 		# header section
 		builder.start('method', {'name': self.method})
 
-
-		print self.values
-		print self.data
-
-		def __t(value):
-
-			if isinstance(value, datetime.datetime):
-				atr = 'datetime'
-
-			elif type(value) == 'int':
-				atr = 'float'
-
-			elif value is None:
-				atr = 'none'
-
-			else:
-				atr = 'string'
-
-			return atr
-
 		for value in self.values:
 			print value
-			builder.start('value', {'name': value, 'type': __t(self.values[value])})
-			builder.data(self.values[value])
+			builder.start('value', {'name': value, 'value': str(self.values[value]), 'type':self. __t(self.values[value])})
 			builder.end('value')
 
 		builder.end('method')
@@ -71,11 +53,24 @@ class QueryMessage():
 
 		result = eltree.tostring(xmldata, encoding="utf-8") 
 
-		with (open('data/generated.xml', 'wb')) as xmlfile:
-			xmlfile.write(result)
-
 		return result
 
+
+	def __t(self, value):
+
+		if isinstance(value, datetime.datetime):
+			atr = 'datetime'
+
+		elif type(value) == 'int':
+			atr = 'float'
+
+		elif value is None:
+			atr = 'none'
+
+		else:
+			atr = 'string'
+
+		return atr
 
 
 
@@ -84,11 +79,13 @@ class ResponseMessage():
 
 	def __init__(self, xmldata=None):
 
+		self.type = None
 		self.xmldata = xmldata
 		self.error = None
-		self.items = []
+		self.data = []
 		self.method = None
 		self.values = {}
+		self.id = 0
 
 
 
@@ -107,6 +104,9 @@ class ResponseMessage():
 			return
 
 		print xmldata.tag
+		print xmldata.get('type')
+
+		self.type = xmldata.get('type')
 
 		if not xmldata.tag == 'query':
 			print 'Warning: WFT?'
@@ -115,19 +115,42 @@ class ResponseMessage():
 
 		print method.tag
 
+
+		### только текстовые !!
 		for value in method.findall('value'):
-			self.values[value.get('type')] = value.text.strip()
+			self.values[value.get('name')] = value.get('value')
 
 		print 'VALUES', self.values
 
+		data = xmldata.find('data')
+
+		elements = data.findall('component')
+
+		for element in elements:
+			
+			manufacturer = element.get('manufacturer')
+			partnumber = element.get('partnumber')
+
+			if not isinstance(manufacturer, unicode):
+				manufacturer = unicode(manufacturer, 'utf-8')
+
+			if not isinstance(partnumber, unicode):
+				partnumber = unicode(partnumber, 'utf-8')
+
+			el = Component(manufacturer, partnumber)
+
+			for parameter in element.findall('parameter'):
+				name = parameter.get('name')
+				value = parameter.get('value')
+				mode = parameter.get('type')
+
+				print '\t', name, value, mode
+
+				el.set(name, value, mode)
+
+			self.data.append(el)
 
 
-#		elements = xmldata.findall('component')
-
-#		for element in elements:
-#			print element
-
-#		data = []
 
 		def _element2dict(element):
 
@@ -142,11 +165,42 @@ class QueryItem():
 	def __init__(self, element):
 		self.element = element
 
+	def __t(self, value):
+
+		if isinstance(value, unicode):
+			return value, 'string'
+
+		elif isinstance(value, int):
+			return str(value), 'float'
+
+		elif isinstance(value, datetime.datetime):
+			return value.isoformat(' '), 'datetime'
+
+		elif value is None:
+			return '', ''
+
+		else:
+			print 'FUCKK!!!'
+			return '', ''
+
+
 
 	def build(self, builder):
 
-		if isinstance(element, Component):
-			print 'it is objects.Component'
+		if isinstance(self.element, Component):
+			builder.start('component', {'manufacturer': self.element.manufacturer, 'partnumber': self.element.number})
+
+			parameters = self.element.get()
+
+			for parameter in parameters:
+#				print parameters[parameter]
+				value, mode = self.__t(parameters[parameter])
+
+				builder.start('parameter', {'name': parameter, 'value': value, 'type': mode})
+				builder.end('parameter')
+
+			builder.end('component')
+
 		else:
 			print 'x3'
 
@@ -154,9 +208,9 @@ class QueryItem():
 class Component():
 	Name = 'Component'
 
-	def __init__(self, manufacturer, number):
+	def __init__(self, manufacturer, partnumber):
 		self.manufacturer = manufacturer or 'Unknown'
-		self.number = number or 'Unknown'
+		self.number = partnumber or 'Unknown'
 
 		self._parameters = {}
 
@@ -213,22 +267,3 @@ class Parameter():
 
 			else:
 				atr = {'type': 'string'}
-
-
-if __name__ == '__main__':
-	i = QueryMessage('identify')
-	i.add_value('login', u'Джек')
-	i.add_value('password', u'blablabla')
-
-
-
-	i.build()
-
-
-	i = QueryMessage('getall')
-	i.add_value('sessionid', u'5dg54sd8th')
-
-
-
-	i.build()
-
