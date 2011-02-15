@@ -102,48 +102,58 @@ def do_download(worker, data):
 
 	application = worker.parent()
 
-
 	tr = transport.Transport(worker.parent())
 
-	request = objects.RequestMessage('identify')
-	request.add_value('login', u'user')
-	request.add_value('password', u'user')
-	xmlrequest = request.build()
+#	sessionid = application.settings.option('CONNECTION', 'sessionid')
 
-	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
+	try:
+		application.sessionid
 
-	response = objects.ResponseMessage(xmlresponse)
-	response.parse()
+	except AttributeError:
+		request = objects.RequestMessage('identify')
+		request.add_value('login', u'user')
+		request.add_value('password', u'user')
+		xmlrequest = request.build()
 
-	if response.error:
-		print response.error
-#		worker.do_error()
-		return
+		xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
 
-	sessionid = response.values['sessionid']
+		response = objects.ResponseMessage(xmlresponse)
+		response.parse()
 
-	print 'Session: %s' % (sessionid,)
+		if response.error:
+			print response.error
+#			worker.do_error()
+			return
+
+#		application.settings.set_option('CONNECTION', 'sessionid', sessionid)
+		application.sessionid = response.values['sessionid']
+
+	print 'Session: %s' % (application.sessionid,)
+
+	since = application.settings.option('DATA', 'lastupdate', datetime.datetime.min)
 
 	request = objects.RequestMessage('get_components')
-	request.add_value('sessionid', sessionid)
-	request.add_value('since', datetime.datetime.min)
+	request.add_value('sessionid', application.sessionid)
+	request.add_value('since', since)
 
 	xmlrequest = request.build()
 
-	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + sessionid)
+	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + application.sessionid)
 
 	response = objects.ResponseMessage(xmlresponse)
 	response.parse()
 
 	if response.type == 'error':
-		print 'Error parsing response'
+		print 'Error parsing response:', response.error
 #		worker.do_error(i.error)
 		return
+
+	application.settings.set_option('DATA', 'lastupdate', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 	if not response.data:
 		print 'No data fetched'
 #		worker.do_error(i.error)
-		return
+		return 'Downloaded %d new components' % (len(response.data),)
 
 	db = database.Database('data\pyclient.db')
 

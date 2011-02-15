@@ -92,15 +92,16 @@ class ResponseMessage():
 	def parse(self):
 		if not self.xmldata:
 			print 'no data'
-			self.error = True
+			self.error = 'no data to parse'
 			return
 
 		try:
 			xmldata = eltree.XML(self.xmldata)
 
+
 		except eltree.ParseError, e:
 			print 'parse error %s' % (e,)
-			self.error = True
+			self.error = e
 			return
 
 		print xmldata.tag
@@ -112,9 +113,6 @@ class ResponseMessage():
 			print 'Warning: WFT?'
 
 		method = xmldata.find('method')
-
-		print method.tag
-
 
 		### только текстовые !!
 		for value in method.findall('value'):

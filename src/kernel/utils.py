@@ -48,6 +48,15 @@ class OptionManager():
 #			self.error = e
 
 
+	def set_option(self, section, option, value):
+		section = section.upper()
+		option = option.lower()
+
+		if not section in self.parser:
+			self.parser[section] = {}
+
+		self.parser[section][option] = value
+		self.save()
 
 	def option(self, section, option, default=u'', debug=False):
 #		print 'DEBUG:', section, option

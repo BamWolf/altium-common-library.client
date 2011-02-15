@@ -93,9 +93,14 @@ class Database:
 			man_id = self.set_man(element.manufacturer)
 
 		category = element.get('Category') or 'A'
-
 		query = 'INSERT INTO components VALUES (?, ?, ?, ?, ?)'
-		self.query(query, (man_id, element.number, category, sent, exported))
+
+		try:
+			self.query(query, (man_id, element.number, category, sent, exported))
+
+		except sqlite3.IntegrityError, e:
+			print 'Duplicates Error:', e
+			return
 
 		id = self.cursor.lastrowid
 

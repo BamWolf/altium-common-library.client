@@ -57,12 +57,12 @@ class Transport():
 			# неправильный адрес
 			#HTTP Error 407: Proxy Authentication Required
 			print 'yes'
-			print e
+			print 'Transport:', e
 #			application.exit()
 
 		except urllib2.URLError, e:
 			# нет инета (сетевого подключения)
-			print e
+			print 'Transport:', e
 #			application.exit()
 
 		print urldata
