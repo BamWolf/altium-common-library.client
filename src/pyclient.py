@@ -47,19 +47,6 @@ if __name__ == '__main__':
 
 	inifile = 'pyclient.ini'
 
-
-	# connection
-	defaultgeturl = 'http://noxius.ru/index2.php'
-	defaultseturl = 'http://noxius.ru/index2.php'
-
-	systemgetvariable = 'ip'
-	systempostvariable = 'xml'
-
-	# data
-#	systemfieldlist = ('M', 'MN', 'PN', 'PC', 'D', 'URL', 'SYM', 'PKG', 'MDL', 'CD', 'MD', 'A')
-	sysstrfields = ('M', 'MN', 'PN', 'PC', 'D', 'URL', 'SYM', 'PKG', 'MDL', 'A')
-	sysdtfields = ('CD', 'MD')
-
 	i = PyClient(sys.argv)
 	i.exec_()
 	

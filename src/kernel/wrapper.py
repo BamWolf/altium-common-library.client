@@ -23,11 +23,6 @@ accountoptionlist = {'login': '', 'password': ''}
 
 def prepare_main_form(self):
 
-	self.settings = utils.OptionManager(self.inifile)
-#	self.settings.load()
-
-#	self.settings.initialize('ACCOUNT', accountoptionlist)
-
 	db = database.Database(self.dbname)
 	db.init()
 
@@ -56,6 +51,20 @@ def prepare_main_form(self):
 	self.modelBox.addItems(set)
 
 	db.close()
+
+
+def load_categories(self):
+	
+
+	self.settings = utils.OptionManager('data/categories.ini')
+#	self.settings.load()
+
+	categories = self.settings.options('GOST', {}).keys()
+	categories.sort()
+
+	self.categoryBox.addItems(categories)
+
+	self.settings = utils.OptionManager(self.inifile)
 
 ### Add New Component ###
 
