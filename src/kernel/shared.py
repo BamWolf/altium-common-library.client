@@ -148,7 +148,7 @@ def do_download(worker, data):
 #		worker.do_error(i.error)
 		return
 
-	application.settings.set_option('DATA', 'lastupdate', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+	application.settings.set_option('DATA', 'lastupdate', datetime.datetime.utcnow()	.isoformat(' '))		#.strftime('%Y-%m-%d %H:%M:%S'))
 
 	if not response.data:
 		print 'No data fetched'
