@@ -6,15 +6,17 @@ from kernel import utils
 from datetime import datetime
 import pyodbc
 
-from kernel import i18n
+#from kernel import i18n
+
+def _(s):
+	return s
 
 
-
-class MSACCESSDB(pyplugin.plugin):
+class MDBWriter(pyplugin.plugin):
 
 	def __init__(self):
 		self.name = 'MS Access'
-		self.cfgfilename = 'plugins.ini'
+		self.cfgfilename = 'data.ini'
 
 		self.db = None
 		self.cursor = None
@@ -24,12 +26,12 @@ class MSACCESSDB(pyplugin.plugin):
 
 		self.settings = utils.OptionManager(self.cfgfilename)
 
-		self.initialize()
+#		self.initialize()
 
 
 
 	def initialize(self):
-		if not self.settings.option(self.name, 'output database', '', True):
+		if not self.settings.option(self.name, 'outputpath', ''):
 			self.error = _('no output')
 
 
@@ -42,18 +44,14 @@ class MSACCESSDB(pyplugin.plugin):
 			self.error = e
 
 
-	def get(self, date=None):
-		print _('not implemented')
 
-
-
-	def set(self, category, fieldlist, data):
+	def set(self, table, fieldlist, data):
 		if not data or not fieldlist:
 			print _('no data to save')
 			self.error = _('no data to save')
 			return
 
-		database = self.settings.option(self.name, 'output database', '', True)
+		database = self.settings.option(self.name, 'outputpath')
 		print _('updating %s') % (database,)
 
 		self.connect(database)
@@ -65,12 +63,17 @@ class MSACCESSDB(pyplugin.plugin):
 
 		fields = ', '.join([''.join(('[', s, ']')) for s in fieldlist])
 
-		query = "INSERT INTO %s (%s) VALUES (%s);" % (category, fields, ', '.join('?'*len(fieldlist)))
+		print fields
+
+		query = "INSERT INTO %s (%s) VALUES (%s);" % (table, fields, ', '.join('?'*len(fieldlist)))
 		print query
 
 		for item in data:
+			element = [item[i] for i in fieldlist]
+			print element
+
 			try:
-				self.cursor.execute(query, item)
+				self.cursor.execute(query, element)
 
 			except pyodbc.IntegrityError:
 				print _('duplicate entry %s') % (item,)

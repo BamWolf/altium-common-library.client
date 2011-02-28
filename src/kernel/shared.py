@@ -9,7 +9,7 @@ from kernel import objects
 from kernel import transport
 
 from modules import csvfile
-#from modules import msaccess
+from modules import msaccess
 
 ###########################
 
@@ -182,8 +182,19 @@ def do_export(parent, data):
 
 			print 'sorted', sorted
 
-			tr = csvfile.CSVWriter()
+#			tr = csvfile.CSVWriter()
+			tr = msaccess.MDBWriter()
+			tr.initialize()
+
+			if tr.error:
+				print 'ERROR'
+				return tr.error
+
 			tr.set(table, fieldlist, sorted)
+
+			if tr.error:
+				print 'ERROR', tr.error
+				return tr.error
 
 #			db.set_exported(category, content)
 #			db.commit()

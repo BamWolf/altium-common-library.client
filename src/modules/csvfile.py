@@ -28,12 +28,12 @@ class CSVWriter(pyplugin.plugin):
 
 		self.settings = utils.OptionManager(self.cfgfilename)
 
-		self.initialize()
+#		self.initialize()
 
 
 
 	def initialize(self):
-		if not self.settings.option(self.name, 'OutputPath', 'data/'):
+		if not self.settings.option(self.name, 'outputpath', 'data/'):
 			self.error = _('no output')
 
 
@@ -51,12 +51,6 @@ class CSVWriter(pyplugin.plugin):
 
 		else:
 			return s
-
-
-
-	def get(self, date=None):
-		print _('not implemented')
-
 
 
 	def set(self, filename, fieldlist, data):
