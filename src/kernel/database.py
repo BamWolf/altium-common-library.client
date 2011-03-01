@@ -370,6 +370,9 @@ class Database:
 				element['PartNumber'] = number
 				element['Category'] = category
 
+				element['CreationDate'] = element.get('CreationDate', datetime.utcnow())
+#				element['Author'] = element.get('CreationDate', self.settings  )
+
 				data.append(element)
 
 		return data

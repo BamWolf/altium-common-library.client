@@ -256,7 +256,7 @@ def sortupdate(category, data):
 			value = tablefields[field]
 
 			# тут отделяются поля которые относятся к datetime (их нельзя комбинировать с другими)
-			if value in [''.join(( '%', s, '%' )) for s in element.keys()]:
+			if value in [''.join(( '{', s, '}' )) for s in element.keys()]:
 				value = element[value[1:-1]] or None # заменяется на значение параметра с тем же типом
 
 			else:
