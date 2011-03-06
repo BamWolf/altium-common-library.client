@@ -27,7 +27,7 @@ setup	(
 	description = '<Description>',
 	author = 'Jack Krieger',
 
-	console = ['pyclient2.py'],
+	console = ['pyclient.py'],
 	options = opts,
 	zipfile = None
 	)

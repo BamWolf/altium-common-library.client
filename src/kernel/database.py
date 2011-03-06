@@ -85,9 +85,28 @@ class Database:
 		if not isinstance(element, objects.Component):
 			raise TypeError, 'objects.Component instance expected, %s instance given' % (type(element),)
 
-		man_id = self.get_man(element.manufacturer)
+		def _convert(value):
 
-#		print man_id
+			print 'typization'
+
+			print value, type(value)
+
+			if isinstance(value, datetime):
+				return 2	#'datetime'
+
+			elif isinstance(value, int):
+				print 'int'
+				return 1	#'float'
+
+			elif isinstance(value, float):
+				print 'float'
+				return 1	#'float'
+
+			elif isinstance(value, basestring):
+				return 0	#'string'
+
+
+		man_id = self.get_man(element.manufacturer)
 
 		if not man_id:
 			man_id = self.set_man(element.manufacturer)
@@ -108,7 +127,7 @@ class Database:
 
 		for parameter in parameters:
 			query = 'INSERT INTO parameters VALUES (?, ?, ?, ?)'
-			self.query(query, (id, parameter, parameters[parameter], 'string'))
+			self.query(query, (id, parameter, parameters[parameter], _convert(parameters[parameter])))
 
 
 
@@ -132,8 +151,18 @@ class Database:
 
 			parameters = self.query('SELECT * FROM parameters where id = ?', str(id)).fetchall()
 
+			def _convert(value, mode):
+				if mode == 'datetime':
+					return datetime.strptime(value, '%X %x')
+
+				elif mode == 'float':
+					return int(value)
+
+				else:
+					return value
+
 			for id, parameter, value, mode in parameters:
-				i.set(parameter, value, mode)
+				i.set(parameter, _convert(value, mode))
 
 			data.append(i)
 
@@ -345,6 +374,9 @@ class Database:
 
 	### получение неэкспортированных элементов ###
 
+	def export(self, category=None, all=False):
+		return self.get_nonexported(category=None)
+
 	def get_nonexported(self, category=None):
 
 		elements = self.query('SELECT rowid, manufacturer, number FROM components WHERE category = ?', (category,)).fetchall()
@@ -363,15 +395,25 @@ class Database:
 
 				parameters = self.query('SELECT * FROM parameters where id = ?', str(id)).fetchall()
 
+				def _convert(value, mode):
+					if mode == 2:
+						return datetime.strptime(value, '%Y-%m-%d %H:%M:%S.%f')
+
+					elif mode == 1:
+						return int(value)
+
+					elif mode == 0:
+						return value
+
 				for id, parameter, value, mode in parameters:
-					element[parameter] = value	#, mode)
+					print 'MODE', mode, value
+					element[parameter] = _convert(value, mode)
 
 				element['Manufacturer'] = manufacturer
 				element['PartNumber'] = number
 				element['Category'] = category
 
 				element['CreationDate'] = element.get('CreationDate', datetime.utcnow())
-#				element['Author'] = element.get('CreationDate', self.settings  )
 
 				data.append(element)
 

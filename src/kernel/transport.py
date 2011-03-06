@@ -5,11 +5,6 @@ import urllib2
 
 from kernel import objects
 
-# connection
-defaultgeturl = 'http://altiumlib.noxius.ru/client/read'
-defaultseturl = 'http://altiumlib.noxius.ru/client/read'
-
-
 
 class Transport():
 	def __init__(self, application):
@@ -19,7 +14,7 @@ class Transport():
 
 
 
-	def send(self, xmldata=None, url=defaultseturl):
+	def send(self, xmldata=None, url=''):
 		if not xmldata:
 			self.error = 'nothing to send'
 
@@ -41,29 +36,34 @@ class Transport():
 
 		data = urllib.urlencode({'form[value1]': xmldata})
 
+#		urldata = urllib2.urlopen(url, data).read()
+
 		try:
 			urldata = urllib2.urlopen(url, data).read()
-
-			#херня вместо адреса
-			#<urlopen error [Errno 11004] getaddrinfo failed>
 
 			#левый порт
 			#<urlopen error [Errno 10049] The requested address is not valid in its context>
 
+		except urllib2.URLError, e:
 			#таймаут
 			#<urlopen error [Errno 11006]>
+
+			#херня вместо адреса
+			#<urlopen error [Errno 11004] getaddrinfo failed>
+
+			print 'TRANSPORT ERROR:', e
+			return
 
 		except urllib2.HTTPError, e:
 			# неправильный адрес
 			#HTTP Error 407: Proxy Authentication Required
-			print 'yes'
-			print 'Transport:', e
-#			application.exit()
+			print 'TRANSPORT ERROR:', e
+			return
 
 		except urllib2.URLError, e:
 			# нет инета (сетевого подключения)
-			print 'Transport:', e
-#			application.exit()
+			print 'TRANSPORT ERROR:', e
+			return
 
 		print urldata
 

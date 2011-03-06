@@ -10,8 +10,7 @@ from kernel import shared
 from kernel import objects
 from kernel import database
 from kernel import utils
-
-#from datetime import datetime
+from datetime import datetime
 
 ###############################
 
@@ -107,6 +106,8 @@ def put_start(self):
 
 		component.set(parameter, value, mode)
 		row = row + 1
+
+#	component.set('CreationDate', datetime.utcnow(), 'datetime')
 
 	self.pw = abstract.QWorker(self, shared.do_put_process, component)
 	self.connect(self.pw, QtCore.SIGNAL('exit(PyQt_PyObject)'), QtCore.SLOT('on_putButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)

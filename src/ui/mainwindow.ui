@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>PyClient (alpha)</string>
+   <string>Component Wizard - Crowd Library</string>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonTextUnderIcon</enum>

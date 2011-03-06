@@ -8,8 +8,6 @@ from PyQt4 import QtCore
 
 from kernel.ui import PyMainWindow
 
-#from kernel.plugin import plugin as pyplugin
-
 #import gettext
 from kernel import i18n
 

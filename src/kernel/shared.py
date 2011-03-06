@@ -26,7 +26,7 @@ def do_put_process(parent, data):
 
 	result = data.id()
 
-	print 'PUT', result
+#	print 'PUT', result
 
 	db = database.Database('data/pyclient.db')
 
@@ -52,6 +52,8 @@ def do_upload(worker, data=None):
 
 	data = db.get_elements()
 
+	if not data:
+		return 'Nothing to upload'
 
 	tr = transport.Transport(worker.parent())
 
@@ -93,12 +95,12 @@ def do_upload(worker, data=None):
 
 	db.close()
 
-	return 'components sent'
+	return 'Uploaded %d components' % (len(data),)
 
 
 def do_download(worker, data):
 	# загрузка обновлений с сервера
-	print data
+#	print data
 
 	application = worker.parent()
 
@@ -117,6 +119,10 @@ def do_download(worker, data):
 
 		xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
 
+		print xmlresponse
+		if not xmlresponse:
+			return 'Communication error'
+
 		response = objects.ResponseMessage(xmlresponse)
 		response.parse()
 
@@ -128,7 +134,7 @@ def do_download(worker, data):
 #		application.settings.set_option('CONNECTION', 'sessionid', sessionid)
 		application.sessionid = response.values['sessionid']
 
-	print 'Session: %s' % (application.sessionid,)
+#	print 'Session: %s' % (application.sessionid,)
 
 	since = application.settings.option('DATA', 'lastupdate', datetime.datetime.min)
 
@@ -139,6 +145,9 @@ def do_download(worker, data):
 	xmlrequest = request.build()
 
 	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + application.sessionid)
+
+	if not xmlresponse:
+		return 'Communication error'
 
 	response = objects.ResponseMessage(xmlresponse)
 	response.parse()
@@ -172,9 +181,14 @@ def do_export(parent, data):
 
 	for category in systemcategories:
 		print 'CATEGORY:', category
-		content = db.get_nonexported(category)
 
+		content = db.export(category)
 
+		# костыль для полей Author локальных элементов
+		for element in content:
+			element['Author'] = element.get('Author', parent.parent().settings.option('ACCOUNT', 'user'))
+
+		print 'content', content
 		result = sortupdate(category, content)
 
 		if result:
@@ -200,6 +214,8 @@ def do_export(parent, data):
 #			db.commit()
 
 	db.close()
+
+	return 'Done'
 
 
 def sortupdate(category, data):
