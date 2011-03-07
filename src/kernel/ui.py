@@ -51,7 +51,11 @@ class PyMainWindow(abstract.QWindow):
 		wrapper.truncate_tables(self)
 		wrapper.prepare_main_form(self)
 
+	# actionShow menu item
 
+	@QtCore.pyqtSlot()
+	def on_actionShow_triggered(self):
+		wrapper.show_tables(self)
 
 	# addSymbolButton
 

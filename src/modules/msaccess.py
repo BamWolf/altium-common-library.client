@@ -44,7 +44,6 @@ class MDBWriter(pyplugin.plugin):
 			self.error = e
 
 
-
 	def set(self, table, fieldlist, data):
 		if not data or not fieldlist:
 			print _('no data to save')

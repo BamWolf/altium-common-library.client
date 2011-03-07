@@ -601,8 +601,9 @@
    </property>
    <widget class="QMenu" name="menuDo">
     <property name="title">
-     <string>Menu</string>
+     <string>Debug</string>
     </property>
+    <addaction name="actionShow"/>
     <addaction name="actionDrop"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -616,7 +617,12 @@
   </action>
   <action name="actionDrop">
    <property name="text">
-    <string>Drop</string>
+    <string>Drop tables</string>
+   </property>
+  </action>
+  <action name="actionShow">
+   <property name="text">
+    <string>Show tables</string>
    </property>
   </action>
  </widget>

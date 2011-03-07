@@ -275,6 +275,19 @@ def truncate_tables(self):
 	db = database.Database(self.dbname)
 	db.clear()
 
+	db.close()
+
+def show_tables(self):
+	db = database.Database(self.dbname)
+
+	print 'COMPONENTS:'
+	print db.query('SELECT * FROM components').fetchall()
+	print 'PARAMETERS:'
+	print db.query('SELECT * FROM parameters').fetchall()
+
+	db.close()
+
+
 
 
 class ItemBox():
@@ -286,7 +299,6 @@ class ItemBox():
 		pass
 
 
-### Adding New Parameter ###
 
 def add_parameter(self):
 	parameter = unicode(self.nameBox.currentText())

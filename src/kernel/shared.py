@@ -50,16 +50,18 @@ def do_upload(worker, data=None):
 
 	db = database.Database('data/pyclient.db')
 
-	data = db.get_elements()
+	data = db.get_upload()
 
 	if not data:
 		return 'Nothing to upload'
 
+	application = worker.parent()
+
 	tr = transport.Transport(worker.parent())
 
 	request = objects.RequestMessage('identify')
-	request.add_value('login', u'user')
-	request.add_value('password', u'user')
+	request.add_value('login', application.settings.option('ACCOUNT', 'login', u'user'))
+	request.add_value('password', application.settings.option('ACCOUNT', 'password', u'user'))
 	xmlrequest = request.build()
 
 	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
@@ -69,8 +71,15 @@ def do_upload(worker, data=None):
 
 	if response.error:
 		print response.error
-#		worker.do_error()
-		return
+		return 'Parsing answer Error'
+
+	if response.type == 'error':
+		try:
+			message = response.values['message']
+		except:
+			message = 'General Error'
+
+		return message
 
 	sessionid = response.values['sessionid']
 
@@ -93,6 +102,7 @@ def do_upload(worker, data=None):
 #	for element in answer:
 #		db.set_sent(element)
 
+	db.commit()
 	db.close()
 
 	return 'Uploaded %d components' % (len(data),)
@@ -100,10 +110,8 @@ def do_upload(worker, data=None):
 
 def do_download(worker, data):
 	# загрузка обновлений с сервера
-#	print data
 
 	application = worker.parent()
-
 	tr = transport.Transport(worker.parent())
 
 #	sessionid = application.settings.option('CONNECTION', 'sessionid')
@@ -113,8 +121,8 @@ def do_download(worker, data):
 
 	except AttributeError:
 		request = objects.RequestMessage('identify')
-		request.add_value('login', u'user')
-		request.add_value('password', u'user')
+		request.add_value('login', application.settings.option('ACCOUNT', 'login', u'user'))
+		request.add_value('password', application.settings.option('ACCOUNT', 'password', u'user'))
 		xmlrequest = request.build()
 
 		xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
@@ -128,13 +136,18 @@ def do_download(worker, data):
 
 		if response.error:
 			print response.error
-#			worker.do_error()
-			return
+			return 'Parsing error'
+
+		if response.type == 'error':
+			try:
+				message = response.values['message']
+			except:
+				message = 'General Error'
+
+			return message
 
 #		application.settings.set_option('CONNECTION', 'sessionid', sessionid)
 		application.sessionid = response.values['sessionid']
-
-#	print 'Session: %s' % (application.sessionid,)
 
 	since = application.settings.option('DATA', 'lastupdate', datetime.datetime.min)
 
@@ -154,14 +167,12 @@ def do_download(worker, data):
 
 	if response.type == 'error':
 		print 'Error parsing response:', response.error
-#		worker.do_error(i.error)
-		return
+		return 'Error parsing response'
 
-	application.settings.set_option('DATA', 'lastupdate', datetime.datetime.utcnow()	.isoformat(' '))		#.strftime('%Y-%m-%d %H:%M:%S'))
+	application.settings.set_option('DATA', 'lastupdate', datetime.datetime.utcnow()	.isoformat(' '))
 
 	if not response.data:
 		print 'No data fetched'
-#		worker.do_error(i.error)
 		return 'Downloaded %d new components' % (len(response.data),)
 
 	db = database.Database('data\pyclient.db')
@@ -169,6 +180,7 @@ def do_download(worker, data):
 	for element in response.data:
 		db.set_element(element, sent=True)
 
+	db.commit()
 	db.close()
 
 	return 'Downloaded %d new components' % (len(response.data),)
@@ -211,7 +223,7 @@ def do_export(parent, data):
 				return tr.error
 
 #			db.set_exported(category, content)
-#			db.commit()
+			db.commit()
 
 	db.close()
 

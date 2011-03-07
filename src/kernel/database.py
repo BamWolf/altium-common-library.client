@@ -130,8 +130,6 @@ class Database:
 			self.query(query, (id, parameter, parameters[parameter], _convert(parameters[parameter])))
 
 
-
-
 	def get_elements(self):
 
 		elements = self.query('SELECT rowid, manufacturer, number, category FROM components').fetchall()
@@ -375,11 +373,9 @@ class Database:
 	### получение неэкспортированных элементов ###
 
 	def export(self, category=None, all=False):
-		return self.get_nonexported(category=None)
+		elements = self.query('SELECT rowid, manufacturer, number FROM components WHERE category = ? AND checked = ?', (category, False)).fetchall()
 
-	def get_nonexported(self, category=None):
-
-		elements = self.query('SELECT rowid, manufacturer, number FROM components WHERE category = ?', (category,)).fetchall()
+		print 'ELEM', elements
 
 		data = []
 		if elements:
@@ -417,37 +413,40 @@ class Database:
 
 				data.append(element)
 
+				self.query('UPDATE components SET checked = ? WHERE manufacturer = ? AND number = ?', (True, man_id, number)).fetchall()
+
 		return data
 
 
 	### получение неотправленных элементов ###
 
-	def get_nonsent(self):
+	def get_upload(self):
 
 		elements = self.query('SELECT rowid, manufacturer, number, category FROM components WHERE sent = ?', (False,)).fetchall()
-
 		data = []
 
-		for id, man_id, partnumber, category in elements:
-
-#			symbol = (lambda x: x and x[0] or None)(self.query('SELECT symbol FROM symbols WHERE id = ?', (sid,)).fetchone())
-#			package = (lambda x: x and x[0] or None)(self.query('SELECT package FROM packages WHERE id = ?', (pid,)).fetchone())
-#			model = (lambda x: x and x[0] or None)(self.query('SELECT model FROM models WHERE id = ?', (mid,)).fetchone())
-
+		for id, man_id, number, category in elements:
 			manufacturer = self.get_man(id=man_id)# or 'Unknown'
 
-			i = objects.Component(manufacturer, partnumber)
+			i = objects.Component(manufacturer, number)
 			i.set('Category', category, 'string')
 
 			parameters = self.query('SELECT * FROM parameters where id = ?', str(id)).fetchall()
 
+			def _convert(value, mode):
+				if mode == 'datetime':
+					return datetime.strptime(value, '%X %x')
+
+				elif mode == 'float':
+					return int(value)
+
+				else:
+					return value
+
 			for id, parameter, value, mode in parameters:
-				i.set(parameter, value, mode)
+				i.set(parameter, _convert(value, mode))
 
 			data.append(i)
-
-		print data
+			self.query('UPDATE components SET sent = ? WHERE manufacturer = ? AND number = ?', (True, man_id, number)).fetchall()
 
 		return data
-
-
