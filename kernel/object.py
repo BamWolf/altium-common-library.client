@@ -237,27 +237,23 @@ class Component():
 
 	def __init__(self, manufacturer='Unknown', partnumber='Unknown'):
 		self._manufacturer = manufacturer
-		self._number = partnumber
+		self._partnumber = partnumber
 		self._parameters = {}
 
 	def manufacturer(self):
-		return self._manufacturer()
+		""" возвращает производителя компонента """
+		return self._manufacturer
 
 	def partnumber(self):
+		""" возвращает артикул компонента """
 		return self._partnumber
 
+	def __iter__(self):
+		return iter(self._parameters.values())
 
-
-	def get(self, parameter=None):
-		""" возвращает  параметр parameter """
-		if parameter:
-			result = self._parameters.get(parameter)
-
-		else:
-			result = self._parameters.copy()
-
-		return result
-
+	def get(self, parameter):
+		""" возвращает параметр с наименованием parameter """
+		return self._parameters.get(parameter)
 
 	def set(self, parameter):
 		""" добавляет новый параметр """
@@ -267,17 +263,19 @@ class Component():
 		self._parameters[parameter.name] = parameter
 
 	def build(self):
+		""" возвращает Element компонента """
 		el = etree.Element('component')
 
-		el.set('manufacturer', u'ИЖМАШ')
-		el.set('partnumber', u'ТСП')
+		el.set('manufacturer', self.manufacturer())
+		el.set('partnumber', self.partnumber())
 
-		for parameter in self._parameters:
-			el.append(self._parameters[parameter].build())
+		for parameter in self:
+			el.append(parameter.build())
 
 		return el
 
 	def xml(self):
+		""" возвращает pretty_printed XML компонента НЕ НУЖЕН ТУТ """
 		xmlobject = self.build()
 
 		if lxml_installed:
@@ -292,64 +290,77 @@ class Component():
 		return xml
 
 	def parse(self, xml):
-		pass
+		""" генерирует компонент из XML """
+		try:
+			el = etree.XML(xml)
 
-class newParameter(etree.Element):
+		except:
+			print 'Non-valid XML: error parsing document'
+			return
 
-	def __init__(self, name, value):
-		if not name:
-			raise Exception, 'Empty Parameter Name'
+		if not el.tag == 'component':
+			raise Exception, 'Non-valid XML: it is not a component'
 
-		etree.Element.__init__(self, 'parameter')
+		self._manufacturer = el.get('manufacturer')
+		self._partnumber = el.get('partnumber')
 
-		self.set('name', name)
-		self.set('value', value)
+		for sub in el.findall('parameter'):
+			try:
+				parameter = Parameter(sub.get('name'), sub.get('value'), sub.get('type'))
+				self.set(parameter)
+			except:
+				print 'Non-valid XML: it is not parameter'
 
 
 class Parameter():
 
-	def __init__(self, name, value):
+	def __init__(self, name, value, mode):
 		if not name:
 			raise Exception, 'Empty Parameter Name'
 
 		self._name = name
 		self._value = value
+		self._type = mode
 
 	def name(self):
-		return self._name()
+		""" возвращает наименование параметра """
+		return self._name
 
 	def value(self):
+		""" возвращает строковое значение параметра """
 		return self._value
 
 	def type(self):
-		if isinstance(self._value, datetime.datetime):
-			return 'datetime'
+		"""возвращает тип параметра """
+		return self._type
 
-		elif isinstance(self._value, int):
-			return 'float'
+	def real(self):
+		""" возвращает приведенное значение параметра НЕПРОВЕРЕНО """
+		if self._type == 'string':
+			return unicode(self._value)
 
-		elif isinstance(self._value, basestring):
-			return 'string'
+		elif self._type == 'float':
+			return float(self._value)
 
-		elif self._value is None:
-			return 'none'
-
+		elif self._type == 'datetime':
+			return datetime.datetime(self._value)
 
 	def build(self):
+		""" возвращает Element параметра """
 		el = etree.Element('parameter')
-		el.set('name', 'Category')
-		el.set('value', 'R')
-		el.set('type', 'string')
+		el.set('name', self.name())
+		el.set('value', self.value())
+		el.set('type', self.type())
 
 		return el
 
 if __name__ == '__main__':
 
+	with open('../debug/pretty.xml', 'r') as f:
+		xml = f.read()
+
 	q = Component()
-	p = Parameter('Value', '50')
-	q.set(p)
+	q.parse(xml)
 
-	xml = q.xml()
-
-	with open('pretty.xml', 'w') as f:
-		f.write(xml)
+	print
+	print q.xml()

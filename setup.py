@@ -29,8 +29,8 @@ setup	(
 	description = '<Description>',
 	author = 'Jack Krieger',
 
-#	console = ['pyclient.py'],
-	windows = ['pyclient.py'],
+#	console = ['wizard.py'],
+	windows = ['wizard.py'],
 	options = opts,
 	zipfile = None
 	)
