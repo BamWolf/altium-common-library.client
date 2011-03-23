@@ -1,7 +1,36 @@
 #-*- coding: utf-8 -*-
 
 import datetime
-import xml.etree.ElementTree as eltree
+
+lxml_installed = False
+
+try:
+	from lxml import etree
+	lxml_installed = True
+	print("running with lxml.etree")
+except ImportError:
+	try:
+		# Python 2.5
+		import xml.etree.cElementTree as etree
+		print("running with cElementTree on Python 2.5+")
+	except ImportError:
+		try:
+			# Python 2.5
+			import xml.etree.ElementTree as etree
+			print("running with ElementTree on Python 2.5+")
+		except ImportError:
+			try:
+				# normal cElementTree install
+				import cElementTree as etree
+				print("running with cElementTree")
+			except ImportError:
+				try:
+					# normal ElementTree install
+					import elementtree.ElementTree as etree
+					print("running with ElementTree")
+				except ImportError:
+					print("Failed to import ElementTree from any known place")
+
 
 #######################
 
@@ -203,29 +232,15 @@ class QueryItem():
 			print 'x3'
 
 
-class Component():
-	Name = 'Component'
 
-	def __init__(self, manufacturer, partnumber):
-		self.manufacturer = manufacturer or 'Unknown'
-		self.number = partnumber or 'Unknown'
+
+class Component():
+
+	def __init__(self, manufacturer='Unknown', partnumber='Unknown'):
+		self.manufacturer = manufacturer
+		self.number = partnumber
 
 		self._parameters = {}
-
-
-
-	def id(self):
-		return '.'.join((self.manufacturer, self.number))
-
-
-	def set(self, parameter, value, mode='string'):
-		""" добавляет новый параметр """
-#		if not isinstance(parameter, Parameter):
-#			raise TypeError, "Parameter object expected"
-
-#		if paramter.name:
-		if parameter:
-			self._parameters[parameter] = value
 
 
 	def get(self, parameter=None):
@@ -239,15 +254,34 @@ class Component():
 		return result
 
 
+	def set(self, parameter):
+		""" добавляет новый параметр """
+		if not isinstance(parameter, Parameter):
+			raise TypeError, "Parameter object expected"
 
+		self._parameters[parameter.name] = parameter
+
+
+
+	def parse(self, xml):
+		pass
+
+	def build(self):
+		el = etree.Element('component')
+
+		el.set('manufacturer', u'ИЖМАШ')
+		el.set('partnumber', u'ТСП')
+
+		for parameter in self._parameters:
+			el.append(self._parameters[parameter].build())
+
+		return el
 
 class Parameter():
-	Name = 'Parameter'
 
-	def __init__(self, name, value, mode='string'):
+	def __init__(self, name, value):
 		self.name = name
 		self.value = value
-		self.type = mode
 
 		def __t(self):
 
@@ -265,3 +299,40 @@ class Parameter():
 
 			else:
 				atr = {'type': 'string'}
+
+
+	def build(self):
+		el = etree.Element('parameter')
+		el.set('name', 'Category')
+		el.set('value', 'A')
+		el.set('type', 'string')
+
+		return el
+
+if __name__ == '__main__':
+
+	q = Component()
+
+	p = Parameter('Value', '50')
+	q.set(p)
+
+	try:
+		q.set('d')
+
+	except TypeError, e:
+		print e
+
+
+	xmlobject = q.build()
+
+	if lxml_installed:
+		xml = etree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
+
+	else:
+		from xml.dom import minidom
+
+		barexml = etree.tostring(xmlobject, encoding='utf-8')
+		xml = minidom.parseString(barexml).toprettyxml(indent='\t', encoding='utf-8')
+
+	with open('pretty.xml', 'w') as f:
+		f.write(xml)

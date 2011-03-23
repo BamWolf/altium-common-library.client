@@ -36,14 +36,27 @@ class PyClient(QtGui.QApplication):
 
 
 if __name__ == '__main__':
-	# modules directory
-	modulespath = 'modules'
+
+	# определяем путь к программе
+
+	selfpath = os.path.abspath(os.curdir)
+	print 'selfpath:', selfpath
+
+	# путь к папке плагинами
+
+	modulepath = os.path.join(selfpath, 'modules')
+	print 'modulepath:', modulepath
+
+	# добавление папки плагинов в sys.path
+	sys.path.insert(0, modulepath)
 
 	# localization
 	localepath = './locale'
 	localefile = 'messages'
 
-	inifile = 'pyclient.ini'
+	inifile = os.path.join(selfpath, 'config.ini')
+
+	print 'inifile:', inifile
 
 	i = PyClient(sys.argv)
 	i.exec_()

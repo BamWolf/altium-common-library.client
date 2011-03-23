@@ -1,6 +1,4 @@
 glob:*.pyc
-glob:exe/*
 glob:pyclient.db
-glob:obsolete/*
-glob:src/export/*
-glob:src/debug/*
+glob:debug/*
+glob:export/*
