@@ -233,14 +233,19 @@ class QueryItem():
 
 
 
-
 class Component():
 
 	def __init__(self, manufacturer='Unknown', partnumber='Unknown'):
-		self.manufacturer = manufacturer
-		self.number = partnumber
-
+		self._manufacturer = manufacturer
+		self._number = partnumber
 		self._parameters = {}
+
+	def manufacturer(self):
+		return self._manufacturer()
+
+	def partnumber(self):
+		return self._partnumber
+
 
 
 	def get(self, parameter=None):
@@ -261,11 +266,6 @@ class Component():
 
 		self._parameters[parameter.name] = parameter
 
-
-
-	def parse(self, xml):
-		pass
-
 	def build(self):
 		el = etree.Element('component')
 
@@ -277,34 +277,68 @@ class Component():
 
 		return el
 
+	def xml(self):
+		xmlobject = self.build()
+
+		if lxml_installed:
+			xml = etree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
+
+		else:
+			from xml.dom import minidom
+
+			barexml = etree.tostring(xmlobject, encoding='utf-8')
+			xml = minidom.parseString(barexml).toprettyxml(indent='\t', encoding='utf-8')
+
+		return xml
+
+	def parse(self, xml):
+		pass
+
+class newParameter(etree.Element):
+
+	def __init__(self, name, value):
+		if not name:
+			raise Exception, 'Empty Parameter Name'
+
+		etree.Element.__init__(self, 'parameter')
+
+		self.set('name', name)
+		self.set('value', value)
+
+
 class Parameter():
 
 	def __init__(self, name, value):
-		self.name = name
-		self.value = value
+		if not name:
+			raise Exception, 'Empty Parameter Name'
 
-		def __t(self):
+		self._name = name
+		self._value = value
 
-			if isinstance(parameter.type, datetime.datetime):
-				atr = {'type': 'datetime'}
-#				item[field] = item[field].isoformat(' ')
+	def name(self):
+		return self._name()
 
-			elif type(item[field]) == 'int':
-				atr = {'type': 'float'}
-#				item[field] = str(item[field])
+	def value(self):
+		return self._value
 
-			elif item[field] is None:
-				atr = {}
-#				item[field] = ''
+	def type(self):
+		if isinstance(self._value, datetime.datetime):
+			return 'datetime'
 
-			else:
-				atr = {'type': 'string'}
+		elif isinstance(self._value, int):
+			return 'float'
+
+		elif isinstance(self._value, basestring):
+			return 'string'
+
+		elif self._value is None:
+			return 'none'
 
 
 	def build(self):
 		el = etree.Element('parameter')
 		el.set('name', 'Category')
-		el.set('value', 'A')
+		el.set('value', 'R')
 		el.set('type', 'string')
 
 		return el
@@ -312,27 +346,10 @@ class Parameter():
 if __name__ == '__main__':
 
 	q = Component()
-
 	p = Parameter('Value', '50')
 	q.set(p)
 
-	try:
-		q.set('d')
-
-	except TypeError, e:
-		print e
-
-
-	xmlobject = q.build()
-
-	if lxml_installed:
-		xml = etree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
-
-	else:
-		from xml.dom import minidom
-
-		barexml = etree.tostring(xmlobject, encoding='utf-8')
-		xml = minidom.parseString(barexml).toprettyxml(indent='\t', encoding='utf-8')
+	xml = q.xml()
 
 	with open('pretty.xml', 'w') as f:
 		f.write(xml)
