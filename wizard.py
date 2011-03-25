@@ -54,7 +54,7 @@ if __name__ == '__main__':
 	localepath = './locale'
 	localefile = 'messages'
 
-	inifile = os.path.join(selfpath, 'config.ini')
+	inifile = os.path.join(selfpath, 'settings.ini')
 
 	print 'inifile:', inifile
 

@@ -1,35 +1,38 @@
 #-*- coding: utf-8 -*-
 
 import datetime
+import xml.etree.ElementTree as xmltree
 
 lxml_installed = False
 
 try:
-	from lxml import etree
+	from lxml import etree as xmltree
 	lxml_installed = True
 	print("running with lxml.etree")
 except ImportError:
 	try:
 		# Python 2.5
-		import xml.etree.cElementTree as etree
+		import xml.etree.cElementTree as xmltree
 		print("running with cElementTree on Python 2.5+")
 	except ImportError:
 		try:
 			# Python 2.5
-			import xml.etree.ElementTree as etree
+			import xml.etree.ElementTree as xmltree
 			print("running with ElementTree on Python 2.5+")
 		except ImportError:
 			try:
 				# normal cElementTree install
-				import cElementTree as etree
+				import cElementTree as xmltree
 				print("running with cElementTree")
 			except ImportError:
 				try:
 					# normal ElementTree install
-					import elementtree.ElementTree as etree
+					import elementtree.ElementTree as xmltree
 					print("running with ElementTree")
 				except ImportError:
 					print("Failed to import ElementTree from any known place")
+
+print
 
 
 #######################
@@ -56,50 +59,8 @@ class RequestMessage():
 
 
 	def build(self):
-		builder = eltree.TreeBuilder()
-		builder.start('query', {'type': self.type})
 
-		# header section
-		builder.start('method', {'name': self.method})
-
-		for value in self.values:
-			print value
-			builder.start('value', {'name': value, 'value': str(self.values[value]), 'type':self. __t(self.values[value])})
-			builder.end('value')
-
-		builder.end('method')
-
-		# data section
-		if self.data:
-			builder.start('data', {})
-
-			for element in self.data:
-				element = QueryItem(element).build(builder)
-
-			builder.end('data')
-
-		xmldata = builder.end('query')
-
-		result = eltree.tostring(xmldata, encoding="utf-8") 
-
-		return result
-
-
-	def __t(self, value):
-
-		if isinstance(value, datetime.datetime):
-			atr = 'datetime'
-
-		elif type(value) == 'int':
-			atr = 'float'
-
-		elif value is None:
-			atr = 'none'
-
-		else:
-			atr = 'string'
-
-		return atr
+		return
 
 
 
@@ -192,45 +153,8 @@ class QueryItem():
 	def __init__(self, element):
 		self.element = element
 
-	def __t(self, value):
-
-		if isinstance(value, unicode):
-			return value, 'string'
-
-		elif isinstance(value, int):
-			return str(value), 'float'
-
-		elif isinstance(value, datetime.datetime):
-			return value.isoformat(' '), 'datetime'
-
-		elif value is None:
-			return '', ''
-
-		else:
-			print 'FUCKK!!!'
-			return '', ''
-
-
-
 	def build(self, builder):
-
-		if isinstance(self.element, Component):
-			builder.start('component', {'manufacturer': self.element.manufacturer, 'partnumber': self.element.number})
-
-			parameters = self.element.get()
-
-			for parameter in parameters:
-#				print parameters[parameter]
-				value, mode = self.__t(parameters[parameter])
-
-				builder.start('parameter', {'name': parameter, 'value': value, 'type': mode})
-				builder.end('parameter')
-
-			builder.end('component')
-
-		else:
-			print 'x3'
-
+		return
 
 
 class Component():
@@ -264,7 +188,7 @@ class Component():
 
 	def build(self):
 		""" возвращает Element компонента """
-		el = etree.Element('component')
+		el = xmltree.Element('component')
 
 		el.set('manufacturer', self.manufacturer())
 		el.set('partnumber', self.partnumber())
@@ -279,12 +203,12 @@ class Component():
 		xmlobject = self.build()
 
 		if lxml_installed:
-			xml = etree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
+			xml = xmltree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
 
 		else:
 			from xml.dom import minidom
 
-			barexml = etree.tostring(xmlobject, encoding='utf-8')
+			barexml = xmltree.tostring(xmlobject, encoding='utf-8')
 			xml = minidom.parseString(barexml).toprettyxml(indent='\t', encoding='utf-8')
 
 		return xml
@@ -292,7 +216,7 @@ class Component():
 	def parse(self, xml):
 		""" генерирует компонент из XML """
 		try:
-			el = etree.XML(xml)
+			el = xmltree.XML(xml)
 
 		except:
 			print 'Non-valid XML: error parsing document'
@@ -347,7 +271,7 @@ class Parameter():
 
 	def build(self):
 		""" возвращает Element параметра """
-		el = etree.Element('parameter')
+		el = xmltree.Element('parameter')
 		el.set('name', self.name())
 		el.set('value', self.value())
 		el.set('type', self.type())
