@@ -3,6 +3,13 @@
 import urllib
 import urllib2
 
+from httplib import HTTP
+from StringIO import StringIO
+import urlparse
+
+# elementtree (from effbot.org/downloads)
+#from elementtree import ElementTree
+
 from kernel import objects
 
 
@@ -72,3 +79,59 @@ class Transport():
 
 		return urldata
 
+class HTTP:
+
+	user_agent = "HTTPClient (from effbot.org)"
+
+	def __init__(self, uri):
+
+		scheme, host, path, params, query, fragment = urlparse.urlparse(uri)
+		if scheme != "http":
+			raise ValueError("only supports HTTP requests")
+
+		# put the path back together again
+		if not path:
+			path = "/"
+		if params:
+			path = path + ";" + params
+		if query:
+			path = path + "?" + query
+
+		self.host = host
+		self.path = path
+
+	def do_request(self, body,
+		# optional keyword arguments follow
+		path=None, method="POST", content_type="text/xml",
+		extra_headers=(), parser=None):
+
+		if not path:
+			path = self.path
+
+		if isinstance(body, ElementTree.ElementTree):
+			# serialize element tree
+			file = StringIO()
+			body.write(file)
+			body = file.getvalue()
+
+		# send xml request
+		h = HTTP(self.host)
+		h.putrequest(method, path)
+		h.putheader("User-Agent", self.user_agent)
+		h.putheader("Host", self.host)
+		if content_type:
+			h.putheader("Content-Type", content_type)
+		h.putheader("Content-Length", str(len(body)))
+		for header, value in extra_headers:
+			h.putheader(header, value)
+		h.endheaders()
+
+		h.send(body)
+
+		# fetch the reply
+		errcode, errmsg, headers = h.getreply()
+
+		if errcode != 200:
+			raise Exception(errcode, errmsg)
+
+		return ElementTree.parse(h.getfile(), parser=parser)
