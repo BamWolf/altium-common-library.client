@@ -51,35 +51,43 @@ class PyMainWindow(abstract.QWindow):
 		wrapper.truncate_tables(self)
 		wrapper.prepare_main_form(self)
 
-	# actionShow menu item
+	# ComponentButton
 
 	@QtCore.pyqtSlot()
-	def on_actionShow_triggered(self):
-		wrapper.show_tables(self)
+	def on_component_button_clicked(self):
+		print 'component wizard'
 
-	# addSymbolButton
-
-	@QtCore.pyqtSlot()
-	def on_addSymbolButton_clicked(self):
-		wrapper.add_symbol(self)
-
-	# addPackageButton
+	# SymbolButton
 
 	@QtCore.pyqtSlot()
-	def on_addPackageButton_clicked(self):
-		wrapper.add_package(self)
+	def on_symbol_button_clicked(self):
+		print 'symbol wizard'
 
-	# addModelButton
+	# PackageButton
 
 	@QtCore.pyqtSlot()
-	def on_addModelButton_clicked(self):
-		wrapper.add_model(self)
+	def on_package_button_clicked(self):
+		print 'package wizard'
+		self.second = PackageWizard('ui/package.ui', self)
+		self.second.init()
+		self.second.show()
+
+
+
+	# ModelButton
+
+	@QtCore.pyqtSlot()
+	def on_model_button_clicked(self):
+		print 'model wizard'
 
 	# exportButton
 
 	@QtCore.pyqtSlot()
-	def on_exportButton_clicked(self):
-		wrapper.export_start(self)
+	def on_export_button_clicked(self):
+		print 'export'
+		wrapper.sync(self)
+
+
 
 	@QtCore.pyqtSignature('PyQt_PyObject')
 	def on_exportButton_respond(self, data=None):
@@ -108,14 +116,18 @@ class PyMainWindow(abstract.QWindow):
 
 
 
-class AddDialogWindow(abstract.QWindow):
+class PackageWizard(abstract.QDialog):
+
+	def init(self):
+		self.worker = wrapper.PackageWorker()
+		self.worker.load()
 
 	# okButton
 
 	@QtCore.pyqtSlot()
-	def on_okButton_clicked(self):
-		wrapper.add_parameter_start(self)
+	def accepted(self):
+		print 'OK'
 
 	@QtCore.pyqtSignature('PyQt_PyObject')
-	def on_okButton_respond(self, data=None):
-		wrapper.add_parameter_respond(self)
+	def on_rejected(self, data=None):
+		print 'Cancel'

@@ -4,6 +4,7 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 
 import os
+import sys
 
 from kernel import abstract
 from kernel import shared
@@ -323,3 +324,66 @@ def add_parameter(self):
 		self.nameBox.setCurrentIndex(0)
 		self.valueEdit.setText('')
 		self.stringRadio.setChecked(True)
+
+
+def sync(window):
+
+	app = window.parent()
+
+
+	### определяем путь к репозиториям ###
+
+	selfpath = os.path.abspath(os.curdir)
+
+	basepath = os.path.join(selfpath, 'debug', 'xml', 'components')
+	print 'repository path:', basepath
+
+	unique = {}
+
+	import fnmatch
+	import xml.etree.ElementTree as ElementTree
+
+	for path, dirs, files in os.walk(basepath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in unique:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					unique[filename] = os.path.abspath(os.path.join(path, filename))
+	print unique
+
+
+	
+
+
+class PackageWorker():
+
+	def __init__(self):
+		pass
+
+	def load(self):
+		selfpath = os.path.abspath(os.curdir)
+
+		packagepath = os.path.join(selfpath, 'xml', 'packages')
+		print 'xmlpath:', packagepath
+
+		unique = {}
+
+		import fnmatch
+		import xml.etree.ElementTree as ElementTree
+
+		for path, dirs, files in os.walk(packagepath):
+
+			for filename in files:
+				if fnmatch.fnmatch(filename, '*.xml'):
+					if filename in unique:
+						print 'Duplicate Error:', filename, path
+
+					else:
+						unique[filename] = os.path.abspath(os.path.join(path, filename))
+
+		print unique
+
+#		self.package_list.addItems(unique.keys())
+

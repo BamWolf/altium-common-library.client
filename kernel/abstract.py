@@ -14,12 +14,12 @@ class QWindow(QtGui.QMainWindow):
 		super(QWindow, self).__init__(*args)
 		uic.loadUi(interface, self)
 
-		self.inifile = 'pyclient.ini'
-		self.settings = None
 
-		self.dbname = 'data/pyclient.db'
+class QDialog(QtGui.QDialog):
 
-
+	def __init__(self, interface, *args):
+		super(QDialog, self).__init__(*args)
+		uic.loadUi(interface, self)
 
 
 class QWorker(QtCore.QThread):
