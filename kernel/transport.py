@@ -3,36 +3,25 @@
 import urllib
 import urllib2
 
-from httplib import HTTP
-from StringIO import StringIO
-import urlparse
-
-# elementtree (from effbot.org/downloads)
-#from elementtree import ElementTree
-
 from kernel import objects
+#import objects
+
+class HTTPClient():
+	def __init__(self, url=None, proxy={'host': None}):
+		self.url = url
+		self.proxy = proxy
 
 
-class Transport():
-	def __init__(self, application):
-		self.session = None
-		self.error = None
-		self.settings = application.settings
 
-
-
-	def send(self, xmldata=None, url=''):
-		if not xmldata:
-			self.error = 'nothing to send'
+	def request(self, xmldata=None, values={}, headers={}):
+		if not isinstance(xmldata, basestring):
+			raise TypeError, 'string expected!'
 
 		with (open('debug/query.xml', 'wb')) as xmlfile:
 			xmlfile.write(xmldata)
 
-		proxydata = {}
-		for option in ('user', 'pass', 'host', 'port'):
-			proxydata[option] = self.settings.option('PROXY', option)
-
-		proxydata['port'] = int(self.settings.option('PROXY', 'port') or 0)
+		proxydata = self.proxy
+		proxydata['port'] = int(proxydata['port'] or 0)
 
 		print proxydata
 
@@ -41,97 +30,60 @@ class Transport():
 			opener = urllib2.build_opener(proxy_support)
 			urllib2.install_opener(opener)
 
-		data = urllib.urlencode({'form[value1]': xmldata})
+		values['form[value1]'] = xmldata
 
-#		urldata = urllib2.urlopen(url, data).read()
+		body = urllib.urlencode(values)
+		headers = {'User-Agent' : 'CrowdClient 0.4'}
+		request = urllib2.Request(self.url, body, headers)
+
+
+		print body
 
 		try:
-			urldata = urllib2.urlopen(url, data).read()
+			response = urllib2.urlopen(request)
 
+		except urllib2.HTTPError, e:
+			# неправильный адрес
+			#HTTP Error 407: Proxy Authentication Required
+			print 'TRANSPORT ERROR:'
+			print e.code
+			return
+
+		except urllib2.URLError, e:
+			print 'TRANSPORT ERROR:'
+			print e.reason
 			#левый порт
 			#<urlopen error [Errno 10049] The requested address is not valid in its context>
 
-		except urllib2.URLError, e:
 			#таймаут
 			#<urlopen error [Errno 11006]>
 
 			#херня вместо адреса
 			#<urlopen error [Errno 11004] getaddrinfo failed>
-
-			print 'TRANSPORT ERROR:', e
 			return
 
-		except urllib2.HTTPError, e:
-			# неправильный адрес
-			#HTTP Error 407: Proxy Authentication Required
-			print 'TRANSPORT ERROR:', e
-			return
 
-		except urllib2.URLError, e:
-			# нет инета (сетевого подключения)
-			print 'TRANSPORT ERROR:', e
-			return
+		urldata = response.read()
 
-		print urldata
+#		print urldata
 
 		with (open('debug/answer.xml', 'wb')) as xmlfile:
 			xmlfile.write(urldata)
 
 		return urldata
 
-class HTTP:
 
-	user_agent = "HTTPClient (from effbot.org)"
 
-	def __init__(self, uri):
+if __name__ == '__main__':
 
-		scheme, host, path, params, query, fragment = urlparse.urlparse(uri)
-		if scheme != "http":
-			raise ValueError("only supports HTTP requests")
+# http://altiumlib.noxius.ru/?page=client&rem=read
 
-		# put the path back together again
-		if not path:
-			path = "/"
-		if params:
-			path = path + ";" + params
-		if query:
-			path = path + "?" + query
+	pr = {'host': '127.0.0.1', 'port': '3128', 'user': '', 'pass': ''}
 
-		self.host = host
-		self.path = path
+	i = HTTPClient('http://altiumlib.noxius.ru/?page=client&rem=read', pr)
 
-	def do_request(self, body,
-		# optional keyword arguments follow
-		path=None, method="POST", content_type="text/xml",
-		extra_headers=(), parser=None):
+#	val = {'page': 'client', 'rem': 'read'}
 
-		if not path:
-			path = self.path
+	ans = i.request('<query/>')
 
-		if isinstance(body, ElementTree.ElementTree):
-			# serialize element tree
-			file = StringIO()
-			body.write(file)
-			body = file.getvalue()
-
-		# send xml request
-		h = HTTP(self.host)
-		h.putrequest(method, path)
-		h.putheader("User-Agent", self.user_agent)
-		h.putheader("Host", self.host)
-		if content_type:
-			h.putheader("Content-Type", content_type)
-		h.putheader("Content-Length", str(len(body)))
-		for header, value in extra_headers:
-			h.putheader(header, value)
-		h.endheaders()
-
-		h.send(body)
-
-		# fetch the reply
-		errcode, errmsg, headers = h.getreply()
-
-		if errcode != 200:
-			raise Exception(errcode, errmsg)
-
-		return ElementTree.parse(h.getfile(), parser=parser)
+	print ans
