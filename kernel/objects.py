@@ -172,19 +172,32 @@ class Component():
 		""" возвращает артикул компонента """
 		return self._partnumber
 
+	def id(self):
+		""" возвращает id компонента """
+		return '.'.join((self._manufacturer, self._partnumber))
+
 	def __iter__(self):
 		return iter(self._parameters.values())
 
-	def get(self, parameter):
-		""" возвращает параметр с наименованием parameter """
-		return self._parameters.get(parameter)
+	def get(self, parameter, real=False):
+		""" возвращает значение параметра с наименованием parameter (имя уже известно) """
+		exist = self._parameters.get(parameter)
+
+		if not exist:
+			return u''
+
+		if real:
+			return self._parameters.get(parameter).value()
+
+		else:
+			return self._parameters.get(parameter).value()
 
 	def set(self, parameter):
 		""" добавляет новый параметр """
 		if not isinstance(parameter, Parameter):
 			raise TypeError, "Parameter object expected"
 
-		self._parameters[parameter.name] = parameter
+		self._parameters[parameter.name()] = parameter
 
 	def build(self):
 		""" возвращает Element компонента """

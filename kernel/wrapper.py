@@ -330,29 +330,69 @@ def sync(window):
 
 	app = window.parent()
 
+	import fnmatch
 
 	### определяем путь к репозиториям ###
 
 	selfpath = os.path.abspath(os.curdir)
 
-	basepath = os.path.join(selfpath, 'debug', 'xml', 'components')
+	basepath = os.path.join(selfpath, 'debug', 'xml')
 	print 'repository path:', basepath
 
 	unique = {}
 
-	import fnmatch
-	import xml.etree.ElementTree as ElementTree
+	symbols = {}
+	packages = {}
+	models = {}
 
-	for path, dirs, files in os.walk(basepath):
+	componentpath = os.path.join(basepath, 'components')
+	symbolpath = os.path.join(basepath, 'symbols')
+	packagepath = os.path.join(basepath, 'packages')
+	modelpath = os.path.join(basepath, 'models')
+
+
+	""" поиск символов """
+
+	for path, dirs, files in os.walk(symbolpath):
 		for filename in files:
 			if fnmatch.fnmatch(filename, '*.xml'):
 				if filename in unique:
 					print 'Duplicate Error:', filename, path
 
 				else:
-					unique[filename] = os.path.abspath(os.path.join(path, filename))
-	print unique
+					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
+						xmldata = xmlfile.read()
 
+
+	""" поиск компонентов """
+
+	for path, dirs, files in os.walk(componentpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in unique:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
+						xmldata = xmlfile.read()
+
+					element = objects.Component()
+					element.parse(xmldata)
+
+
+#					unique[filename] = os.path.abspath(os.path.join(path, filename))
+					unique[element.id()] = element
+
+					print
+					print element.id()
+					print
+					print '\tSymbol:', element.get('Symbol')
+					print '\tPackage:', element.get(u'Package')
+					print '\tModel:', element.get('Model')
+
+
+#					for parameter in element:
+#						print parameter.name(), parameter.value()
 
 	
 
