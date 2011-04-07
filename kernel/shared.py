@@ -230,6 +230,38 @@ def do_export(parent, data):
 	return 'Done'
 
 
+def format(data):
+	if not data:
+		print 'nothing to format'
+		return
+
+	cfg = utils.OptionManager('data.ini')
+
+	if cfg.error:
+		print cfg.error
+		return
+
+	# наименование таблицы для текущей категории
+	table = cfg.option('TABLES', category)
+
+	if not table:
+		print 'no table %s' % (category,)
+		return
+
+	# dict наименования полей таблицы и их значения
+	tablefields = cfg.options(table + '_FIELDS', True) or {} # or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
+
+
+	if not tablefields:
+		print 'no fields in %s' % (table,)
+		return
+
+
+
+
+
+
+
 def sortupdate(category, data):
 	if not data:
 		print 'nothing to sort'
@@ -259,23 +291,6 @@ def sortupdate(category, data):
 
 	content = []
 
-	def stringize(s):
-
-#		print s
-		if isinstance(s, datetime.datetime):
-			return s.isoformat(' ')
-
-		elif isinstance(s, bool) or isinstance(s, int) or isinstance(s, float):
-			return str(s)
-
-		elif s is None:
-			return ''
-
-		else:
-			return s
-
-
-
 	for element in data:
 		dataout = {}
 
@@ -290,7 +305,7 @@ def sortupdate(category, data):
 			else:
 				#надо так: для каждой подстроки в скобочках [] заменить на строковое значение параметра
 				for parameter in element.keys():
-					value = value.replace(''.join(('[', parameter, ']')), stringize(element[parameter]) or '')
+					value = value.replace(''.join(('[', parameter, ']')), element[parameter] or '')
 
 			dataout[field] = value
 

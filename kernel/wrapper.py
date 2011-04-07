@@ -338,6 +338,7 @@ def sync(window):
 
 	basepath = os.path.join(selfpath, 'debug', 'xml')
 	print 'repository path:', basepath
+	print
 
 	unique = {}
 
@@ -351,17 +352,51 @@ def sync(window):
 	modelpath = os.path.join(basepath, 'models')
 
 
-	""" поиск символов """
+	""" составление списка символов """
 
 	for path, dirs, files in os.walk(symbolpath):
 		for filename in files:
 			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in unique:
+				if filename in symbols:
 					print 'Duplicate Error:', filename, path
 
 				else:
-					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
-						xmldata = xmlfile.read()
+					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+
+
+	print 'symbols:', symbols
+	print
+
+
+	""" составление списка корпусов """
+
+	for path, dirs, files in os.walk(packagepath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in packages:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+
+
+	print 'packages:', packages
+	print
+
+	""" составление списка моделей """
+
+	for path, dirs, files in os.walk(modelpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in models:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+
+
+	print 'models:', models
+	print
 
 
 	""" поиск компонентов """
@@ -379,22 +414,77 @@ def sync(window):
 					element = objects.Component()
 					element.parse(xmldata)
 
+					print
+					print element.id()
+
+					symbol = element.get('Symbol')
+					package = element.get('Package')
+					model = element.get('Model')
+
+					print
+					print '\tSymbol:', symbol
+					print '\tPackage:', package
+					print '\tModel:', model
+
+					""" добавление параметров символа """
+
+					if symbol:
+						try:
+							with open(symbols[symbol]) as xmlfile:
+								xmldata = xmlfile.read()
+
+							symbol = objects.Symbol()
+							symbol.parse(xmldata)
+
+							for parameter in symbol:
+								element.set(objects.Parameter('.'.join(('Symbol', parameter.name())), parameter.value(), parameter.value()))
+
+						except:
+							print 'ERROR 23'
+
+					""" добавление параметров корпуса """
+
+					if package:
+						try:
+							with open(packages[package]) as xmlfile:
+								xmldata = xmlfile.read()
+
+							package = objects.Package()
+							package.parse(xmldata)
+
+							for parameter in package:
+								element.set(objects.Parameter('.'.join(('Package', parameter.name())), parameter.value(), parameter.value()))
+
+						except:
+							print 'ERROR 24'
+
+					""" добавление параметров модели """
+
+					if model:
+						try:
+							with open(models[model]) as xmlfile:
+								xmldata = xmlfile.read()
+
+							model = objects.Model()
+							model.parse(xmldata)
+
+							for parameter in model:
+								element.set(objects.Parameter('.'.join(('Model', parameter.name())), parameter.value(), parameter.value()))
+
+						except:
+							print 'ERROR 25'
+
+
+					print
+
+					for parameter in element:
+						print '%s: %s' % (parameter.name(), parameter.value())
 
 #					unique[filename] = os.path.abspath(os.path.join(path, filename))
 					unique[element.id()] = element
 
-					print
-					print element.id()
-					print
-					print '\tSymbol:', element.get('Symbol')
-					print '\tPackage:', element.get(u'Package')
-					print '\tModel:', element.get('Model')
+	formatted = shared.format(unique)
 
-
-#					for parameter in element:
-#						print parameter.name(), parameter.value()
-
-	
 
 
 class PackageWorker():

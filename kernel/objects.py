@@ -249,6 +249,250 @@ class Component():
 				print 'Non-valid XML: it is not parameter'
 
 
+
+class Symbol():
+
+	def __init__(self, name='Unknown'):
+		self._name = name
+		self._parameters = {}
+
+	def id(self):
+		""" возвращает id символа """
+		return self._name
+
+	def __iter__(self):
+		return iter(self._parameters.values())
+
+	def get(self, parameter, real=False):
+		""" возвращает значение параметра с наименованием parameter (имя уже известно) """
+		exist = self._parameters.get(parameter)
+
+		if not exist:
+			return u''
+
+		if real:
+			return self._parameters.get(parameter).value()
+
+		else:
+			return self._parameters.get(parameter).value()
+
+	def set(self, parameter):
+		""" добавляет новый параметр """
+		if not isinstance(parameter, Parameter):
+			raise TypeError, "Parameter object expected"
+
+		self._parameters[parameter.name()] = parameter
+
+	def build(self):
+		""" возвращает Element компонента """
+		el = xmltree.Element('symbol')
+
+		el.set('name', self.id())
+
+		for parameter in self:
+			el.append(parameter.build())
+
+		return el
+
+	def xml(self):
+		""" возвращает pretty_printed XML символа НЕ НУЖЕН ТУТ """
+		xmlobject = self.build()
+
+		if lxml_installed:
+			xml = xmltree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
+
+		else:
+			from xml.dom import minidom
+
+			barexml = xmltree.tostring(xmlobject, encoding='utf-8')
+			xml = minidom.parseString(barexml).toprettyxml(indent='\t', encoding='utf-8')
+
+		return xml
+
+	def parse(self, xml):
+		""" генерирует символ из XML """
+		try:
+			el = xmltree.XML(xml)
+
+		except:
+			print 'Non-valid XML: error parsing document'
+			return
+
+		if not el.tag == 'symbol':
+			raise Exception, 'Non-valid XML: it is not a symbol'
+
+		self._name = el.get('name')
+
+		for sub in el.findall('parameter'):
+			try:
+				parameter = Parameter(sub.get('name'), sub.get('value'), sub.get('type'))
+				self.set(parameter)
+			except:
+				print 'Non-valid XML: it is not parameter'
+
+
+class Package():
+
+	def __init__(self, name='Unknown'):
+		self._name = name
+		self._parameters = {}
+
+	def id(self):
+		""" возвращает id корпуса """
+		return self._name
+
+	def __iter__(self):
+		return iter(self._parameters.values())
+
+	def get(self, parameter, real=False):
+		""" возвращает значение параметра с наименованием parameter (имя уже известно) """
+		exist = self._parameters.get(parameter)
+
+		if not exist:
+			return u''
+
+		if real:
+			return self._parameters.get(parameter).value()
+
+		else:
+			return self._parameters.get(parameter).value()
+
+	def set(self, parameter):
+		""" добавляет новый параметр """
+		if not isinstance(parameter, Parameter):
+			raise TypeError, "Parameter object expected"
+
+		self._parameters[parameter.name()] = parameter
+
+	def build(self):
+		""" возвращает Element компонента """
+		el = xmltree.Element('package')
+
+		el.set('name', self.id())
+
+		for parameter in self:
+			el.append(parameter.build())
+
+		return el
+
+	def xml(self):
+		""" возвращает pretty_printed XML символа НЕ НУЖЕН ТУТ """
+		xmlobject = self.build()
+
+		if lxml_installed:
+			xml = xmltree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
+
+		else:
+			from xml.dom import minidom
+
+			barexml = xmltree.tostring(xmlobject, encoding='utf-8')
+			xml = minidom.parseString(barexml).toprettyxml(indent='\t', encoding='utf-8')
+
+		return xml
+
+	def parse(self, xml):
+		""" генерирует корпус из XML """
+		try:
+			el = xmltree.XML(xml)
+
+		except:
+			print 'Non-valid XML: error parsing document'
+			return
+
+		if not el.tag == 'package':
+			raise Exception, 'Non-valid XML: it is not a package'
+
+		self._name = el.get('name')
+
+		for sub in el.findall('parameter'):
+			try:
+				parameter = Parameter(sub.get('name'), sub.get('value'), sub.get('type'))
+				self.set(parameter)
+			except:
+				print 'Non-valid XML: it is not parameter'
+
+
+class Model():
+
+	def __init__(self, name='Unknown'):
+		self._name = name
+		self._parameters = {}
+
+	def id(self):
+		""" возвращает id модели """
+		return self._name
+
+	def __iter__(self):
+		return iter(self._parameters.values())
+
+	def get(self, parameter, real=False):
+		""" возвращает значение параметра с наименованием parameter (имя уже известно) """
+		exist = self._parameters.get(parameter)
+
+		if not exist:
+			return u''
+
+		if real:
+			return self._parameters.get(parameter).value()
+
+		else:
+			return self._parameters.get(parameter).value()
+
+	def set(self, parameter):
+		""" добавляет новый параметр """
+		if not isinstance(parameter, Parameter):
+			raise TypeError, "Parameter object expected"
+
+		self._parameters[parameter.name()] = parameter
+
+	def build(self):
+		""" возвращает Element компонента """
+		el = xmltree.Element('model')
+
+		el.set('name', self.id())
+
+		for parameter in self:
+			el.append(parameter.build())
+
+		return el
+
+	def xml(self):
+		""" возвращает pretty_printed XML символа НЕ НУЖЕН ТУТ """
+		xmlobject = self.build()
+
+		if lxml_installed:
+			xml = xmltree.tostring(xmlobject, encoding='utf-8', xml_declaration=True, pretty_print=True)
+
+		else:
+			from xml.dom import minidom
+
+			barexml = xmltree.tostring(xmlobject, encoding='utf-8')
+			xml = minidom.parseString(barexml).toprettyxml(indent='\t', encoding='utf-8')
+
+		return xml
+
+	def parse(self, xml):
+		""" генерирует модель из XML """
+		try:
+			el = xmltree.XML(xml)
+
+		except:
+			print 'Non-valid XML: error parsing document'
+			return
+
+		if not el.tag == 'model':
+			raise Exception, 'Non-valid XML: it is not a model'
+
+		self._name = el.get('name')
+
+		for sub in el.findall('parameter'):
+			try:
+				parameter = Parameter(sub.get('name'), sub.get('value'), sub.get('type'))
+				self.set(parameter)
+			except:
+				print 'Non-valid XML: it is not parameter'
+
+
 class Parameter():
 
 	def __init__(self, name, value, mode):
