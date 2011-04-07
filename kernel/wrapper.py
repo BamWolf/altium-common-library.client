@@ -483,7 +483,7 @@ def sync(window):
 #					unique[filename] = os.path.abspath(os.path.join(path, filename))
 					unique[element.id()] = element
 
-	formatted = shared.format(unique)
+	formatted = shared.format(unique.values())
 
 
 

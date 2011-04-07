@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 
+import re
 import time
 import datetime
 
@@ -235,30 +236,52 @@ def format(data):
 		print 'nothing to format'
 		return
 
+	print
+	print data
+	print
+
 	cfg = utils.OptionManager('data.ini')
 
 	if cfg.error:
 		print cfg.error
 		return
 
-	# наименование таблицы для текущей категории
-	table = cfg.option('TABLES', category)
+	result = {}
 
-	if not table:
-		print 'no table %s' % (category,)
-		return
-
-	# dict наименования полей таблицы и их значения
-	tablefields = cfg.options(table + '_FIELDS', True) or {} # or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
+	for element in data:
+		category = element.get('Category')
 
 
-	if not tablefields:
-		print 'no fields in %s' % (table,)
-		return
+		if not category in result:
+			result[category] = []
+
+		# наименование таблицы для текущей категории
+		table = cfg.option('TABLES', category)
+
+		if not table:
+			print 'no table %s' % (category,)
+			return
+
+		# dict наименования полей таблицы и их значения
+		tablefields = cfg.options(table + '_FIELDS', True) or {} # or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
 
 
+		if not tablefields:
+			print 'no fields in %s' % (table,)
+			return
 
+		print tablefields
+		print
 
+		for field in tablefields:
+			value = tablefields[field]
+
+			pattern = re.compile('\\[[a-z]+\\]', re.IGNORECASE)
+
+	#		list = pattern.finditer(value)
+			list = pattern.findall(value)
+
+			print list
 
 
 
