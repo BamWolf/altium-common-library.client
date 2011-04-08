@@ -181,6 +181,13 @@ class Component():
 
 	def get(self, parameter, real=False):
 		""" возвращает значение параметра с наименованием parameter (имя уже известно) """
+
+		if parameter.lower() == 'manufacturer':
+			return self._manufacturer
+
+		elif parameter.lower() == 'partnumber':
+			return self._partnumber
+
 		exist = self._parameters.get(parameter)
 
 		if not exist:

@@ -263,7 +263,8 @@ def format(data):
 			return
 
 		# dict наименования полей таблицы и их значения
-		tablefields = cfg.options(table + '_FIELDS', True) or {} # or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
+		tablefields = cfg.options(table + '_FIELDS', True) or {}
+		# or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
 
 
 		if not tablefields:
@@ -273,15 +274,19 @@ def format(data):
 		print tablefields
 		print
 
-		for field in tablefields:
-			value = tablefields[field]
-
+		for field in tablefields.values():
 			pattern = re.compile('\\[[a-z]+\\]', re.IGNORECASE)
 
-	#		list = pattern.finditer(value)
-			list = pattern.findall(value)
+	#		list = pattern.finditer(field)
+			list = pattern.findall(field)
 
-			print list
+			for parameter in list:
+				value = element.get(parameter[1:-1], '')
+				print '%s: %s' % (parameter[1:-1], value)
+
+				field = field.replace(parameter, value)
+
+			print 'field:', field
 
 
 

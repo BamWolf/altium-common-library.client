@@ -428,7 +428,7 @@ def sync(window):
 
 					""" добавление параметров символа """
 
-					if symbol:
+					if symbol and symbol in symbols:
 						try:
 							with open(symbols[symbol]) as xmlfile:
 								xmldata = xmlfile.read()
@@ -444,7 +444,7 @@ def sync(window):
 
 					""" добавление параметров корпуса """
 
-					if package:
+					if package and package in packages:
 						try:
 							with open(packages[package]) as xmlfile:
 								xmldata = xmlfile.read()
@@ -460,7 +460,7 @@ def sync(window):
 
 					""" добавление параметров модели """
 
-					if model:
+					if model and model in models:
 						try:
 							with open(models[model]) as xmlfile:
 								xmldata = xmlfile.read()
