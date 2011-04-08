@@ -251,7 +251,6 @@ def format(data):
 	for element in data:
 		category = element.get('Category')
 
-
 		if not category in result:
 			result[category] = []
 
@@ -274,19 +273,35 @@ def format(data):
 		print tablefields
 		print
 
-		for field in tablefields.values():
-			pattern = re.compile('\\[[a-z]+\\]', re.IGNORECASE)
+		for field in tablefields:
+			fieldvalue = tablefields[field]
 
-	#		list = pattern.finditer(field)
-			list = pattern.findall(field)
+			pattern = re.compile('\\[[a-z.]+\\]', re.IGNORECASE)
+			pattern2 = re.compile('^\\{[a-z.]+\\}', re.IGNORECASE)
+
+	#		list = pattern.finditer(fieldvalue)
+	#		list2 = pattern2.finditer(fieldvalue)
+
+			list = pattern.findall(fieldvalue)
+			list2 = pattern2.findall(fieldvalue)
 
 			for parameter in list:
-				value = element.get(parameter[1:-1], '')
-				print '%s: %s' % (parameter[1:-1], value)
+				value = element.get(parameter[1:-1])
+#				print 'get parameter %s: %s' % (parameter[1:-1], value)
 
-				field = field.replace(parameter, value)
+				fieldvalue = fieldvalue.replace(parameter, value)
 
-			print 'field:', field
+
+			### тут нужно получить неприведенные значения параметров ###
+			for parameter in list2:
+				value = element.get(parameter[1:-1], True)
+				print 'get parameter %s: %s' % (parameter[1:-1], value)
+
+				fieldvalue = fieldvalue.replace(parameter, value)
+
+			print '%s: "%s"' % (field, fieldvalue)
+
+		print
 
 
 
