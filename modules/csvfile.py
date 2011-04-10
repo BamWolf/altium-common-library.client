@@ -53,32 +53,34 @@ class CSVWriter(pyplugin.plugin):
 			return s
 
 
-	def set(self, filename, fieldlist, data):
-		if not data or not fieldlist:
+	def set(self, data):
+		if not data:
 			print _('no data to save')
 			self.error = _('no data to save')
 			return
 
-		csvfilename = os.path.join(self.settings.option(self.name, 'outputpath'), '.'.join((filename, 'csv')))
-		print _('updating %s') % (csvfilename,)
 
-		encoding = self.settings.option(self.name, 'encoding') or 'utf-8'
+		for category in data:
 
-#		try:
-		with open(csvfilename, 'wb+') as output:
-			self.writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
+			csvfilename = os.path.join(self.settings.option(self.name, 'outputpath'), '.'.join((category, 'csv')))
+			print
+			print _('updating %s') % (csvfilename,)
 
-#		except IOError, e:
-#			self.error = e
-#			return
+			encoding = self.settings.option(self.name, 'encoding') or 'utf-8'
 
-#		try:
-			self.writer.writerow(fieldlist)
+#			try:
+			with open(csvfilename, 'wb+') as output:
+				self.writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
 
-			for element in data:
-				self.writer.writerow([self.stringize(element[s]).encode(encoding) for s in fieldlist])
-#				self.writer.writerow([s.encode('utf-8') for s in item])
+#			except IOError, e:
+#				self.error = e
+#				return
 
+#			try:
+				self.writer.writerow(data[category][0].keys())
 
+				for element in data[category]:
+#					self.writer.writerow([self.stringize(element[s]).encode(encoding) for s in fieldlist])
+					self.writer.writerow([element[field].encode('utf-8') for field in element])
 
 

@@ -273,6 +273,8 @@ def format(data):
 		print tablefields
 		print
 
+		el = {}
+
 		for field in tablefields:
 			fieldvalue = tablefields[field]
 
@@ -298,9 +300,15 @@ def format(data):
 
 			print '%s: "%s" (%s)' % (field, fieldvalue, type(fieldvalue))
 
+			el[field] = fieldvalue
+
+		result[category].append(el)
+		
 		print
+		print result
 
-
+		writer = csvfile.CSVWriter()
+		writer.set(result)
 
 def sortupdate(category, data):
 	if not data:
