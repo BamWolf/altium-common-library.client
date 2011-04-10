@@ -193,8 +193,7 @@ class Component():
 				return u''
 
 			if real:
-				print 'get real'
-				return self._parameters.get(parameter).value() or u''
+				return self._parameters.get(parameter).real()
 
 			else:
 				return self._parameters.get(parameter).value()
@@ -510,6 +509,8 @@ class Parameter():
 		self._value = value
 		self._type = mode
 
+		### добавить валидацию входных значений
+
 	def name(self):
 		""" возвращает наименование параметра """
 		return self._name
@@ -531,7 +532,7 @@ class Parameter():
 			return float(self._value)
 
 		elif self._type == 'datetime':
-			return datetime.datetime(self._value)
+			return datetime.datetime.strptime(self._value, '%Y-%m-%d %H:%M:%S.%f')
 
 	def build(self):
 		""" возвращает Element параметра """

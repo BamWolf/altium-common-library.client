@@ -276,8 +276,8 @@ def format(data):
 		for field in tablefields:
 			fieldvalue = tablefields[field]
 
-			pattern = re.compile('\\[[a-z.]+\\]', re.IGNORECASE)
-			pattern2 = re.compile('^\\{[a-z.]+\\}', re.IGNORECASE)
+			pattern = re.compile('^\\{[a-z.]+\\}', re.IGNORECASE)
+			pattern2 = re.compile('\\[[a-z.]+\\]', re.IGNORECASE)
 
 	#		list = pattern.finditer(fieldvalue)
 	#		list2 = pattern2.finditer(fieldvalue)
@@ -285,21 +285,18 @@ def format(data):
 			list = pattern.findall(fieldvalue)
 			list2 = pattern2.findall(fieldvalue)
 
+			### получаем все неприведенные значения  параметров ###
 			for parameter in list:
-				value = element.get(parameter[1:-1])
-#				print 'get parameter %s: %s' % (parameter[1:-1], value)
-
-				fieldvalue = fieldvalue.replace(parameter, value)
-
-
-			### тут нужно получить неприведенные значения параметров ###
-			for parameter in list2:
 				value = element.get(parameter[1:-1], True)
-				print 'get parameter %s: %s' % (parameter[1:-1], value)
+				fieldvalue = value
 
+
+			### получаем строковые значения параметров ###
+			for parameter in list2:
+				value = element.get(parameter[1:-1])
 				fieldvalue = fieldvalue.replace(parameter, value)
 
-			print '%s: "%s"' % (field, fieldvalue)
+			print '%s: "%s" (%s)' % (field, fieldvalue, type(fieldvalue))
 
 		print
 
