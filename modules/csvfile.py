@@ -62,7 +62,7 @@ class CSVWriter(pyplugin.plugin):
 
 		for category in data:
 
-			csvfilename = os.path.join(self.settings.option(self.name, 'outputpath'), '.'.join((category, 'csv')))
+			csvfilename = os.path.abspath(os.path.join(self.settings.option(self.name, 'outputpath'), '.'.join((category, 'csv'))))
 			print
 			print _('updating %s') % (csvfilename,)
 
