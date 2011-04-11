@@ -266,11 +266,12 @@ def format(data):
 			print 'no fields in %s' % (table,)
 			return
 
-		print tablefields
+#		print tablefields
+		print 'COMPONENT'
 		print
 
 		if not category in result:
-			result[category] = [tablefields.keys(), []]
+			result[category] = [table, tablefields.keys(), []]
 
 		el = {}
 
@@ -288,6 +289,7 @@ def format(data):
 			for parameter in list:
 				value = element.get(parameter[1:-1], True)
 				fieldvalue = value
+				print fieldvalue
 
 
 			### получаем строковые значения параметров ###
@@ -299,12 +301,17 @@ def format(data):
 
 			el[field] = fieldvalue
 
-		result[category][1].append(el)
+		result[category][2].append(el)
 
-	print
+		print
+
+	print 'RESULT:'
 	print result
 
-	writer = csvfile.CSVWriter()
+#	writer = csvfile.CSVWriter()
+#	writer.set(result)
+
+	writer = msaccess.MDBWriter()
 	writer.set(result)
 
 def sortupdate(category, data):

@@ -5,6 +5,7 @@ from kernel import utils
 
 from datetime import datetime
 import pyodbc
+import os
 
 #from kernel import i18n
 
@@ -44,44 +45,43 @@ class MDBWriter(pyplugin.plugin):
 			self.error = e
 
 
-	def set(self, table, fieldlist, data):
-		if not data or not fieldlist:
+	def set(self, data):
+		if not data:
 			print _('no data to save')
 			self.error = _('no data to save')
 			return
 
-		database = self.settings.option(self.name, 'outputpath')
-		print _('updating %s') % (database,)
+		for category in data:
+			database = os.path.abspath(self.settings.option(self.name, 'outputpath'))
+			print
+			print _('updating %s') % (database,)
 
-		self.connect(database)
+			self.connect(database)
 
-		if self.error:
-			return
-
-		print _('connected %s') % (database,)
-
-		fields = ', '.join([''.join(('[', s, ']')) for s in fieldlist])
-
-		print fields
-
-		query = "INSERT INTO %s (%s) VALUES (%s);" % (table, fields, ', '.join('?'*len(fieldlist)))
-		print query
-
-		for item in data:
-			element = [item[i] for i in fieldlist]
-			print element
-
-			try:
-				self.cursor.execute(query, element)
-
-			except pyodbc.IntegrityError:
-				print _('duplicate entry %s') % (item,)
-
-			except Exception, e:
-				self.error = e
+			if self.error:
 				return
 
-		self.close()
+			print _('connected %s') % (database,)
+
+			table, fieldlist, elements = data[category]
+			fields = ', '.join([''.join(('[', s, ']')) for s in fieldlist])
+
+			query = "INSERT INTO %s (%s) VALUES (%s);" % (table, fields, ', '.join('?'*len(fieldlist)))
+			print query
+
+			for element in elements:
+				try:
+					self.cursor.execute(query, [element[i] for i in fieldlist])
+
+				except pyodbc.IntegrityError:
+					print _('duplicate entry %s') % (element,)
+
+				except Exception, e:
+					self.error = e
+					print e
+					return
+
+			self.close()
 
 
 	def close(self):
