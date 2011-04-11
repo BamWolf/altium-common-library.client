@@ -20,3 +20,5 @@ cd ..
 copy src\*.ini dist\*.ini
 copy src\ui\*.* dist\ui\*.*
 copy src\modules\*.* dist\modules\*.*
+
+pause

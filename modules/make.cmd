@@ -5,3 +5,4 @@ rd CSV.egg-info /q /s
 
 cd ..
 
+pause
