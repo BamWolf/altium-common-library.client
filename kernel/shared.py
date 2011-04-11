@@ -251,9 +251,6 @@ def format(data):
 	for element in data:
 		category = element.get('Category')
 
-		if not category in result:
-			result[category] = []
-
 		# наименование таблицы для текущей категории
 		table = cfg.option('TABLES', category)
 
@@ -265,7 +262,6 @@ def format(data):
 		tablefields = cfg.options(table + '_FIELDS', True) or {}
 		# or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
 
-
 		if not tablefields:
 			print 'no fields in %s' % (table,)
 			return
@@ -273,11 +269,12 @@ def format(data):
 		print tablefields
 		print
 
+		if not category in result:
+			result[category] = [tablefields.keys(), []]
+
 		el = {}
 
-		for field in tablefields:
-			fieldvalue = tablefields[field]
-
+		for field, fieldvalue in tablefields.items():
 			pattern = re.compile('^\\{[a-z.]+\\}', re.IGNORECASE)
 			pattern2 = re.compile('\\[[a-z.]+\\]', re.IGNORECASE)
 
@@ -302,13 +299,13 @@ def format(data):
 
 			el[field] = fieldvalue
 
-		result[category].append(el)
-		
-		print
-		print result
+		result[category][1].append(el)
 
-		writer = csvfile.CSVWriter()
-		writer.set(result)
+	print
+	print result
+
+	writer = csvfile.CSVWriter()
+	writer.set(result)
 
 def sortupdate(category, data):
 	if not data:

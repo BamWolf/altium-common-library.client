@@ -61,12 +61,14 @@ class CSVWriter(pyplugin.plugin):
 
 
 		for category in data:
-
 			csvfilename = os.path.abspath(os.path.join(self.settings.option(self.name, 'outputpath'), '.'.join((category, 'csv'))))
 			print
 			print _('updating %s') % (csvfilename,)
 
 			encoding = self.settings.option(self.name, 'encoding') or 'utf-8'
+
+			fieldlist = data[category][0]
+			elements = data[category][1]
 
 #			try:
 			with open(csvfilename, 'wb+') as output:
@@ -77,10 +79,11 @@ class CSVWriter(pyplugin.plugin):
 #				return
 
 #			try:
-				self.writer.writerow(data[category][0].keys())
+				self.writer.writerow(fieldlist)
 
-				for element in data[category]:
+				for element in elements:
+					print element
 #					self.writer.writerow([self.stringize(element[s]).encode(encoding) for s in fieldlist])
-					self.writer.writerow([element[field].encode('utf-8') for field in element])
+					self.writer.writerow([element[field].encode('utf-8') for field in fieldlist])
 
 
