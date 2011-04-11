@@ -1,5 +1,8 @@
 #-*- coding: utf-8 -*-
 
+import sys
+import os
+
 import re
 import time
 import datetime
@@ -308,103 +311,50 @@ def format(data):
 	print 'RESULT:'
 	print result
 
-#	writer = csvfile.CSVWriter()
-#	writer.set(result)
-
-	writer = msaccess.MDBWriter()
-	writer.set(result)
-
-def sortupdate(category, data):
-	if not data:
-		print 'nothing to sort'
-		return
-
-	print 'processing'
-	cfg = utils.OptionManager('data.ini')
+	cfg = utils.OptionManager('settings.ini')
 
 	if cfg.error:
 		print cfg.error
 		return
 
-	# наименование таблицы для текущей категории
-	table = cfg.option('TABLES', category)
+	writername = cfg.option('DATA', 'output')
 
-	if not table:
-		print 'no table %s' % (category,)
+	if not writername:
+		print 'No writer'
 		return
 
-	# dict наименования полей таблицы и их значения
-	tablefields = cfg.options(table + '_FIELDS', True) or {} # or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
+
+	### плагины ###
+
+	import pkg_resources
+	#from pkg_resources import require
+
+	sys.path.insert(0, 'modules')
+#	print sys.path
+
+	# находим egg SQLite
+	try:
+		pkg_resources.require(writername)
+
+	except pkg_resources.DistributionNotFound, e:
+		print '%s plugin not found' % (writername,)
+
+	plugins = {}
+
+	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
+
+		if not entrypoint.dist in plugins:
+			print entrypoint.dist
+			print entrypoint.name
+
+		plugin = entrypoint.load()
+		tr = plugin()
+
+		print tr.echo('fuck yeah')
 
 
-	if not tablefields:
-		print 'no fields in %s' % (table,)
-		return
+#	writer = csvfile.CSVWriter()
+#	writer.set(result)
 
-	content = []
-
-	for element in data:
-		dataout = {}
-
-		### причесать, очень коряво ###
-		for field in tablefields.keys():
-			value = tablefields[field]
-
-			# тут отделяются поля которые относятся к datetime (их нельзя комбинировать с другими)
-			if value in [''.join(( '{', s, '}' )) for s in element.keys()]:
-				value = element[value[1:-1]] or None # заменяется на значение параметра с тем же типом
-
-			else:
-				#надо так: для каждой подстроки в скобочках [] заменить на строковое значение параметра
-				for parameter in element.keys():
-					value = value.replace(''.join(('[', parameter, ']')), element[parameter] or '')
-
-			dataout[field] = value
-
-		content.append(dataout)
-
-	
-	print 'done'
-
-	fieldlist = tuple(tablefields.keys())
-
-	print fieldlist
-
-	return table, fieldlist, content
-
-
-
-
-
-
-
-
-def dosmthng(parent, *args, **kwargs):
-	print kwargs
-	i = 0
-	while i < 16:
-		print i
-		parent.iter(i)
-		i = i + 1
-		time.sleep(0.2)
-
-
-#####################
-
-systemcategories = {
-	'A': 'Устройства (общее обозначение)',
-	'B': 'Преобразователи неэлектрических величин в электрические (кроме генераторов и источников питания) или наоборот',
-	'C': 'Конденсаторы',
-	'D': 'Схемы интегральные, микросборки',
-	'DA': 'Схема интегральные, аналоговые',
-	'E': '',
-	'F': '',
-	'G': '',
-	'H': '',
-	'K': '',
-	'L': '',
-	'R': '',
-	'VD': '',
-}
-
-
+	writer = msaccess.MDBWriter()
+	writer.set(result)
