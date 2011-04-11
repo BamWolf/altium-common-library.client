@@ -1,4 +1,3 @@
 glob:*.pyc
-glob:pyclient.db
 glob:debug/*
-glob:export/*
+glob:dist/*
