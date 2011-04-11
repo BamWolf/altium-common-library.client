@@ -1,22 +1,19 @@
 #-*- coding: utf-8 -*-
 
-from kernel import plugin as pyplugin
-from kernel import utils
-
 from datetime import datetime
 import os
 import sys
 import csv
-#import codecs
 import inspect
 
+import utils
 
 #from kernel import i18n
 
 def _(s):
 	return s
 
-class CSVWriter(pyplugin.plugin):
+class CSVWriter():
 
 	def __init__(self):
 		self.name = 'CSV'
@@ -34,7 +31,7 @@ class CSVWriter(pyplugin.plugin):
 
 
 	def initialize(self):
-		if not self.settings.option(self.name, 'outputpath', 'data/'):
+		if not self.settings.option(self.name, 'outputpath'):
 			self.error = _('no output')
 
 
@@ -53,6 +50,9 @@ class CSVWriter(pyplugin.plugin):
 			print _('updating %s') % (csvfilename,)
 
 			encoding = self.settings.option(self.name, 'encoding') or 'utf-8'
+
+			#if not encoding is encodings:
+			#	return
 
 			try:
 				with open(csvfilename, 'wb+') as output:

@@ -12,9 +12,6 @@ from kernel import utils
 from kernel import objects
 from kernel import transport
 
-#from modules import csvfile
-#from modules import msaccess
-
 ###########################
 
 
@@ -325,12 +322,7 @@ def format(data):
 	### плагины ###
 
 	import pkg_resources
-	#from pkg_resources import require
 
-	print
-	print sys.path
-
-	# находим egg SQLite
 	try:
 		pkg_resources.require(writername)
 
@@ -345,14 +337,8 @@ def format(data):
 			print entrypoint.dist
 			print entrypoint.name
 
-	plugin = plugins[writername].load()
+			plugin = entrypoint.load()
+
 	tr = plugin()
 
-	print tr.set(result)
-
-
-#	writer = csvfile.CSVWriter()
-#	writer.set(result)
-
-#	writer = msaccess.MDBWriter()
-#	writer.set(result)
+	tr.set(result)

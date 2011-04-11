@@ -336,7 +336,10 @@ def sync(window):
 
 	selfpath = os.path.abspath(os.curdir)
 
-	basepath = os.path.abspath(os.path.join(selfpath, '..', '..', 'crowd', 'xml'))
+	cfg = utils.OptionManager('settings.ini')
+	basepath = os.path.abspath(cfg.option('DATA', 'repository'))
+
+	basepath = os.path.abspath(os.path.join(basepath, 'xml'))
 	print 'repository path:', basepath
 	print
 
@@ -350,7 +353,6 @@ def sync(window):
 	symbolpath = os.path.join(basepath, 'symbols')
 	packagepath = os.path.join(basepath, 'packages')
 	modelpath = os.path.join(basepath, 'models')
-
 
 	""" составление списка символов """
 
