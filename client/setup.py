@@ -13,9 +13,9 @@ opts =	{
 			'includes': ['decimal', 'datetime', 'sip'],
 			'excludes' : [],
 			'dll_excludes': ['msvcr71.dll', 'MSVCP90.dll'],
-			'packages': ['modules'],
+			'packages': [],
 			'bundle_files': 2,
-			'dist_dir': '../exe',
+			'dist_dir': '../dist',
 			'compressed': True
 			}
 	}

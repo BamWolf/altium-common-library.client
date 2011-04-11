@@ -1,6 +1,6 @@
 @echo off
-cd src
+cd client
 python setup.py py2exe
 rd /s /q build
 cd ..
-del exe\w9xpopen.exe
+del dist\w9xpopen.exe

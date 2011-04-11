@@ -6,8 +6,8 @@ setup(
     description = """CSV Plugin""",
     author = 'Jack Krieger',
     #install_requires = ["Cheetah >= 1.0"],
-    packages = ['csv'],
+    packages = ['csv_writer'],
     entry_points = """
     [db.engine]
-    instance = csv.csvfile:CSVWriter
+    instance = csv_writer.csvfile:CSVWriter
     """)

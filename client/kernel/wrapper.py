@@ -336,7 +336,7 @@ def sync(window):
 
 	selfpath = os.path.abspath(os.curdir)
 
-	basepath = os.path.abspath(os.path.join(selfpath, '..', 'crowd', 'xml'))
+	basepath = os.path.abspath(os.path.join(selfpath, '..', '..', 'crowd', 'xml'))
 	print 'repository path:', basepath
 	print
 

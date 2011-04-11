@@ -12,8 +12,8 @@ from kernel import utils
 from kernel import objects
 from kernel import transport
 
-from modules import csvfile
-from modules import msaccess
+#from modules import csvfile
+#from modules import msaccess
 
 ###########################
 
@@ -240,8 +240,8 @@ def format(data):
 		return
 
 	print
-	print data
-	print
+#	print data
+#	print
 
 	cfg = utils.OptionManager('data.ini')
 
@@ -292,15 +292,13 @@ def format(data):
 			for parameter in list:
 				value = element.get(parameter[1:-1], True)
 				fieldvalue = value
-				print fieldvalue
-
 
 			### получаем строковые значения параметров ###
 			for parameter in list2:
 				value = element.get(parameter[1:-1])
 				fieldvalue = fieldvalue.replace(parameter, value)
 
-			print '%s: "%s" (%s)' % (field, fieldvalue, type(fieldvalue))
+#			print '%s: "%s" (%s)' % (field, fieldvalue, type(fieldvalue))
 
 			el[field] = fieldvalue
 
@@ -329,8 +327,8 @@ def format(data):
 	import pkg_resources
 	#from pkg_resources import require
 
-	sys.path.insert(0, 'modules')
-#	print sys.path
+	print
+	print sys.path
 
 	# находим egg SQLite
 	try:
@@ -347,14 +345,14 @@ def format(data):
 			print entrypoint.dist
 			print entrypoint.name
 
-		plugin = entrypoint.load()
-		tr = plugin()
+	plugin = plugins[writername].load()
+	tr = plugin()
 
-		print tr.echo('fuck yeah')
+	print tr.set(result)
 
 
 #	writer = csvfile.CSVWriter()
 #	writer.set(result)
 
-	writer = msaccess.MDBWriter()
-	writer.set(result)
+#	writer = msaccess.MDBWriter()
+#	writer.set(result)
