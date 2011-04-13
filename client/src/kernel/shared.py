@@ -7,9 +7,9 @@ import re
 import time
 import datetime
 
-import pkg_resources
+import fnmatch
 
-from kernel import database
+#from kernel import database
 #from kernel import utils
 from kernel import objects
 #from kernel import transport
@@ -24,20 +24,155 @@ def application_start(application):
 	database.init()
 
 
-def collector(process):
-	pass
+def collect_components(repopath):
+
+	components = {}
+	symbols = {}
+	packages = {}
+	models = {}
+ 
+	componentpath = os.path.join(repopath, 'components')
+	symbolpath = os.path.join(repopath, 'symbols')
+	packagepath = os.path.join(repopath, 'packages')
+	modelpath = os.path.join(repopath, 'models')
+ 
+	""" составление списка символов """
+	for path, dirs, files in os.walk(symbolpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in symbols:
+					print 'Duplicate Error:', filename, path
+ 
+				else:
+					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+ 
+	print 'symbols:', symbols
+	print
 
 
-def sync(process):
-	settings = process.appconfig()
+	""" составление списка корпусов """
 
-	### подключаем модуль вывода ###
-	modulename = settings.option('DATA', 'module')
+	for path, dirs, files in os.walk(packagepath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in packages:
+					print 'Duplicate Error:', filename, path
 
-	if not modulename:
-		raise AppException('No modulename')
+				else:
+					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
 
-	print 'Using module:', modulename
+
+	print 'packages:', packages
+	print
+
+	""" составление списка моделей """
+
+	for path, dirs, files in os.walk(modelpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in models:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+
+
+	print 'models:', models
+	print
+
+
+	""" поиск компонентов """
+
+	for path, dirs, files in os.walk(componentpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in components:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
+						xmldata = xmlfile.read()
+
+					element = objects.Component()
+					element.parse(xmldata)
+
+					print
+					print element.id()
+
+					symbol = element.get('Symbol')
+					package = element.get('Package')
+					model = element.get('Model')
+
+					print
+					print '\tSymbol:', symbol
+					print '\tPackage:', package
+					print '\tModel:', model
+
+					""" добавление параметров символа """
+
+					if symbol and symbol in symbols:
+						try:
+							with open(symbols[symbol]) as xmlfile:
+								xmldata = xmlfile.read()
+
+							symbol = objects.Symbol()
+							symbol.parse(xmldata)
+
+							for parameter in symbol:
+								element.set(objects.Parameter('.'.join(('Symbol', parameter.name())), parameter.value(), parameter.value()))
+
+						except:
+							print 'ERROR 23'
+
+					""" добавление параметров корпуса """
+
+					if package and package in packages:
+						try:
+							with open(packages[package]) as xmlfile:
+								xmldata = xmlfile.read()
+
+							package = objects.Package()
+							package.parse(xmldata)
+
+							for parameter in package:
+								element.set(objects.Parameter('.'.join(('Package', parameter.name())), parameter.value(), parameter.value()))
+
+						except:
+							print 'ERROR 24'
+
+					""" добавление параметров модели """
+
+					if model and model in models:
+						try:
+							with open(models[model]) as xmlfile:
+								xmldata = xmlfile.read()
+
+							model = objects.Model()
+							model.parse(xmldata)
+
+							for parameter in model:
+								element.set(objects.Parameter('.'.join(('Model', parameter.name())), parameter.value(), parameter.value()))
+
+						except:
+							print 'ERROR 25'
+
+
+					print
+
+					for parameter in element:
+						print '%s: %s' % (parameter.name(), parameter.value())
+
+					components[element.id()] = element
+
+	return components
+
+
+def load_module(modulename):
+
+	##### испортировать приходится именно тут, потому что по другому не работает #####
+	import pkg_resources
+
+	print 'using module:', modulename
 
 	try:
 		pkg_resources.require(modulename)
@@ -46,39 +181,54 @@ def sync(process):
 		message = 'not found %s' % (modulename,)
 		raise AppException(message)
 
-#	plugins = {}
-
 	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
 
-#		if not entrypoint.dist in plugins:
-			print entrypoint.dist
-			print entrypoint.name
+		print entrypoint.dist
+		print entrypoint.name
 
-			plugin = entrypoint.load()
+		moduleclass = entrypoint.load()
 
-	module = plugin()
+	if not moduleclass:
+		raise AppException('corrupted module')
 
-	print module
-
+	module = moduleclass()
 	return module
 
 
+def sync(process):
+
+	### получаем настройки приложения ###
+	settings = process.appconfig()
+
+	### подключаем модуль вывода ###
+	modulename = settings.option('DATA', 'module')
+
+	if not modulename:
+		raise AppException('no output modulename configured')
+
+	module = load_module(modulename)	
+
+	### получаем расположение репозитория ###
+	basepath = os.path.abspath(settings.option('DATA', 'repository'))
+	repopath = os.path.abspath(os.path.join(basepath, 'xml'))
+
+	print 'repository path:', repopath
+
+	components = collect_components(repopath)
+
+	export_components(module, components.values())
 
 
-def format(data):
-	if not data:
-		print 'nothing to format'
-		return
+def export_components(module, components):
 
-	print
-
-
-
-	### поиск файлов
+	if not components:
+		raise AppException('nothing to format')
 
 	result = {}
 
-	for element in data:
+	cfg = module.settings
+
+	for element in components:
 		category = element.get('Category')
 
 		# наименование таблицы для текущей категории
@@ -135,6 +285,5 @@ def format(data):
 
 	print 'RESULT:'
 	print result
-
 
 	module.set(result)
