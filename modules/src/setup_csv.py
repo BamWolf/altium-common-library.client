@@ -5,7 +5,7 @@ setup(
 	version = "0.1",
 	description = """CSV Plugin""",
 	author = 'Jack Krieger',
-#	install_requires = ["csv"],
+#	install_requires = [''],
 	packages = ['csv_writer'],
 	entry_points = """
 	[db.engine]

@@ -31,12 +31,8 @@ def collector(process):
 def sync(process):
 	settings = process.appconfig()
 
-
 	### подключаем модуль вывода ###
-
 	modulename = settings.option('DATA', 'module')
-
-	print sys.path
 
 	if not modulename:
 		raise AppException('No modulename')
