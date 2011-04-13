@@ -2,6 +2,10 @@
 
 from configobj import ConfigObj
 
+class AppException(BaseException):
+	def __init__(self, value=''):
+		BaseException.__init__(self, value)
+
 class OptionManager():
 	def __init__(self, filename, encoding='cp1251'):
 		self.modified = False
@@ -14,15 +18,6 @@ class OptionManager():
 #			self.error = e
 
 
-
-	def initialize(self, section, optionlist):
-		pass
-#		if optionlist:
-#			for option in optionlist:
-#				self.option(section, option, optionlist[option], True)
-
-
-
 	def save(self):
 		try:
 			self.parser.write()
@@ -30,23 +25,6 @@ class OptionManager():
 		except IOError, e:
 			print e
 			self.error = e
-
-
-	def load(self):
-		pass
-#		try:
-			# Open the file with the correct encoding
-#			with codecs.open(self.filename, 'r', encoding='windows-1251') as f:
-#			with open(self.filename, 'r', encoding='windows-1251') as f:
-#				self.parser.readfp(f)
-
-#		except IOError, e:
-#			print e
-#			self.error = e
-
-#		except ConfigParser.ParsingError, e:
-#			self.error = e
-
 
 	def set_option(self, section, option, value):
 		section = section.upper()
@@ -59,8 +37,6 @@ class OptionManager():
 		self.save()
 
 	def option(self, section, option, default=u'', debug=False):
-#		print 'DEBUG:', section, option
-
 		self.parser.reload()
 
 		section = section.upper()

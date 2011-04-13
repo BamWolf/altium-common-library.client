@@ -66,6 +66,13 @@ def load_categories(self):
 
 	self.settings = utils.OptionManager(self.inifile)
 
+
+def setup(self):
+
+	self.settings = utils.OptionManager('settings.ini')
+
+
+
 ### Add New Component ###
 
 def put_start(self):
@@ -270,36 +277,6 @@ def add_model(self):
 	print model
 
 
-### TRUNCATE TABLES ###
-
-def truncate_tables(self):
-	db = database.Database(self.dbname)
-	db.clear()
-
-	db.close()
-
-def show_tables(self):
-	db = database.Database(self.dbname)
-
-	print 'COMPONENTS:'
-	print db.query('SELECT * FROM components').fetchall()
-	print 'PARAMETERS:'
-	print db.query('SELECT * FROM parameters').fetchall()
-
-	db.close()
-
-
-
-
-class ItemBox():
-	def __init__(self, widget, table):
-		self.widget = widget
-		self.table = table
-
-	def reload(self):
-		pass
-
-
 
 def add_parameter(self):
 	parameter = unicode(self.nameBox.currentText())
@@ -327,166 +304,7 @@ def add_parameter(self):
 
 
 def sync(window):
-
-	app = window.parent()
-
-	import fnmatch
-
-	### определяем путь к репозиториям ###
-
-	selfpath = os.path.abspath(os.curdir)
-
-	cfg = utils.OptionManager('settings.ini')
-	basepath = os.path.abspath(cfg.option('DATA', 'repository'))
-
-	basepath = os.path.abspath(os.path.join(basepath, 'xml'))
-	print 'repository path:', basepath
-	print
-
-	unique = {}
-
-	symbols = {}
-	packages = {}
-	models = {}
-
-	componentpath = os.path.join(basepath, 'components')
-	symbolpath = os.path.join(basepath, 'symbols')
-	packagepath = os.path.join(basepath, 'packages')
-	modelpath = os.path.join(basepath, 'models')
-
-	""" составление списка символов """
-
-	for path, dirs, files in os.walk(symbolpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in symbols:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
-
-
-	print 'symbols:', symbols
-	print
-
-
-	""" составление списка корпусов """
-
-	for path, dirs, files in os.walk(packagepath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in packages:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
-
-
-	print 'packages:', packages
-	print
-
-	""" составление списка моделей """
-
-	for path, dirs, files in os.walk(modelpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in models:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
-
-
-	print 'models:', models
-	print
-
-
-	""" поиск компонентов """
-
-	for path, dirs, files in os.walk(componentpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in unique:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
-						xmldata = xmlfile.read()
-
-					element = objects.Component()
-					element.parse(xmldata)
-
-					print
-					print element.id()
-
-					symbol = element.get('Symbol')
-					package = element.get('Package')
-					model = element.get('Model')
-
-					print
-					print '\tSymbol:', symbol
-					print '\tPackage:', package
-					print '\tModel:', model
-
-					""" добавление параметров символа """
-
-					if symbol and symbol in symbols:
-						try:
-							with open(symbols[symbol]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							symbol = objects.Symbol()
-							symbol.parse(xmldata)
-
-							for parameter in symbol:
-								element.set(objects.Parameter('.'.join(('Symbol', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 23'
-
-					""" добавление параметров корпуса """
-
-					if package and package in packages:
-						try:
-							with open(packages[package]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							package = objects.Package()
-							package.parse(xmldata)
-
-							for parameter in package:
-								element.set(objects.Parameter('.'.join(('Package', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 24'
-
-					""" добавление параметров модели """
-
-					if model and model in models:
-						try:
-							with open(models[model]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							model = objects.Model()
-							model.parse(xmldata)
-
-							for parameter in model:
-								element.set(objects.Parameter('.'.join(('Model', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 25'
-
-
-					print
-
-					for parameter in element:
-						print '%s: %s' % (parameter.name(), parameter.value())
-
-#					unique[filename] = os.path.abspath(os.path.join(path, filename))
-					unique[element.id()] = element
-
-	formatted = shared.format(unique.values())
-
+	shared.sync(window)
 
 
 class PackageWorker():

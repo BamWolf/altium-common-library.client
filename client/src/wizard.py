@@ -7,6 +7,7 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 from kernel.ui import PyMainWindow
+from kernel.utils import OptionManager
 
 #import gettext
 from kernel import i18n
@@ -18,9 +19,10 @@ class PyClient(QtGui.QApplication):
 	def __init__(self, *argv):
 		QtGui.QApplication.__init__(self, *argv)
 
-		self.ui = PyMainWindow('ui/mainwindow.ui')
-		self.ui.show()
+		self.settings = OptionManager(inifile)
 
+		self.ui = PyMainWindow(self, 'ui/mainwindow.ui')
+		self.ui.show()
 
 
 if __name__ == '__main__':
@@ -43,8 +45,8 @@ if __name__ == '__main__':
 	localefile = 'messages'
 
 	inifile = os.path.join(selfpath, 'settings.ini')
-
 	print 'inifile:', inifile
+	print
 
 	i = PyClient(sys.argv)
 	i.exec_()

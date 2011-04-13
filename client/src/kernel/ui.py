@@ -1,8 +1,6 @@
 #-*- coding: utf-8 -*-
 
 from PyQt4 import QtCore
-# временно
-from PyQt4 import QtGui
 
 from kernel import abstract
 from kernel import wrapper
@@ -14,7 +12,6 @@ class PyMainWindow(abstract.QWindow):
 #	def prepare(self):
 #		wrapper.load_categories(self)
 #		wrapper.prepare_main_form(self)
-
 
 	#
 	@QtCore.pyqtSlot()

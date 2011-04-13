@@ -10,9 +10,13 @@ from PyQt4 import uic
 
 class QWindow(QtGui.QMainWindow):
 
-	def __init__(self, interface, *args):
+	def __init__(self, application, interface, *args):
 		super(QWindow, self).__init__(*args)
 		uic.loadUi(interface, self)
+		self.application = application
+
+	def appconfig(self):
+		return self.application.settings
 
 
 class QDialog(QtGui.QDialog):

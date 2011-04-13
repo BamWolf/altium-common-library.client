@@ -17,20 +17,26 @@ class CSVWriter():
 
 	def __init__(self):
 		self.name = 'CSV'
-		self.cfgfilename = 'data.ini'
+		self.cfgfilename = 'csv.ini'
 
 		self.writer = None
 
 		self.error = None
 		self.modified = False
 
-		self.settings = utils.OptionManager(self.cfgfilename)
-
-#		self.initialize()
+		self.setup()
 
 
 
-	def initialize(self):
+	def setup(self):
+		try:
+			self.settings = utils.OptionManager(self.cfgfilename)
+			print 'KHHGFJFJH'
+
+		except AppException, e:
+			print 'iyuiogio', e
+
+
 		if not self.settings.option(self.name, 'outputpath'):
 			self.error = _('no output')
 

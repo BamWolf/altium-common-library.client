@@ -23,212 +23,177 @@ def application_start(application):
 
 
 
-def do_put_process(parent, data):
+class Formatter():
+	def __init__(self):
+		self.config = ''
 
-	result = data.id()
 
-#	print 'PUT', result
 
-	db = database.Database('data/pyclient.db')
+def sync(process):
 
-	try:
-		db.set_element(data)
-		db.commit()
+	### получаем доступ к настройкам приложения ###
+	settings = process.appconfig()
 
-	except Exception, e:
-		print 'Error:', e
+	print settings
 
-#	print db.cursor.execute('SELECT * FROM components').fetchall()
+	import fnmatch
 
-	db.close()
+	### определяем путь к репозиториям ###
 
-	return result
+	selfpath = os.path.abspath(os.curdir)
 
+	cfg = utils.OptionManager('settings.ini')
+	basepath = os.path.abspath(cfg.option('DATA', 'repository'))
 
+	basepath = os.path.abspath(os.path.join(basepath, 'xml'))
+	print 'repository path:', basepath
+	print
 
+	unique = {}
 
-def do_upload(worker, data=None):
+	symbols = {}
+	packages = {}
+	models = {}
 
-	db = database.Database('data/pyclient.db')
+	componentpath = os.path.join(basepath, 'components')
+	symbolpath = os.path.join(basepath, 'symbols')
+	packagepath = os.path.join(basepath, 'packages')
+	modelpath = os.path.join(basepath, 'models')
 
-	data = db.get_upload()
+	""" составление списка символов """
 
-	if not data:
-		return 'Nothing to upload'
+	for path, dirs, files in os.walk(symbolpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in symbols:
+					print 'Duplicate Error:', filename, path
 
-	application = worker.parent()
+				else:
+					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
 
-	tr = transport.Transport(worker.parent())
 
-	request = objects.RequestMessage('identify')
-	request.add_value('login', application.settings.option('ACCOUNT', 'login', u'user'))
-	request.add_value('password', application.settings.option('ACCOUNT', 'password', u'user'))
-	xmlrequest = request.build()
+	print 'symbols:', symbols
+	print
 
-	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
 
-	response = objects.ResponseMessage(xmlresponse)
-	response.parse()
+	""" составление списка корпусов """
 
-	if response.error:
-		print response.error
-		return 'Parsing answer Error'
+	for path, dirs, files in os.walk(packagepath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in packages:
+					print 'Duplicate Error:', filename, path
 
-	if response.type == 'error':
-		try:
-			message = response.values['message']
-		except:
-			message = 'General Error'
+				else:
+					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
 
-		return message
 
-	sessionid = response.values['sessionid']
+	print 'packages:', packages
+	print
 
-	# формирование XML
-	request = objects.RequestMessage('set_components')
-	request.add_value('sessionid', sessionid)
+	""" составление списка моделей """
 
-	for element in data:
-		request.add_item(element)
+	for path, dirs, files in os.walk(modelpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in models:
+					print 'Duplicate Error:', filename, path
 
-	xmlrequest = request.build()
+				else:
+					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
 
-	print xmlrequest
 
-	# отправка XML
-	application = worker.parent()
-	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + sessionid)
+	print 'models:', models
+	print
 
-	# отмечаем отправленные компоненты
-#	for element in answer:
-#		db.set_sent(element)
 
-	db.commit()
-	db.close()
+	""" поиск компонентов """
 
-	return 'Uploaded %d components' % (len(data),)
+	for path, dirs, files in os.walk(componentpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in unique:
+					print 'Duplicate Error:', filename, path
 
+				else:
+					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
+						xmldata = xmlfile.read()
 
-def do_download(worker, data):
-	# загрузка обновлений с сервера
+					element = objects.Component()
+					element.parse(xmldata)
 
-	application = worker.parent()
-	tr = transport.Transport(worker.parent())
+					print
+					print element.id()
 
-#	sessionid = application.settings.option('CONNECTION', 'sessionid')
+					symbol = element.get('Symbol')
+					package = element.get('Package')
+					model = element.get('Model')
 
-	try:
-		application.sessionid
+					print
+					print '\tSymbol:', symbol
+					print '\tPackage:', package
+					print '\tModel:', model
 
-	except AttributeError:
-		request = objects.RequestMessage('identify')
-		request.add_value('login', application.settings.option('ACCOUNT', 'login', u'user'))
-		request.add_value('password', application.settings.option('ACCOUNT', 'password', u'user'))
-		xmlrequest = request.build()
+					""" добавление параметров символа """
 
-		xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read')
+					if symbol and symbol in symbols:
+						try:
+							with open(symbols[symbol]) as xmlfile:
+								xmldata = xmlfile.read()
 
-		print xmlresponse
-		if not xmlresponse:
-			return 'Communication error'
+							symbol = objects.Symbol()
+							symbol.parse(xmldata)
 
-		response = objects.ResponseMessage(xmlresponse)
-		response.parse()
+							for parameter in symbol:
+								element.set(objects.Parameter('.'.join(('Symbol', parameter.name())), parameter.value(), parameter.value()))
 
-		if response.error:
-			print response.error
-			return 'Parsing error'
+						except:
+							print 'ERROR 23'
 
-		if response.type == 'error':
-			try:
-				message = response.values['message']
-			except:
-				message = 'General Error'
+					""" добавление параметров корпуса """
 
-			return message
+					if package and package in packages:
+						try:
+							with open(packages[package]) as xmlfile:
+								xmldata = xmlfile.read()
 
-#		application.settings.set_option('CONNECTION', 'sessionid', sessionid)
-		application.sessionid = response.values['sessionid']
+							package = objects.Package()
+							package.parse(xmldata)
 
-	since = application.settings.option('DATA', 'lastupdate', datetime.datetime.min)
+							for parameter in package:
+								element.set(objects.Parameter('.'.join(('Package', parameter.name())), parameter.value(), parameter.value()))
 
-	request = objects.RequestMessage('get_components')
-	request.add_value('sessionid', application.sessionid)
-	request.add_value('since', since)
+						except:
+							print 'ERROR 24'
 
-	xmlrequest = request.build()
+					""" добавление параметров модели """
 
-	xmlresponse = tr.send(xmlrequest, 'http://altiumlib.noxius.ru/?page=client&rem=read&PHPSESSID=' + application.sessionid)
+					if model and model in models:
+						try:
+							with open(models[model]) as xmlfile:
+								xmldata = xmlfile.read()
 
-	if not xmlresponse:
-		return 'Communication error'
+							model = objects.Model()
+							model.parse(xmldata)
 
-	response = objects.ResponseMessage(xmlresponse)
-	response.parse()
+							for parameter in model:
+								element.set(objects.Parameter('.'.join(('Model', parameter.name())), parameter.value(), parameter.value()))
 
-	if response.type == 'error':
-		print 'Error parsing response:', response.error
-		return 'Error parsing response'
+						except:
+							print 'ERROR 25'
 
-	application.settings.set_option('DATA', 'lastupdate', datetime.datetime.utcnow()	.isoformat(' '))
 
-	if not response.data:
-		print 'No data fetched'
-		return 'Downloaded %d new components' % (len(response.data),)
+					print
 
-	db = database.Database('data\pyclient.db')
+					for parameter in element:
+						print '%s: %s' % (parameter.name(), parameter.value())
 
-	for element in response.data:
-		db.set_element(element, sent=True)
+#					unique[filename] = os.path.abspath(os.path.join(path, filename))
+					unique[element.id()] = element
 
-	db.commit()
-	db.close()
+	formatted = format(unique.values())
 
-	return 'Downloaded %d new components' % (len(response.data),)
 
-
-def do_export(parent, data):
-	# обновление пользовательских источников данных
-
-	db = database.Database('data/pyclient.db')
-
-	for category in systemcategories:
-		print 'CATEGORY:', category
-
-		content = db.export(category)
-
-		# костыль для полей Author локальных элементов
-		for element in content:
-			element['Author'] = element.get('Author', parent.parent().settings.option('ACCOUNT', 'user'))
-
-		print 'content', content
-		result = sortupdate(category, content)
-
-		if result:
-			table, fieldlist, sorted = result
-
-			print 'sorted', sorted
-
-#			tr = csvfile.CSVWriter()
-			tr = msaccess.MDBWriter()
-			tr.initialize()
-
-			if tr.error:
-				print 'ERROR'
-				return tr.error
-
-			tr.set(table, fieldlist, sorted)
-
-			if tr.error:
-				print 'ERROR', tr.error
-				return tr.error
-
-#			db.set_exported(category, content)
-			db.commit()
-
-	db.close()
-
-	return 'Done'
 
 
 def format(data):
@@ -237,14 +202,45 @@ def format(data):
 		return
 
 	print
-#	print data
-#	print
 
-	cfg = utils.OptionManager('data.ini')
+	cfg = utils.OptionManager('settings.ini')
 
 	if cfg.error:
 		print cfg.error
 		return
+
+	writername = cfg.option('DATA', 'output')
+
+	if not writername:
+		print 'No writer'
+		return
+
+
+	### плагины ###
+
+	import pkg_resources
+
+	try:
+		pkg_resources.require(writername)
+
+	except pkg_resources.DistributionNotFound, e:
+		print '%s plugin not found' % (writername,)
+		return
+
+	plugins = {}
+
+	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
+
+		if not entrypoint.dist in plugins:
+			print entrypoint.dist
+			print entrypoint.name
+
+			plugin = entrypoint.load()
+
+	module = plugin()
+
+
+	### поиск файлов
 
 	result = {}
 
@@ -306,39 +302,5 @@ def format(data):
 	print 'RESULT:'
 	print result
 
-	cfg = utils.OptionManager('settings.ini')
 
-	if cfg.error:
-		print cfg.error
-		return
-
-	writername = cfg.option('DATA', 'output')
-
-	if not writername:
-		print 'No writer'
-		return
-
-
-	### плагины ###
-
-	import pkg_resources
-
-	try:
-		pkg_resources.require(writername)
-
-	except pkg_resources.DistributionNotFound, e:
-		print '%s plugin not found' % (writername,)
-
-	plugins = {}
-
-	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
-
-		if not entrypoint.dist in plugins:
-			print entrypoint.dist
-			print entrypoint.name
-
-			plugin = entrypoint.load()
-
-	tr = plugin()
-
-	tr.set(result)
+	module.set(result)

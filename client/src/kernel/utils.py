@@ -2,6 +2,10 @@
 
 from configobj import ConfigObj
 
+class AppException(BaseException):
+	def __init__(self, value = ''):
+		BaseException.__init__(self, value)
+
 class OptionManager():
 	def __init__(self, filename, encoding='cp1251'):
 		self.modified = False
