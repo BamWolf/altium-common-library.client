@@ -81,7 +81,6 @@ class PyMainWindow(abstract.QWindow):
 
 	@QtCore.pyqtSlot()
 	def on_export_button_clicked(self):
-		print 'export'
 		wrapper.sync(self)
 
 

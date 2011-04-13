@@ -304,7 +304,11 @@ def add_parameter(self):
 
 
 def sync(window):
-	shared.sync(window)
+	try:
+		shared.sync(window)
+
+	except abstract.AppException, e:
+		print 'EXCEPTION:', e
 
 
 class PackageWorker():

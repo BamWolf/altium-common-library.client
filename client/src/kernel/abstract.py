@@ -59,3 +59,7 @@ class QWorker(QtCore.QThread):
 		self.emit(QtCore.SIGNAL("exit(PyQt_PyObject)"), self.result)
 
 ################################
+
+class AppException(BaseException):
+	def __init__(self, value = ''):
+		BaseException.__init__(self, value)

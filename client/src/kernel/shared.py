@@ -7,10 +7,14 @@ import re
 import time
 import datetime
 
+import pkg_resources
+
 from kernel import database
-from kernel import utils
+#from kernel import utils
 from kernel import objects
-from kernel import transport
+#from kernel import transport
+
+from kernel.abstract import AppException
 
 ###########################
 
@@ -20,178 +24,47 @@ def application_start(application):
 	database.init()
 
 
-
-
-
-class Formatter():
-	def __init__(self):
-		self.config = ''
-
+def collector(process):
+	pass
 
 
 def sync(process):
-
-	### получаем доступ к настройкам приложения ###
 	settings = process.appconfig()
 
-	print settings
 
-	import fnmatch
+	### подключаем модуль вывода ###
 
-	### определяем путь к репозиториям ###
+	modulename = settings.option('DATA', 'module')
 
-	selfpath = os.path.abspath(os.curdir)
+	print sys.path
 
-	cfg = utils.OptionManager('settings.ini')
-	basepath = os.path.abspath(cfg.option('DATA', 'repository'))
+	if not modulename:
+		raise AppException('No modulename')
 
-	basepath = os.path.abspath(os.path.join(basepath, 'xml'))
-	print 'repository path:', basepath
-	print
+	print 'Using module:', modulename
 
-	unique = {}
+	try:
+		pkg_resources.require(modulename)
 
-	symbols = {}
-	packages = {}
-	models = {}
+	except pkg_resources.DistributionNotFound:
+		message = 'not found %s' % (modulename,)
+		raise AppException(message)
 
-	componentpath = os.path.join(basepath, 'components')
-	symbolpath = os.path.join(basepath, 'symbols')
-	packagepath = os.path.join(basepath, 'packages')
-	modelpath = os.path.join(basepath, 'models')
+#	plugins = {}
 
-	""" составление списка символов """
+	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
 
-	for path, dirs, files in os.walk(symbolpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in symbols:
-					print 'Duplicate Error:', filename, path
+#		if not entrypoint.dist in plugins:
+			print entrypoint.dist
+			print entrypoint.name
 
-				else:
-					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+			plugin = entrypoint.load()
 
+	module = plugin()
 
-	print 'symbols:', symbols
-	print
+	print module
 
-
-	""" составление списка корпусов """
-
-	for path, dirs, files in os.walk(packagepath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in packages:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
-
-
-	print 'packages:', packages
-	print
-
-	""" составление списка моделей """
-
-	for path, dirs, files in os.walk(modelpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in models:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
-
-
-	print 'models:', models
-	print
-
-
-	""" поиск компонентов """
-
-	for path, dirs, files in os.walk(componentpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in unique:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
-						xmldata = xmlfile.read()
-
-					element = objects.Component()
-					element.parse(xmldata)
-
-					print
-					print element.id()
-
-					symbol = element.get('Symbol')
-					package = element.get('Package')
-					model = element.get('Model')
-
-					print
-					print '\tSymbol:', symbol
-					print '\tPackage:', package
-					print '\tModel:', model
-
-					""" добавление параметров символа """
-
-					if symbol and symbol in symbols:
-						try:
-							with open(symbols[symbol]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							symbol = objects.Symbol()
-							symbol.parse(xmldata)
-
-							for parameter in symbol:
-								element.set(objects.Parameter('.'.join(('Symbol', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 23'
-
-					""" добавление параметров корпуса """
-
-					if package and package in packages:
-						try:
-							with open(packages[package]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							package = objects.Package()
-							package.parse(xmldata)
-
-							for parameter in package:
-								element.set(objects.Parameter('.'.join(('Package', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 24'
-
-					""" добавление параметров модели """
-
-					if model and model in models:
-						try:
-							with open(models[model]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							model = objects.Model()
-							model.parse(xmldata)
-
-							for parameter in model:
-								element.set(objects.Parameter('.'.join(('Model', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 25'
-
-
-					print
-
-					for parameter in element:
-						print '%s: %s' % (parameter.name(), parameter.value())
-
-#					unique[filename] = os.path.abspath(os.path.join(path, filename))
-					unique[element.id()] = element
-
-	formatted = format(unique.values())
+	return module
 
 
 
@@ -203,41 +76,6 @@ def format(data):
 
 	print
 
-	cfg = utils.OptionManager('settings.ini')
-
-	if cfg.error:
-		print cfg.error
-		return
-
-	writername = cfg.option('DATA', 'output')
-
-	if not writername:
-		print 'No writer'
-		return
-
-
-	### плагины ###
-
-	import pkg_resources
-
-	try:
-		pkg_resources.require(writername)
-
-	except pkg_resources.DistributionNotFound, e:
-		print '%s plugin not found' % (writername,)
-		return
-
-	plugins = {}
-
-	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
-
-		if not entrypoint.dist in plugins:
-			print entrypoint.dist
-			print entrypoint.name
-
-			plugin = entrypoint.load()
-
-	module = plugin()
 
 
 	### поиск файлов
