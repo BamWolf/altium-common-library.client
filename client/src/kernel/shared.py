@@ -18,10 +18,69 @@ from kernel.abstract import AppException
 
 ###########################
 
+def _(s):
+	return s
 
 def application_start(application):
 	database = db.Database(application.dbname)
 	database.init()
+
+
+
+def sync(process):
+
+	### получаем настройки приложения ###
+	settings = process.appconfig()
+
+	### подключаем модуль вывода ###
+	modulename = settings.option('DATA', 'module')
+
+	if not modulename:
+		raise AppException(_('no output modulename configured'))
+
+	module = load_module(modulename)	
+
+	### получаем расположение репозитория ###
+	basepath = os.path.abspath(settings.option('DATA', 'repository'))
+	repopath = os.path.abspath(os.path.join(basepath, 'xml'))
+
+	print 'repository path:', repopath
+	print
+
+	components = collect_components(repopath)
+
+	export_components(module, components.values())
+
+
+
+def load_module(modulename):
+
+	##### испортировать приходится именно тут, потому что по другому не работает #####
+	import pkg_resources
+
+	print 'using module:', modulename
+
+	try:
+		pkg_resources.require(modulename)
+
+	except pkg_resources.DistributionNotFound:
+		message = _('not found %s') % (modulename,)
+		raise AppException(message)
+
+	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
+
+		print
+		print entrypoint.dist
+		print entrypoint.name
+
+		moduleclass = entrypoint.load()
+
+	if not moduleclass:
+		raise AppException(_('corrupted module'))
+
+	module = moduleclass()
+	return module
+
 
 
 def collect_components(repopath):
@@ -166,85 +225,30 @@ def collect_components(repopath):
 
 	return components
 
-
-def load_module(modulename):
-
-	##### испортировать приходится именно тут, потому что по другому не работает #####
-	import pkg_resources
-
-	print 'using module:', modulename
-
-	try:
-		pkg_resources.require(modulename)
-
-	except pkg_resources.DistributionNotFound:
-		message = 'not found %s' % (modulename,)
-		raise AppException(message)
-
-	for entrypoint in pkg_resources.iter_entry_points(group='db.engine', name=None):
-
-		print entrypoint.dist
-		print entrypoint.name
-
-		moduleclass = entrypoint.load()
-
-	if not moduleclass:
-		raise AppException('corrupted module')
-
-	module = moduleclass()
-	return module
-
-
-def sync(process):
-
-	### получаем настройки приложения ###
-	settings = process.appconfig()
-
-	### подключаем модуль вывода ###
-	modulename = settings.option('DATA', 'module')
-
-	if not modulename:
-		raise AppException('no output modulename configured')
-
-	module = load_module(modulename)	
-
-	### получаем расположение репозитория ###
-	basepath = os.path.abspath(settings.option('DATA', 'repository'))
-	repopath = os.path.abspath(os.path.join(basepath, 'xml'))
-
-	print 'repository path:', repopath
-
-	components = collect_components(repopath)
-
-	export_components(module, components.values())
-
-
 def export_components(module, components):
 
 	if not components:
-		raise AppException('nothing to format')
+		raise AppException(_('nothing to format'))
 
 	result = {}
-
-	cfg = module.settings
 
 	for element in components:
 		category = element.get('Category')
 
 		# наименование таблицы для текущей категории
-		table = cfg.option('TABLES', category)
+		table = module.settings.option('TABLES', category)
 
 		if not table:
-			print 'no table %s' % (category,)
+			print _('no table %s') % (category,)
 			return
 
 		# dict наименования полей таблицы и их значения
-		tablefields = cfg.options(table + '_FIELDS', True) or {}
+		tablefields = module.settings.options(table + '_FIELDS', True) or {}
 		# or DEFAULTS {'Part Number': '[Manufacturer].[PartNumber]', 'Library Ref': '[SymbolLib]', 'Footprint Ref': '[FootprintLib]'}
 
 		if not tablefields:
-			print 'no fields in %s' % (table,)
-			return
+			message = _('no fields in %s') % (table,)
+			raise AppException(message)
 
 #		print tablefields
 		print 'COMPONENT'
