@@ -57,24 +57,28 @@ class PyMainWindow(abstract.QWindow):
 
 	@QtCore.pyqtSlot()
 	def on_symbol_button_clicked(self):
-		print 'symbol wizard'
+		dialog = PackageWizard('ui/symbol.ui', self)
+		dialog.init()
+		dialog.show()
+
 
 	# PackageButton
 
 	@QtCore.pyqtSlot()
 	def on_package_button_clicked(self):
-		print 'package wizard'
-		self.second = PackageWizard('ui/package.ui', self)
-		self.second.init()
-		self.second.show()
-
+		dialog = PackageWizard('ui/package.ui', self)
+		dialog.init()
+		dialog.show()
 
 
 	# ModelButton
 
 	@QtCore.pyqtSlot()
 	def on_model_button_clicked(self):
-		print 'model wizard'
+		dialog = PackageWizard('ui/model.ui', self)
+		dialog.init()
+		dialog.show()
+
 
 	# exportButton
 
