@@ -55,10 +55,8 @@ def prepare_main_form(self):
 def refresh_view(self):
 	settings = self.appconfig()
 
-	basepath = os.path.abspath(settings.option('DATA', 'repository'))
-	repopath = os.path.abspath(os.path.join(basepath, 'xml'))
-
-	self.components = shared.collect_components(repopath)
+	xmlpath = os.path.abspath(settings.option('DATA', 'xmlrepository'))
+	self.components = shared.collect_components(xmlpath)
 
 	print self.componentList
 	self.componentList.addItems(self.components.keys())

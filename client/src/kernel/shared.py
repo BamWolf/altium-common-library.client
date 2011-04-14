@@ -41,13 +41,13 @@ def sync(process):
 	module = load_module(modulename)	
 
 	### получаем расположение репозитория ###
-	basepath = os.path.abspath(settings.option('DATA', 'repository'))
-	repopath = os.path.abspath(os.path.join(basepath, 'xml'))
+	xmlpath = os.path.abspath(settings.option('DATA', 'xmlrepository'))
 
-	print 'repository path:', repopath
+	print 'XML repository path:', xmlpath
 	print
 
-	components = collect_components(repopath)
+#	components = collect_components(xmlpath)
+	components = process.components
 
 	export_components(module, components.values())
 
@@ -83,17 +83,17 @@ def load_module(modulename):
 
 
 
-def collect_components(repopath):
+def collect_components(xmlpath):
 
 	components = {}
 	symbols = {}
 	packages = {}
 	models = {}
  
-	componentpath = os.path.join(repopath, 'components')
-	symbolpath = os.path.join(repopath, 'symbols')
-	packagepath = os.path.join(repopath, 'packages')
-	modelpath = os.path.join(repopath, 'models')
+	componentpath = os.path.join(xmlpath, 'components')
+	symbolpath = os.path.join(xmlpath, 'symbols')
+	packagepath = os.path.join(xmlpath, 'packages')
+	modelpath = os.path.join(xmlpath, 'models')
  
 	""" составление списка символов """
 	for path, dirs, files in os.walk(symbolpath):
