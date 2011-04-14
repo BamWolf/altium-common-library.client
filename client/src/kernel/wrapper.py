@@ -52,6 +52,17 @@ def prepare_main_form(self):
 
 	db.close()
 
+def refresh_view(self):
+	settings = self.appconfig()
+
+	basepath = os.path.abspath(settings.option('DATA', 'repository'))
+	repopath = os.path.abspath(os.path.join(basepath, 'xml'))
+
+	self.components = shared.collect_components(repopath)
+
+	print self.componentList
+	self.componentList.addItems(self.components.keys())
+
 
 def load_categories(self):
 	
@@ -67,9 +78,9 @@ def load_categories(self):
 	self.settings = utils.OptionManager(self.inifile)
 
 
-def setup(self):
+#def setup(self):
 
-	self.settings = utils.OptionManager('settings.ini')
+#	self.settings = utils.OptionManager('settings.ini')
 
 
 
@@ -303,9 +314,9 @@ def add_parameter(self):
 		self.stringRadio.setChecked(True)
 
 
-def sync(window):
+def sync(self):
 	try:
-		shared.sync(window)
+		shared.sync(self)
 
 	except abstract.AppException, e:
 		print 'EXCEPTION:', e

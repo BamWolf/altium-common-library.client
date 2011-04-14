@@ -9,9 +9,8 @@ from kernel import wrapper
 
 class PyMainWindow(abstract.QWindow):
 
-#	def prepare(self):
-#		wrapper.load_categories(self)
-#		wrapper.prepare_main_form(self)
+	def refresh(self):
+		wrapper.refresh_view(self)
 
 	#
 	@QtCore.pyqtSlot()

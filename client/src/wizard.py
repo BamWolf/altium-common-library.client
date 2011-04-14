@@ -22,6 +22,7 @@ class PyClient(QtGui.QApplication):
 		self.settings = OptionManager(inifile)
 
 		self.ui = PyMainWindow(self, 'ui/mainwindow.ui')
+		self.ui.refresh()
 		self.ui.show()
 
 
