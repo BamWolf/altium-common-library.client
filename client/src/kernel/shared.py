@@ -250,10 +250,6 @@ def export_components(module, components):
 			message = _('no fields in %s') % (table,)
 			raise AppException(message)
 
-#		print tablefields
-		print 'COMPONENT'
-		print
-
 		if not category in result:
 			result[category] = [table, tablefields.keys(), []]
 

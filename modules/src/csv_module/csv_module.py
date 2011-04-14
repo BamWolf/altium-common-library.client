@@ -16,8 +16,8 @@ def _(s):
 	return s
 
 
-class CSVWriter():
-	name = 'CSV'
+class CSVExporter():
+	name = 'csv'
 
 	def __init__(self):
 		self.settings = OptionManager('csv.ini')
@@ -37,7 +37,7 @@ class CSVWriter():
 			print
 			print _('updating %s') % (csvfilename,)
 
-			encoding = self.settings.option(self.name, 'encoding') or 'utf-8'
+			encoding = self.settings.option('SETTINGS', 'encoding') or 'utf-8'
 
 			#if not encoding in encodings:
 			#	return

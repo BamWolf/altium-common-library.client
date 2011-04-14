@@ -4,6 +4,8 @@ rd /s /q dist
 cd src
 
 python setup.py py2exe
+IF ERRORLEVEL 1 PAUSE
+
 rd /s /q build
 
 cd ..\dist
