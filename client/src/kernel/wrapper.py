@@ -59,6 +59,9 @@ def refresh_view(self):
 	self.components = shared.collect_components(xmlpath)
 
 	print self.componentList
+	print
+
+	self.componentList.clear()
 	self.componentList.addItems(self.components.keys())
 
 

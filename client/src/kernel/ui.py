@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
 from PyQt4 import QtCore
+from PyQt4 import QtGui
 
 from kernel import abstract
 from kernel import wrapper
@@ -47,17 +48,30 @@ class PyMainWindow(abstract.QWindow):
 		wrapper.truncate_tables(self)
 		wrapper.prepare_main_form(self)
 
-	# ComponentButton
+
+	# componentButton
 
 	@QtCore.pyqtSlot()
 	def on_component_button_clicked(self):
-		print 'component wizard'
+		dialog = ComponentWizard('ui/component.ui', self)
+#		dialog.setObjectName('Component Wizard')
+
+		dialog.addComponentButton.clicked.connect(self.on_component_created)	#, QtCore.Qt.QueuedConnection)
+		dialog.load(self.components)
+		dialog.show()
+
+	def on_component_created(self):
+		print 'new component'
+		wrapper.refresh_view(self)
+
+
 
 	# SymbolButton
 
 	@QtCore.pyqtSlot()
 	def on_symbol_button_clicked(self):
 		dialog = PackageWizard('ui/symbol.ui', self)
+#		dialog.setObjectName('Symbol Manager')
 		dialog.init()
 		dialog.show()
 
@@ -67,8 +81,17 @@ class PyMainWindow(abstract.QWindow):
 	@QtCore.pyqtSlot()
 	def on_package_button_clicked(self):
 		dialog = PackageWizard('ui/package.ui', self)
+#		dialog.setObjectName('Package Manager')
+
+		dialog.buttonBox.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
+#		dialog.buttonBox.rejected.connect(self.pp, QtCore.Qt.QueuedConnection)
+
 		dialog.init()
 		dialog.show()
+
+	def on_package_dialog_accept(*args):
+		print args
+		print 'package manager accepted'
 
 
 	# ModelButton
@@ -76,6 +99,7 @@ class PyMainWindow(abstract.QWindow):
 	@QtCore.pyqtSlot()
 	def on_model_button_clicked(self):
 		dialog = PackageWizard('ui/model.ui', self)
+#		dialog.setObjectName('Model Manager')
 		dialog.init()
 		dialog.show()
 
@@ -115,18 +139,41 @@ class PyMainWindow(abstract.QWindow):
 
 
 
+class ComponentWizard(abstract.QDialog):
+
+	def init(self):
+		pass
+#		self.worker = wrapper.PackageWorker()
+#		self.worker.load()
+
+	# okButton
+
+	@QtCore.pyqtSlot()
+	def on__clicked(self):
+		print 'OK'
+
+	@QtCore.pyqtSignature('PyQt_PyObject')
+	def on_rejected(self, data=None):
+		print 'Cancel'
+
+
+	def load(self, components={}):
+		""" загрузка начальных значений """
+		manufacturers = []
+
+		for component in components:
+			manufacturers.append(components[component].manufacturer())
+
+		manufacturers = list(set(manufacturers))
+		manufacturers.sort()
+		manufacturers.insert(0, ' ')
+
+		self.manufacturerBox.addItems(manufacturers)
+
+
 class PackageWizard(abstract.QDialog):
 
 	def init(self):
 		self.worker = wrapper.PackageWorker()
 		self.worker.load()
 
-	# okButton
-
-	@QtCore.pyqtSlot()
-	def accepted(self):
-		print 'OK'
-
-	@QtCore.pyqtSignature('PyQt_PyObject')
-	def on_rejected(self, data=None):
-		print 'Cancel'
