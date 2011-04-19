@@ -72,7 +72,7 @@ class PyMainWindow(abstract.QWindow):
 	def on_symbol_button_clicked(self):
 		dialog = PackageWizard('ui/symbol.ui', self)
 #		dialog.setObjectName('Symbol Manager')
-		dialog.init()
+		dialog.rewire()
 		dialog.show()
 
 
@@ -83,15 +83,19 @@ class PyMainWindow(abstract.QWindow):
 		dialog = PackageWizard('ui/package.ui', self)
 #		dialog.setObjectName('Package Manager')
 
-		dialog.buttonBox.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
-#		dialog.buttonBox.rejected.connect(self.pp, QtCore.Qt.QueuedConnection)
+		dialog.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
 
-		dialog.init()
+		dialog.rewire()
 		dialog.show()
 
-	def on_package_dialog_accept(*args):
+	def on_package_dialog_accept(self, *args):
 		print args
 		print 'package manager accepted'
+
+
+
+	def tet(self, arg):
+		print 'tet', arg
 
 
 	# ModelButton
@@ -100,7 +104,7 @@ class PyMainWindow(abstract.QWindow):
 	def on_model_button_clicked(self):
 		dialog = PackageWizard('ui/model.ui', self)
 #		dialog.setObjectName('Model Manager')
-		dialog.init()
+		dialog.rewire()
 		dialog.show()
 
 
@@ -112,7 +116,7 @@ class PyMainWindow(abstract.QWindow):
 
 
 
-	@QtCore.pyqtSignature('PyQt_PyObject')
+	@QtCore.pyqtSlot('PyQt_PyObject')
 	def on_exportButton_respond(self, data=None):
 		wrapper.export_respond(self, data)
 
@@ -122,7 +126,7 @@ class PyMainWindow(abstract.QWindow):
 	def on_downloadButton_clicked(self):
 		wrapper.download_start(self)
 
-	@QtCore.pyqtSignature('PyQt_PyObject')
+	@QtCore.pyqtSlot('PyQt_PyObject')
 	def on_downloadButton_respond(self, data=None):
 		wrapper.download_respond(self, data)
 
@@ -132,7 +136,7 @@ class PyMainWindow(abstract.QWindow):
 	def on_uploadButton_clicked(self):
 		wrapper.upload_start(self)
 
-	@QtCore.pyqtSignature('PyQt_PyObject')
+	@QtCore.pyqtSlot('PyQt_PyObject')
 	def on_uploadButton_respond(self, data=None):
 		wrapper.upload_respond(self, data)
 
@@ -173,7 +177,14 @@ class ComponentWizard(abstract.QDialog):
 
 class PackageWizard(abstract.QDialog):
 
-	def init(self):
+	accepted = QtCore.pyqtSignal(object)
+
+	def rewire(self):
 		self.worker = wrapper.PackageWorker()
 		self.worker.load()
 
+		self.buttonBox.accepted.connect(self.success)
+
+	def success(self):
+		print 'generating XML'
+		self.accepted.emit('new component appeared')
