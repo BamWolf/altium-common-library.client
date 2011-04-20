@@ -13,62 +13,43 @@ class PyMainWindow(abstract.QWindow):
 	def refresh(self):
 		wrapper.refresh_view(self)
 
-	#
-	@QtCore.pyqtSlot()
-	def on_Error(self):
-		self.parent._exit()
+	def rewire(self):
+		""" подключение сигналов """
+		self.newButton.clicked.connect(self.on_new_button_clicked)
+		self.editButton.clicked.connect(self.on_edit_button_clicked)
 
+		self.symbolButton.clicked.connect(self.on_symbol_button_clicked)
+		self.packageButton.clicked.connect(self.on_package_button_clicked)
+		self.modelButton.clicked.connect(self.on_model_button_clicked)
 
-	# putButton
+		self.componentList.itemClicked.connect(self.on_component_selected)
 
-	@QtCore.pyqtSlot()
-	def on_putButton_clicked(self):
-		wrapper.put_start(self)
-
-	@QtCore.pyqtSignature('PyQt_PyObject')
-	def on_putButton_respond(self, data=None):
-		wrapper.put_respond(self, data)
-
-	# addButton
-
-	@QtCore.pyqtSlot()
-	def on_addButton_clicked(self):
-		wrapper.add_parameter(self)
-
-	# delButton
-
-	@QtCore.pyqtSlot()
-	def on_delButton_clicked(self):
-		self.parametersTable.removeRow(self.parametersTable.currentRow())
-
-	# actionDrop menu item
-
-	@QtCore.pyqtSlot()
-	def on_actionDrop_triggered(self):
-		wrapper.truncate_tables(self)
-		wrapper.prepare_main_form(self)
+	# обработчики сигналов
+	def on_component_selected(self, data):
+		wrapper.show_component_properties(self, data)
 
 
 	# componentButton
+	def on_new_button_clicked(self):
 
-	@QtCore.pyqtSlot()
-	def on_component_button_clicked(self):
-		dialog = ComponentWizard('ui/component.ui', self)
+		print 'new'
+#		dialog = ComponentWizard('ui/component.ui', self)
 #		dialog.setObjectName('Component Wizard')
 
-		dialog.addComponentButton.clicked.connect(self.on_component_created)	#, QtCore.Qt.QueuedConnection)
-		dialog.load(self.components)
-		dialog.show()
+#		dialog.addComponentButton.clicked.connect(self.on_component_created)	#, QtCore.Qt.QueuedConnection)
+#		dialog.load(self.components)
+#		dialog.show()
 
 	def on_component_created(self):
 		print 'new component'
 		wrapper.refresh_view(self)
 
 
+	def on_edit_button_clicked(self):
+		print 'edit'
 
-	# SymbolButton
 
-	@QtCore.pyqtSlot()
+	# symbolButton
 	def on_symbol_button_clicked(self):
 		dialog = SymbolManager('ui/symbol.ui', self)
 #		dialog.setObjectName('Symbol Manager')
@@ -81,9 +62,7 @@ class PyMainWindow(abstract.QWindow):
 		print data
 
 
-	# PackageButton
-
-	@QtCore.pyqtSlot()
+	# packageButton
 	def on_package_button_clicked(self):
 		dialog = PackageManager('ui/package.ui', self)
 #		dialog.setObjectName('Package Manager')
@@ -96,9 +75,8 @@ class PyMainWindow(abstract.QWindow):
 		print 'package manager accepted'
 
 
-	# ModelButton
+	# modelButton
 
-	@QtCore.pyqtSlot()
 	def on_model_button_clicked(self):
 		dialog = ModelManager('ui/model.ui', self)
 #		dialog.setObjectName('Model Manager')
@@ -159,7 +137,7 @@ class ComponentWizard(abstract.QDialog):
 	def on__clicked(self):
 		print 'OK'
 
-	@QtCore.pyqtSignature('PyQt_PyObject')
+	@QtCore.pyqtSlot('PyQt_PyObject')
 	def on_rejected(self, data=None):
 		print 'Cancel'
 
@@ -177,22 +155,6 @@ class ComponentWizard(abstract.QDialog):
 
 		self.manufacturerBox.addItems(manufacturers)
 
-"""
-class PackageWizard(abstract.QDialog):
-
-	accepted = QtCore.pyqtSignal(object)
-
-	def rewire(self):
-		self.worker = wrapper.PackageWorker()
-		self.worker.load()
-
-		self.buttonBox.accepted.connect(self.success)
-
-	def success(self):
-		print 'generating XML'
-		self.accepted.emit('new component appeared')
-
-"""
 
 class PackageManager(abstract.QDialog):
 

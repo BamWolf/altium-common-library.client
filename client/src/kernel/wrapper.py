@@ -66,6 +66,18 @@ def refresh_view(self):
 	self.componentList.addItems(self.components.keys())
 
 
+	manufacturers = set()
+
+	for component in self.components.values():
+		manufacturers.add(component.manufacturer())
+
+	manufacturers = list(manufacturers)
+	manufacturers.sort()
+	manufacturers.insert(0, ' ')
+
+	self.manufacturerBox.addItems(manufacturers)
+
+
 def load_categories(self):
 	
 
@@ -354,3 +366,10 @@ class PackageWorker():
 
 #		self.package_list.addItems(unique.keys())
 
+
+
+def show_component_properties(self, data):
+	component = self.components[unicode(data.text())]
+
+	self.manufacturerBox.lineEdit().setText(component.manufacturer())
+	self.componentPartnumber.setText(component.partnumber())

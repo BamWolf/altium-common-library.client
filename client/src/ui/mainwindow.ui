@@ -19,9 +19,16 @@
      <widget class="QWidget" name="widget_header" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="component_button">
+        <widget class="QPushButton" name="newButton">
          <property name="text">
           <string>Add Component</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="editButton">
+         <property name="text">
+          <string>Edit Component</string>
          </property>
         </widget>
        </item>
@@ -39,21 +46,21 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="package_button">
+        <widget class="QPushButton" name="packageButton">
          <property name="text">
           <string>Packages</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="symbol_button">
+        <widget class="QPushButton" name="symbolButton">
          <property name="text">
           <string>Symbols</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="model_button">
+        <widget class="QPushButton" name="modelButton">
          <property name="text">
           <string>Models</string>
          </property>
@@ -76,7 +83,7 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QFormLayout" name="formLayout">
+         <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
            <widget class="QLabel" name="manufacturerLabel">
             <property name="text">
@@ -84,40 +91,56 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLineEdit" name="componentName">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
+          <item row="0" column="2">
+           <widget class="QLabel" name="partnumberLabel">
+            <property name="text">
+             <string>Part Number:</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <spacer name="spacer_body">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="1">
+          <item row="1" column="2">
            <widget class="QLineEdit" name="componentPartnumber">
             <property name="readOnly">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="partnumberLabel">
-            <property name="text">
-             <string>Part Number:</string>
+          <item row="6" column="0" colspan="3">
+           <widget class="QTableWidget" name="parametersTable"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QComboBox" name="symbolBox">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QComboBox" name="modelBox"/>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="packageBox"/>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QComboBox" name="manufacturerBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="3">
+           <widget class="QLineEdit" name="linkEdit"/>
+          </item>
+          <item row="5" column="0" colspan="3">
+           <widget class="QPlainTextEdit" name="descriptionEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
            </widget>
           </item>
