@@ -17,6 +17,13 @@ from datetime import datetime
 
 accountoptionlist = {'login': '', 'password': ''}
 
+SYMBOL = 'Symbol'
+PACKAGE = 'Package'
+MODEL = 'Model'
+
+URL = 'URL'
+DESCRIPTION = 'Description'
+
 ###############################
 
 ### Preparing Main Window ###
@@ -368,8 +375,29 @@ class PackageWorker():
 
 
 
-def show_component_properties(self, data):
-	component = self.components[unicode(data.text())]
+def show_component_properties(self, selected):
+	component = self.components[unicode(selected.text())]
 
 	self.manufacturerBox.lineEdit().setText(component.manufacturer())
 	self.componentPartnumber.setText(component.partnumber())
+
+	self.symbolBox.lineEdit().setText(component.get(SYMBOL))
+	self.packageBox.lineEdit().setText(component.get(PACKAGE))
+	self.modelBox.lineEdit().setText(component.get(MODEL))
+
+	self.linkEdit.setText(component.get(URL))
+	self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
+
+
+
+def edit_component_properties(self):
+	self.manufacturerBox.setEnabled(True)
+	self.componentPartnumber.setEnabled(True)
+
+	self.symbolBox.setEnabled(True)
+	self.packageBox.setEnabled(True)
+	self.modelBox.setEnabled(True)
+
+	self.linkEdit.setEnabled(True)
+	self.descriptionEdit.setEnabled(True)
+

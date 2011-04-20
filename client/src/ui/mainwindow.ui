@@ -100,26 +100,71 @@
           </item>
           <item row="1" column="2">
            <widget class="QLineEdit" name="componentPartnumber">
-            <property name="readOnly">
-             <bool>true</bool>
+            <property name="enabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
           <item row="6" column="0" colspan="3">
-           <widget class="QTableWidget" name="parametersTable"/>
+           <widget class="QTableWidget" name="parametersTable">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <attribute name="horizontalHeaderDefaultSectionSize">
+             <number>50</number>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>true</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Parameter</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Value</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Type</string>
+             </property>
+            </column>
+           </widget>
           </item>
           <item row="3" column="0">
            <widget class="QComboBox" name="symbolBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="editable">
              <bool>true</bool>
             </property>
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QComboBox" name="modelBox"/>
+           <widget class="QComboBox" name="modelBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QComboBox" name="packageBox"/>
+           <widget class="QComboBox" name="packageBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item row="1" column="0" colspan="2">
            <widget class="QComboBox" name="manufacturerBox">
@@ -132,10 +177,17 @@
            </widget>
           </item>
           <item row="4" column="0" colspan="3">
-           <widget class="QLineEdit" name="linkEdit"/>
+           <widget class="QLineEdit" name="linkEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
           <item row="5" column="0" colspan="3">
            <widget class="QPlainTextEdit" name="descriptionEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
               <horstretch>0</horstretch>

@@ -46,7 +46,7 @@ class PyMainWindow(abstract.QWindow):
 
 
 	def on_edit_button_clicked(self):
-		print 'edit'
+		wrapper.edit_component_properties(self)
 
 
 	# symbolButton
