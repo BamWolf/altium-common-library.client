@@ -70,22 +70,25 @@ class PyMainWindow(abstract.QWindow):
 
 	@QtCore.pyqtSlot()
 	def on_symbol_button_clicked(self):
-		dialog = PackageWizard('ui/symbol.ui', self)
+		dialog = SymbolManager('ui/symbol.ui', self)
 #		dialog.setObjectName('Symbol Manager')
-		dialog.rewire()
+		dialog.accepted.connect(self.on_symbol_dialog_accept, QtCore.Qt.QueuedConnection)
+		print 'SYMBOLS AGAIN', self.symbols
+		dialog.load(self.symbols)
 		dialog.show()
+
+	def on_symbol_dialog_accept(self, data=None):
+		print data
 
 
 	# PackageButton
 
 	@QtCore.pyqtSlot()
 	def on_package_button_clicked(self):
-		dialog = PackageWizard('ui/package.ui', self)
+		dialog = PackageManager('ui/package.ui', self)
 #		dialog.setObjectName('Package Manager')
-
 		dialog.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
-
-		dialog.rewire()
+		dialog.load(self.packages)
 		dialog.show()
 
 	def on_package_dialog_accept(self, *args):
@@ -93,19 +96,19 @@ class PyMainWindow(abstract.QWindow):
 		print 'package manager accepted'
 
 
-
-	def tet(self, arg):
-		print 'tet', arg
-
-
 	# ModelButton
 
 	@QtCore.pyqtSlot()
 	def on_model_button_clicked(self):
-		dialog = PackageWizard('ui/model.ui', self)
+		dialog = ModelManager('ui/model.ui', self)
 #		dialog.setObjectName('Model Manager')
-		dialog.rewire()
+		dialog.accepted.connect(self.on_model_dialog_accept, QtCore.Qt.QueuedConnection)
+		dialog.load(self.models)
 		dialog.show()
+
+	def on_model_dialog_accept(self, data=None):
+		print 'model manager says:', data
+
 
 
 	# exportButton
@@ -174,7 +177,7 @@ class ComponentWizard(abstract.QDialog):
 
 		self.manufacturerBox.addItems(manufacturers)
 
-
+"""
 class PackageWizard(abstract.QDialog):
 
 	accepted = QtCore.pyqtSignal(object)
@@ -188,3 +191,53 @@ class PackageWizard(abstract.QDialog):
 	def success(self):
 		print 'generating XML'
 		self.accepted.emit('new component appeared')
+
+"""
+
+class PackageManager(abstract.QDialog):
+
+#	def rewire(self):
+#		self.worker = wrapper.PackageWorker()
+#		self.worker.load()
+
+	def success(self):
+		print 'generating Package XML'
+		self.accepted.emit('new package appeared')
+
+	def load(self, packages={}):
+		self.packages = packages
+
+		packs = packages.keys()
+		packs.sort()
+
+		self.packageList.addItems(packs)
+
+
+
+class SymbolManager(abstract.QDialog):
+
+	def success(self):
+		print 'generating Symbol XML'
+		self.accepted.emit('new symbol appeared')
+
+	def load(self, items={}):
+		self.items = items
+
+		items = items.keys()
+		items.sort()
+
+		self.symbolList.addItems(items)
+
+class ModelManager(abstract.QDialog):
+
+	def success(self):
+		print 'generating Model XML'
+		self.accepted.emit('new model appeared')
+
+	def load(self, items={}):
+		self.items = items
+
+		unsorted = items.keys()
+		sorted = unsorted.sort()
+
+		self.modelList.addItems(sorted)

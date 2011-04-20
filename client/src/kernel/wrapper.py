@@ -58,8 +58,9 @@ def refresh_view(self):
 	xmlpath = os.path.abspath(settings.option('DATA', 'xmlrepository'))
 	self.components = shared.collect_components(xmlpath)
 
-	print self.componentList
-	print
+	self.symbols = shared.collect_symbols(xmlpath)
+	self.packages = shared.collect_packages(xmlpath)
+	self.models = shared.collect_models(xmlpath)
 
 	self.componentList.clear()
 	self.componentList.addItems(self.components.keys())

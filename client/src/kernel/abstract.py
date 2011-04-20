@@ -21,9 +21,14 @@ class QWindow(QtGui.QMainWindow):
 
 class QDialog(QtGui.QDialog):
 
+	accepted = QtCore.pyqtSignal(object)
+
 	def __init__(self, interface, *args):
 		super(QDialog, self).__init__(*args)
 		uic.loadUi(interface, self)
+
+		self.buttonBox.accepted.connect(self.success)
+
 
 
 class QWorker(QtCore.QThread):

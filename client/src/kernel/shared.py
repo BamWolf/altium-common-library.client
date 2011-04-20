@@ -225,6 +225,72 @@ def collect_components(xmlpath):
 
 	return components
 
+
+
+
+def collect_symbols(xmlpath):
+
+	symbols = {}
+ 
+	symbolpath = os.path.join(xmlpath, 'symbols')
+
+	""" составление списка символов """
+	for path, dirs, files in os.walk(symbolpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in symbols:
+					print 'Duplicate Error:', filename, path
+ 
+				else:
+					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+
+	return symbols
+
+
+
+def collect_packages(xmlpath):
+
+	packages = {}
+ 
+	packagepath = os.path.join(xmlpath, 'packages')
+
+	""" составление списка корпусов """
+
+	for path, dirs, files in os.walk(packagepath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in packages:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+
+	return packages
+
+
+def collect_models(xmlpath):
+
+	models = {}
+ 
+	modelpath = os.path.join(xmlpath, 'models')
+
+	""" составление списка моделей """
+
+	for path, dirs, files in os.walk(modelpath):
+		for filename in files:
+			if fnmatch.fnmatch(filename, '*.xml'):
+				if filename in models:
+					print 'Duplicate Error:', filename, path
+
+				else:
+					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+
+
+	return models
+
+
+
+
 def export_components(module, components):
 
 	if not components:
