@@ -33,7 +33,7 @@ class PyMainWindow(abstract.QWindow):
 	def on_component_changed(self, current, previous):
 		if current:
 			self.editButton.setEnabled(True)
-			wrapper.show_component_properties(self, current)
+			wrapper.show_component(self, current)
 
 		else:
 			self.editButton.setEnabled(False)
@@ -64,6 +64,7 @@ class PyMainWindow(abstract.QWindow):
 		dialog.accepted.connect(self.on_symbol_dialog_accept, QtCore.Qt.QueuedConnection)
 		print 'SYMBOLS AGAIN', self.symbols
 		dialog.load(self.symbols)
+		dialog.rewire()
 		dialog.show()
 
 	def on_symbol_dialog_accept(self, data=None):
@@ -103,11 +104,10 @@ class PyMainWindow(abstract.QWindow):
 	def on_export_button_clicked(self):
 		wrapper.sync(self)
 
-
-
 	@QtCore.pyqtSlot('PyQt_PyObject')
 	def on_exportButton_respond(self, data=None):
 		wrapper.export_respond(self, data)
+
 
 	# downloadButton
 
@@ -118,6 +118,7 @@ class PyMainWindow(abstract.QWindow):
 	@QtCore.pyqtSlot('PyQt_PyObject')
 	def on_downloadButton_respond(self, data=None):
 		wrapper.download_respond(self, data)
+
 
 	# uploadButton
 
@@ -164,6 +165,62 @@ class ComponentWizard(abstract.QDialog):
 		self.manufacturerBox.addItems(manufacturers)
 
 
+
+class SymbolManager(abstract.QDialog):
+
+	def success(self):
+		print 'generating Symbol XML'
+		self.accepted.emit('new symbol appeared')
+
+	def load(self, symbols={}):
+		self.symbols = symbols
+
+		items = symbols.keys()
+		items.sort()
+
+		self.symbolList.addItems(items)
+
+
+	def refresh(self):
+		wrapper.refresh_view(self)
+
+	def rewire(self):
+		""" подключение сигналов """
+		self.newButton.clicked.connect(self.on_new_button_clicked)
+		self.editButton.clicked.connect(self.on_edit_button_clicked)
+		self.saveButton.clicked.connect(self.on_save_button_clicked)
+		self.cancelButton.clicked.connect(self.on_cancel_button_clicked)
+
+		self.symbolList.currentItemChanged.connect(self.on_symbol_changed)
+
+#		wrapper.prepare_view(self)
+
+	# обработчики сигналов
+	def on_symbol_changed(self, current, previous):
+		if current:
+			self.editButton.setEnabled(True)
+			wrapper.show_symbol(self, current)
+
+		else:
+			self.editButton.setEnabled(False)
+
+	def on_new_button_clicked(self):
+		print 'new'
+		wrapper.create_symbol(self)
+
+	def on_edit_button_clicked(self):
+		print 'edit'
+		wrapper.edit_symbol(self)
+
+	def on_save_button_clicked(self):
+		print 'new'
+		wrapper.save_symbol(self)
+
+	def on_cancel_button_clicked(self):
+		wrapper.cancel_symbol(self)
+
+
+
 class PackageManager(abstract.QDialog):
 
 #	def rewire(self):
@@ -183,20 +240,6 @@ class PackageManager(abstract.QDialog):
 		self.packageList.addItems(packs)
 
 
-
-class SymbolManager(abstract.QDialog):
-
-	def success(self):
-		print 'generating Symbol XML'
-		self.accepted.emit('new symbol appeared')
-
-	def load(self, items={}):
-		self.items = items
-
-		items = items.keys()
-		items.sort()
-
-		self.symbolList.addItems(items)
 
 class ModelManager(abstract.QDialog):
 

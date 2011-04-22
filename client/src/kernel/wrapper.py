@@ -68,7 +68,9 @@ def prepare_view(self):
 
 def refresh_view(self):
 	self.componentList.clear()
-	self.componentList.addItems(self.components.keys())
+	items = self.components.keys()
+	items.sort()	
+	self.componentList.addItems(items)
 
 	self.symbolBox.clear()
 	items = self.symbols.keys()
@@ -380,20 +382,7 @@ class PackageWorker():
 
 
 
-def clear_info_view(self):
-		self.manufacturerBox.lineEdit().setText('')
-		self.partnumberEdit.setText('')
-
-		self.categoryBox.lineEdit().setText('')
-
-		self.symbolBox.setCurrentIndex(-1)
-		self.packageBox.setCurrentIndex(-1)
-		self.modelBox.setCurrentIndex(-1)
-
-		self.linkEdit.setText('')
-		self.descriptionEdit.clear()
-
-def show_component_properties(self, selected):
+def show_component(self, selected):
 
 	if selected:
 		component = self.components[unicode(selected.text())]
@@ -423,10 +412,25 @@ def show_component_properties(self, selected):
 
 
 	else:
-		clear_info_view(self)
+		clear_component(self)
+
+def clear_component(self):
+		self.manufacturerBox.lineEdit().setText('')
+		self.partnumberEdit.setText('')
+
+		self.categoryBox.lineEdit().setText('')
+
+		self.symbolBox.setCurrentIndex(-1)
+		self.packageBox.setCurrentIndex(-1)
+		self.modelBox.setCurrentIndex(-1)
+
+		self.linkEdit.setText('')
+		self.descriptionEdit.clear()
+
+
 
 def create_component(self):
-	clear_info_view(self)
+	clear_component(self)
 
 	self.editable = None
 
@@ -522,6 +526,450 @@ def save_component(self):
 
 
 def cancel_component(self):
+	self.infoWidget.setEnabled(False)
+	self.listWidget.setEnabled(True)
+
+	current = self.componentList.currentItem()
+	show_component(self, current)
+	self.statusbar.clearMessage()
+
+
+###############################
+#
+# SYMBOL MANAGER SECTION
+#
+###############################
+
+
+def show_symbol(self, selected):
+	if selected:
+		print selected
+		symbol = self.symbols[unicode(selected.text())]
+		self.nameEdit.setText(symbol.name())
+
+	else:
+		clear_symbol(self)
+
+def clear_symbol(self):
+		self.manufacturerBox.lineEdit().setText('')
+		self.partnumberEdit.setText('')
+
+		self.categoryBox.lineEdit().setText('')
+
+		self.symbolBox.setCurrentIndex(-1)
+		self.packageBox.setCurrentIndex(-1)
+		self.modelBox.setCurrentIndex(-1)
+
+		self.linkEdit.setText('')
+		self.descriptionEdit.clear()
+
+def create_symbol(self):
+	clear_info_view(self)
+
+	self.editable = None
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def edit_symbol(self):
+	self.editable = unicode(self.componentList.currentItem().text())
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def save_symbol(self):
+	settings = self.appconfig()
+
+	manufacturer = unicode(self.manufacturerBox.currentText())
+	partnumber = unicode(self.partnumberEdit.text())
+
+	component = objects.Component(manufacturer, partnumber)
+
+	value = unicode(self.categoryBox.currentText())
+	if value:
+		parameter = objects.Parameter(CATEGORY, value)
+		component.set(parameter)
+
+	value = unicode(self.symbolBox.currentText())
+	if value:
+		parameter = objects.Parameter(SYMBOL, value)
+		component.set(parameter)
+
+	value = unicode(self.packageBox.currentText())
+	if value:
+		parameter = objects.Parameter(PACKAGE, value)
+		component.set(parameter)
+
+	value = unicode(self.modelBox.currentText())
+	if value:
+		parameter = objects.Parameter(MODEL, value)
+		component.set(parameter)
+
+	value = unicode(self.descriptionEdit.toPlainText())
+	if value:
+		parameter = objects.Parameter(DESCRIPTION, value)
+		component.set(parameter)
+
+	value = unicode(self.linkEdit.text())
+	if value:
+		parameter = objects.Parameter(URL, value)
+		component.set(parameter)
+
+	row = 0
+	while row < self.parametersTable.rowCount():
+		# if not None
+		name = unicode(self.parametersTable.item(row, 0).text())
+		value = unicode(self.parametersTable.item(row, 1).text())
+		mode = unicode(self.parametersTable.item(row, 2).text())
+
+		parameter = objects.Parameter(name, value, mode)
+		component.set(parameter)
+		row = row + 1
+
+	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
+	component.set(parameter)
+
+	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
+	component.set(parameter)
+
+	### сохранение файла
+
+	xmldata = component.xml()
+
+	componentpath = os.path.join(settings.option('DATA', 'xmlrepository'), 'components')
+	container = '.'.join((manufacturer.upper(), partnumber.upper(), 'xml'))
+	filename = os.path.join(componentpath, container)
+
+	try:
+		with (open(filename, 'w')) as xmlfile:
+			xmlfile.write(xmldata)
+
+	except IOError, e:
+		message = _('cannot save file: %s') % (e,)
+		self.statusbar.showMessage(message)
+		return
+
+	if self.editable:
+		del self.components[self.editable]
+
+	self.infoWidget.setEnabled(False)
+	self.components[component.id()] = component
+	self.editable = None
+	refresh_view(self)
+	self.listWidget.setEnabled(True)
+
+def cancel_symbol(self):
+	self.infoWidget.setEnabled(False)
+	self.listWidget.setEnabled(True)
+
+	current = self.componentList.currentItem()
+	show_component(self, current)
+	self.statusbar.clearMessage()
+
+
+###############################
+#
+# PACKAGE MANAGER SECTION
+#
+###############################
+
+def clear_package(self):
+		self.manufacturerBox.lineEdit().setText('')
+		self.partnumberEdit.setText('')
+
+		self.categoryBox.lineEdit().setText('')
+
+		self.packageBox.setCurrentIndex(-1)
+		self.packageBox.setCurrentIndex(-1)
+		self.modelBox.setCurrentIndex(-1)
+
+		self.linkEdit.setText('')
+		self.descriptionEdit.clear()
+
+def show_package(self, selected):
+
+	if selected:
+		component = self.components[unicode(selected.text())]
+
+		index = self.categoryBox.findText(component.get(CATEGORY))
+		self.categoryBox.setCurrentIndex(index)
+
+		self.manufacturerBox.lineEdit().setText(component.manufacturer())
+		self.partnumberEdit.setText(component.partnumber())
+
+#		self.packageBox.lineEdit().setText(component.get(package))
+#		self.packageBox.lineEdit().setText(component.get(PACKAGE))
+#		self.modelBox.lineEdit().setText(component.get(MODEL))
+
+		index = self.packageBox.findText(component.get(package))
+		self.packageBox.setCurrentIndex(index)
+
+		index = self.packageBox.findText(component.get(PACKAGE))
+		self.packageBox.setCurrentIndex(index)
+
+		index = self.modelBox.findText(component.get(MODEL))
+		self.modelBox.setCurrentIndex(index)
+
+		self.linkEdit.setText(component.get(URL))
+		self.descriptionEdit.clear()
+		self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
+
+
+	else:
+		clear_info_view(self)
+
+def create_package(self):
+	clear_info_view(self)
+
+	self.editable = None
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def edit_package(self):
+	self.editable = unicode(self.componentList.currentItem().text())
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def save_package(self):
+	settings = self.appconfig()
+
+	manufacturer = unicode(self.manufacturerBox.currentText())
+	partnumber = unicode(self.partnumberEdit.text())
+
+	component = objects.Component(manufacturer, partnumber)
+
+	value = unicode(self.categoryBox.currentText())
+	if value:
+		parameter = objects.Parameter(CATEGORY, value)
+		component.set(parameter)
+
+	value = unicode(self.packageBox.currentText())
+	if value:
+		parameter = objects.Parameter(package, value)
+		component.set(parameter)
+
+	value = unicode(self.packageBox.currentText())
+	if value:
+		parameter = objects.Parameter(PACKAGE, value)
+		component.set(parameter)
+
+	value = unicode(self.modelBox.currentText())
+	if value:
+		parameter = objects.Parameter(MODEL, value)
+		component.set(parameter)
+
+	value = unicode(self.descriptionEdit.toPlainText())
+	if value:
+		parameter = objects.Parameter(DESCRIPTION, value)
+		component.set(parameter)
+
+	value = unicode(self.linkEdit.text())
+	if value:
+		parameter = objects.Parameter(URL, value)
+		component.set(parameter)
+
+	row = 0
+	while row < self.parametersTable.rowCount():
+		# if not None
+		name = unicode(self.parametersTable.item(row, 0).text())
+		value = unicode(self.parametersTable.item(row, 1).text())
+		mode = unicode(self.parametersTable.item(row, 2).text())
+
+		parameter = objects.Parameter(name, value, mode)
+		component.set(parameter)
+		row = row + 1
+
+	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
+	component.set(parameter)
+
+	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
+	component.set(parameter)
+
+	### сохранение файла
+
+	xmldata = component.xml()
+
+	componentpath = os.path.join(settings.option('DATA', 'xmlrepository'), 'components')
+	container = '.'.join((manufacturer.upper(), partnumber.upper(), 'xml'))
+	filename = os.path.join(componentpath, container)
+
+	try:
+		with (open(filename, 'w')) as xmlfile:
+			xmlfile.write(xmldata)
+
+	except IOError, e:
+		message = _('cannot save file: %s') % (e,)
+		self.statusbar.showMessage(message)
+		return
+
+	if self.editable:
+		del self.components[self.editable]
+
+	self.infoWidget.setEnabled(False)
+	self.components[component.id()] = component
+	self.editable = None
+	refresh_view(self)
+	self.listWidget.setEnabled(True)
+
+def cancel_package(self):
+	self.infoWidget.setEnabled(False)
+	self.listWidget.setEnabled(True)
+
+	current = self.componentList.currentItem()
+	show_component_properties(self, current)
+	self.statusbar.clearMessage()
+
+
+###############################
+#
+# MODEL MANAGER SECTION
+#
+###############################
+
+
+def clear_model(self):
+		self.manufacturerBox.lineEdit().setText('')
+		self.partnumberEdit.setText('')
+
+		self.categoryBox.lineEdit().setText('')
+
+		self.modelBox.setCurrentIndex(-1)
+		self.packageBox.setCurrentIndex(-1)
+		self.modelBox.setCurrentIndex(-1)
+
+		self.linkEdit.setText('')
+		self.descriptionEdit.clear()
+
+def show_model(self, selected):
+
+	if selected:
+		component = self.components[unicode(selected.text())]
+
+		index = self.categoryBox.findText(component.get(CATEGORY))
+		self.categoryBox.setCurrentIndex(index)
+
+		self.manufacturerBox.lineEdit().setText(component.manufacturer())
+		self.partnumberEdit.setText(component.partnumber())
+
+#		self.modelBox.lineEdit().setText(component.get(model))
+#		self.packageBox.lineEdit().setText(component.get(PACKAGE))
+#		self.modelBox.lineEdit().setText(component.get(MODEL))
+
+		index = self.modelBox.findText(component.get(model))
+		self.modelBox.setCurrentIndex(index)
+
+		index = self.packageBox.findText(component.get(PACKAGE))
+		self.packageBox.setCurrentIndex(index)
+
+		index = self.modelBox.findText(component.get(MODEL))
+		self.modelBox.setCurrentIndex(index)
+
+		self.linkEdit.setText(component.get(URL))
+		self.descriptionEdit.clear()
+		self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
+
+
+	else:
+		clear_info_view(self)
+
+def create_model(self):
+	clear_info_view(self)
+
+	self.editable = None
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def edit_model(self):
+	self.editable = unicode(self.componentList.currentItem().text())
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def save_model(self):
+	settings = self.appconfig()
+
+	manufacturer = unicode(self.manufacturerBox.currentText())
+	partnumber = unicode(self.partnumberEdit.text())
+
+	component = objects.Component(manufacturer, partnumber)
+
+	value = unicode(self.categoryBox.currentText())
+	if value:
+		parameter = objects.Parameter(CATEGORY, value)
+		component.set(parameter)
+
+	value = unicode(self.modelBox.currentText())
+	if value:
+		parameter = objects.Parameter(model, value)
+		component.set(parameter)
+
+	value = unicode(self.packageBox.currentText())
+	if value:
+		parameter = objects.Parameter(PACKAGE, value)
+		component.set(parameter)
+
+	value = unicode(self.modelBox.currentText())
+	if value:
+		parameter = objects.Parameter(MODEL, value)
+		component.set(parameter)
+
+	value = unicode(self.descriptionEdit.toPlainText())
+	if value:
+		parameter = objects.Parameter(DESCRIPTION, value)
+		component.set(parameter)
+
+	value = unicode(self.linkEdit.text())
+	if value:
+		parameter = objects.Parameter(URL, value)
+		component.set(parameter)
+
+	row = 0
+	while row < self.parametersTable.rowCount():
+		# if not None
+		name = unicode(self.parametersTable.item(row, 0).text())
+		value = unicode(self.parametersTable.item(row, 1).text())
+		mode = unicode(self.parametersTable.item(row, 2).text())
+
+		parameter = objects.Parameter(name, value, mode)
+		component.set(parameter)
+		row = row + 1
+
+	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
+	component.set(parameter)
+
+	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
+	component.set(parameter)
+
+	### сохранение файла
+
+	xmldata = component.xml()
+
+	componentpath = os.path.join(settings.option('DATA', 'xmlrepository'), 'components')
+	container = '.'.join((manufacturer.upper(), partnumber.upper(), 'xml'))
+	filename = os.path.join(componentpath, container)
+
+	try:
+		with (open(filename, 'w')) as xmlfile:
+			xmlfile.write(xmldata)
+
+	except IOError, e:
+		message = _('cannot save file: %s') % (e,)
+		self.statusbar.showMessage(message)
+		return
+
+	if self.editable:
+		del self.components[self.editable]
+
+	self.infoWidget.setEnabled(False)
+	self.components[component.id()] = component
+	self.editable = None
+	refresh_view(self)
+	self.listWidget.setEnabled(True)
+
+def cancel_model(self):
 	self.infoWidget.setEnabled(False)
 	self.listWidget.setEnabled(True)
 
