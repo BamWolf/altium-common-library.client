@@ -31,6 +31,11 @@ CREATIONTIME = 'CreationTime'
 
 ###############################
 
+def _(string):
+	return string
+
+###############################
+
 ### Preparing Main Window ###
 
 def prepare_view(self):
@@ -435,11 +440,7 @@ def edit_component(self):
 	self.listWidget.setEnabled(False)
 
 def save_component(self):
-	self.infoWidget.setEnabled(False)
-	self.listWidget.setEnabled(True)
-
-
-
+	settings = self.appconfig()
 
 	manufacturer = unicode(self.manufacturerBox.currentText())
 	partnumber = unicode(self.partnumberEdit.text())
@@ -487,21 +488,38 @@ def save_component(self):
 		component.set(parameter)
 		row = row + 1
 
-	parameter = objects.Parameter(AUTHOR, self.appconfig().option('ACCOUNT', 'user'))
+	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
 	component.set(parameter)
 
-	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow(), 'datetime')
+	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
 	component.set(parameter)
+
+	### сохранение файла
+
+	xmldata = component.xml()
+
+	componentpath = os.path.join(settings.option('DATA', 'xmlrepository'), 'components')
+	container = '.'.join((manufacturer.upper(), partnumber.upper(), 'xml'))
+	filename = os.path.join(componentpath, container)
+
+	try:
+		with (open(filename, 'w')) as xmlfile:
+			xmlfile.write(xmldata)
+
+	except IOError, e:
+		message = _('cannot save file: %s') % (e,)
+		self.statusbar.showMessage(message)
+		return
 
 	if self.editable:
 		del self.components[self.editable]
 
+	self.infoWidget.setEnabled(False)
 	self.components[component.id()] = component
-
 	self.editable = None
-
-#	prepare_view(self)
 	refresh_view(self)
+	self.listWidget.setEnabled(True)
+
 
 def cancel_component(self):
 	self.infoWidget.setEnabled(False)
@@ -509,3 +527,4 @@ def cancel_component(self):
 
 	current = self.componentList.currentItem()
 	show_component_properties(self, current)
+	self.statusbar.clearMessage()
