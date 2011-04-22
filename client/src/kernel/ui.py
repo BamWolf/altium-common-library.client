@@ -17,36 +17,44 @@ class PyMainWindow(abstract.QWindow):
 		""" подключение сигналов """
 		self.newButton.clicked.connect(self.on_new_button_clicked)
 		self.editButton.clicked.connect(self.on_edit_button_clicked)
+		self.saveButton.clicked.connect(self.on_save_button_clicked)
+		self.cancelButton.clicked.connect(self.on_cancel_button_clicked)
 
 		self.symbolButton.clicked.connect(self.on_symbol_button_clicked)
 		self.packageButton.clicked.connect(self.on_package_button_clicked)
 		self.modelButton.clicked.connect(self.on_model_button_clicked)
 
-		self.componentList.itemClicked.connect(self.on_component_selected)
+		self.componentList.currentItemChanged.connect(self.on_component_changed)
+
+		wrapper.prepare_view(self)
+
 
 	# обработчики сигналов
-	def on_component_selected(self, data):
-		wrapper.show_component_properties(self, data)
+	def on_component_changed(self, current, previous):
+		if current:
+			self.editButton.setEnabled(True)
+			wrapper.show_component_properties(self, current)
 
+		else:
+			self.editButton.setEnabled(False)
 
 	# componentButton
 	def on_new_button_clicked(self):
+		wrapper.create_component(self)
 
-		print 'new'
-#		dialog = ComponentWizard('ui/component.ui', self)
-#		dialog.setObjectName('Component Wizard')
+	def on_edit_button_clicked(self):
+		wrapper.edit_component(self)
 
-#		dialog.addComponentButton.clicked.connect(self.on_component_created)	#, QtCore.Qt.QueuedConnection)
-#		dialog.load(self.components)
-#		dialog.show()
+	def on_save_button_clicked(self):
+		wrapper.save_component(self)
+
+	def on_cancel_button_clicked(self):
+		wrapper.cancel_component(self)
+
 
 	def on_component_created(self):
 		print 'new component'
 		wrapper.refresh_view(self)
-
-
-	def on_edit_button_clicked(self):
-		wrapper.edit_component_properties(self)
 
 
 	# symbolButton

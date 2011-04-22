@@ -21,45 +21,19 @@ SYMBOL = 'Symbol'
 PACKAGE = 'Package'
 MODEL = 'Model'
 
+CATEGORY = 'Category'
+
 URL = 'URL'
 DESCRIPTION = 'Description'
+
+AUTHOR = 'Author'
+CREATIONTIME = 'CreationTime'
 
 ###############################
 
 ### Preparing Main Window ###
 
-def prepare_main_form(self):
-
-	db = database.Database(self.dbname)
-	db.init()
-
-	self.manufacturerBox.clear()
-	set = db.get_man()
-	set.append(u'')
-	set.sort()
-	self.manufacturerBox.addItems(set)
-
-	self.symbolBox.clear()
-	set = db.get_symbols()
-	set.append(u'')
-	set.sort()
-	self.symbolBox.addItems(set)
-
-	self.packageBox.clear()
-	set = db.get_packages()
-	set.append(u'')
-	set.sort()
-	self.packageBox.addItems(set)
-
-	self.modelBox.clear()
-	set = db.get_models()
-	set.append(u'')
-	set.sort()
-	self.modelBox.addItems(set)
-
-	db.close()
-
-def refresh_view(self):
+def prepare_view(self):
 	settings = self.appconfig()
 
 	xmlpath = os.path.abspath(settings.option('DATA', 'xmlrepository'))
@@ -69,20 +43,45 @@ def refresh_view(self):
 	self.packages = shared.collect_packages(xmlpath)
 	self.models = shared.collect_models(xmlpath)
 
-	self.componentList.clear()
-	self.componentList.addItems(self.components.keys())
-
-
 	manufacturers = set()
+	categories = set()
 
 	for component in self.components.values():
 		manufacturers.add(component.manufacturer())
+		categories.add(component.get(CATEGORY))
 
 	manufacturers = list(manufacturers)
 	manufacturers.sort()
-	manufacturers.insert(0, ' ')
-
 	self.manufacturerBox.addItems(manufacturers)
+	self.manufacturerBox.setCurrentIndex(-1)
+
+	categories = list(categories)
+	categories.sort()
+	self.categoryBox.addItems(categories)
+	self.categoryBox.setCurrentIndex(-1)
+
+
+def refresh_view(self):
+	self.componentList.clear()
+	self.componentList.addItems(self.components.keys())
+
+	self.symbolBox.clear()
+	items = self.symbols.keys()
+	items.append(u'')
+	items.sort()
+	self.symbolBox.addItems(items)
+
+	self.packageBox.clear()
+	items = self.packages.keys()
+	items.append(u'')
+	items.sort()
+	self.packageBox.addItems(items)
+
+	self.modelBox.clear()
+	items = self.models.keys()
+	items.append(u'')
+	items.sort()
+	self.modelBox.addItems(items)
 
 
 def load_categories(self):
@@ -375,29 +374,138 @@ class PackageWorker():
 
 
 
+
+def clear_info_view(self):
+		self.manufacturerBox.lineEdit().setText('')
+		self.partnumberEdit.setText('')
+
+		self.categoryBox.lineEdit().setText('')
+
+		self.symbolBox.setCurrentIndex(-1)
+		self.packageBox.setCurrentIndex(-1)
+		self.modelBox.setCurrentIndex(-1)
+
+		self.linkEdit.setText('')
+		self.descriptionEdit.clear()
+
 def show_component_properties(self, selected):
-	component = self.components[unicode(selected.text())]
 
-	self.manufacturerBox.lineEdit().setText(component.manufacturer())
-	self.componentPartnumber.setText(component.partnumber())
+	if selected:
+		component = self.components[unicode(selected.text())]
 
-	self.symbolBox.lineEdit().setText(component.get(SYMBOL))
-	self.packageBox.lineEdit().setText(component.get(PACKAGE))
-	self.modelBox.lineEdit().setText(component.get(MODEL))
+		index = self.categoryBox.findText(component.get(CATEGORY))
+		self.categoryBox.setCurrentIndex(index)
 
-	self.linkEdit.setText(component.get(URL))
-	self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
+		self.manufacturerBox.lineEdit().setText(component.manufacturer())
+		self.partnumberEdit.setText(component.partnumber())
+
+#		self.symbolBox.lineEdit().setText(component.get(SYMBOL))
+#		self.packageBox.lineEdit().setText(component.get(PACKAGE))
+#		self.modelBox.lineEdit().setText(component.get(MODEL))
+
+		index = self.symbolBox.findText(component.get(SYMBOL))
+		self.symbolBox.setCurrentIndex(index)
+
+		index = self.packageBox.findText(component.get(PACKAGE))
+		self.packageBox.setCurrentIndex(index)
+
+		index = self.modelBox.findText(component.get(MODEL))
+		self.modelBox.setCurrentIndex(index)
+
+		self.linkEdit.setText(component.get(URL))
+		self.descriptionEdit.clear()
+		self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
+
+
+	else:
+		clear_info_view(self)
+
+def create_component(self):
+	clear_info_view(self)
+
+	self.editable = None
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def edit_component(self):
+	self.editable = unicode(self.componentList.currentItem().text())
+
+	self.infoWidget.setEnabled(True)
+	self.listWidget.setEnabled(False)
+
+def save_component(self):
+	self.infoWidget.setEnabled(False)
+	self.listWidget.setEnabled(True)
 
 
 
-def edit_component_properties(self):
-	self.manufacturerBox.setEnabled(True)
-	self.componentPartnumber.setEnabled(True)
 
-	self.symbolBox.setEnabled(True)
-	self.packageBox.setEnabled(True)
-	self.modelBox.setEnabled(True)
+	manufacturer = unicode(self.manufacturerBox.currentText())
+	partnumber = unicode(self.partnumberEdit.text())
 
-	self.linkEdit.setEnabled(True)
-	self.descriptionEdit.setEnabled(True)
+	component = objects.Component(manufacturer, partnumber)
 
+	value = unicode(self.categoryBox.currentText())
+	if value:
+		parameter = objects.Parameter(CATEGORY, value)
+		component.set(parameter)
+
+	value = unicode(self.symbolBox.currentText())
+	if value:
+		parameter = objects.Parameter(SYMBOL, value)
+		component.set(parameter)
+
+	value = unicode(self.packageBox.currentText())
+	if value:
+		parameter = objects.Parameter(PACKAGE, value)
+		component.set(parameter)
+
+	value = unicode(self.modelBox.currentText())
+	if value:
+		parameter = objects.Parameter(MODEL, value)
+		component.set(parameter)
+
+	value = unicode(self.descriptionEdit.toPlainText())
+	if value:
+		parameter = objects.Parameter(DESCRIPTION, value)
+		component.set(parameter)
+
+	value = unicode(self.linkEdit.text())
+	if value:
+		parameter = objects.Parameter(URL, value)
+		component.set(parameter)
+
+	row = 0
+	while row < self.parametersTable.rowCount():
+		# if not None
+		name = unicode(self.parametersTable.item(row, 0).text())
+		value = unicode(self.parametersTable.item(row, 1).text())
+		mode = unicode(self.parametersTable.item(row, 2).text())
+
+		parameter = objects.Parameter(name, value, mode)
+		component.set(parameter)
+		row = row + 1
+
+	parameter = objects.Parameter(AUTHOR, self.appconfig().option('ACCOUNT', 'user'))
+	component.set(parameter)
+
+	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow(), 'datetime')
+	component.set(parameter)
+
+	if self.editable:
+		del self.components[self.editable]
+
+	self.components[component.id()] = component
+
+	self.editable = None
+
+#	prepare_view(self)
+	refresh_view(self)
+
+def cancel_component(self):
+	self.infoWidget.setEnabled(False)
+	self.listWidget.setEnabled(True)
+
+	current = self.componentList.currentItem()
+	show_component_properties(self, current)

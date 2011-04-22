@@ -501,7 +501,7 @@ class Model():
 
 class Parameter():
 
-	def __init__(self, name, value, mode):
+	def __init__(self, name, value, mode='string'):
 		if not name:
 			raise Exception, 'Empty Parameter Name'
 

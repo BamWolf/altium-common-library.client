@@ -6,15 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>480</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>CrowdLibrary Manager</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="margin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QWidget" name="widget_header" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -31,81 +40,152 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="packageButton">
-         <property name="text">
-          <string>Packages</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="symbolButton">
-         <property name="text">
-          <string>Symbols</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="modelButton">
-         <property name="text">
-          <string>Models</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
     <item>
      <widget class="QWidget" name="widget_body" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <property name="margin">
         <number>0</number>
        </property>
        <item>
-        <widget class="QListWidget" name="componentList"/>
-       </item>
-       <item>
-        <widget class="QWidget" name="widget" native="true">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="2" column="0">
-           <widget class="QLabel" name="manufacturerLabel">
-            <property name="text">
-             <string>Manufacturer:</string>
-            </property>
+        <widget class="QWidget" name="listWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLineEdit" name="filterEdit"/>
+          </item>
+          <item>
+           <widget class="QListWidget" name="componentList"/>
+          </item>
+          <item>
+           <widget class="QWidget" name="buttonsWidgetLeft" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="margin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="newButton">
+               <property name="text">
+                <string>New</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editButton">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Edit</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="partnumberLabel">
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="infoWidget" native="true">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="4" column="0" colspan="2">
+           <widget class="QWidget" name="boxWidget" native="true">
+            <layout class="QGridLayout" name="gridLayout_2">
+             <property name="margin">
+              <number>0</number>
+             </property>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="symbolBox"/>
+             </item>
+             <item row="1" column="2">
+              <widget class="QComboBox" name="packageBox"/>
+             </item>
+             <item row="1" column="3">
+              <widget class="QComboBox" name="modelBox"/>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="symbolLabel">
+               <property name="text">
+                <string>Symbol:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="packageLabel">
+               <property name="text">
+                <string>Package:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLabel" name="modelLabel">
+               <property name="text">
+                <string>Model:</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="linkLabel">
             <property name="text">
-             <string>Part Number:</string>
+             <string>Link:</string>
             </property>
            </widget>
           </item>
           <item row="6" column="0" colspan="2">
-           <widget class="QLineEdit" name="linkEdit">
-            <property name="enabled">
-             <bool>false</bool>
+           <widget class="QLineEdit" name="linkEdit"/>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="descriptionLabel">
+            <property name="text">
+             <string>Description:</string>
             </property>
            </widget>
           </item>
           <item row="8" column="0" colspan="2">
            <widget class="QPlainTextEdit" name="descriptionEdit">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
            </widget>
           </item>
+          <item row="10" column="0">
+           <widget class="QLabel" name="parametersLabel">
+            <property name="text">
+             <string>Parameters:</string>
+            </property>
+           </widget>
+          </item>
           <item row="11" column="0" colspan="2">
            <widget class="QTableWidget" name="parametersTable">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -116,7 +196,7 @@
              <bool>true</bool>
             </property>
             <attribute name="horizontalHeaderDefaultSectionSize">
-             <number>50</number>
+             <number>150</number>
             </attribute>
             <attribute name="verticalHeaderVisible">
              <bool>true</bool>
@@ -138,31 +218,27 @@
             </column>
            </widget>
           </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QWidget" name="widget_buttons" native="true">
+          <item row="12" column="0" colspan="2">
+           <widget class="QWidget" name="buttonsWidgetRight" native="true">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <property name="margin">
               <number>0</number>
              </property>
              <item>
-              <widget class="QPushButton" name="newButton">
-               <property name="text">
-                <string>New</string>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="editButton">
-               <property name="text">
-                <string>Edit</string>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
                </property>
-              </widget>
+              </spacer>
              </item>
              <item>
               <widget class="QPushButton" name="saveButton">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
                <property name="text">
                 <string>Save</string>
                </property>
@@ -170,9 +246,6 @@
              </item>
              <item>
               <widget class="QPushButton" name="cancelButton">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
                <property name="text">
                 <string>Cancel</string>
                </property>
@@ -181,114 +254,57 @@
             </layout>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QWidget" name="widget" native="true">
-            <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0" rowspan="2">
+           <widget class="QWidget" name="idWidget" native="true">
+            <layout class="QGridLayout" name="gridLayout_3">
              <property name="margin">
               <number>0</number>
              </property>
              <item row="1" column="1">
-              <widget class="QComboBox" name="symbolBox">
-               <property name="enabled">
-                <bool>false</bool>
+              <widget class="QComboBox" name="manufacturerBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
                <property name="editable">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item row="1" column="2">
-              <widget class="QComboBox" name="packageBox">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
+             <item row="1" column="0">
+              <widget class="QComboBox" name="categoryBox">
                <property name="editable">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item row="1" column="3">
-              <widget class="QComboBox" name="modelBox">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="editable">
-                <bool>true</bool>
+             <item row="0" column="0">
+              <widget class="QLabel" name="categoryLabel">
+               <property name="text">
+                <string>Category:</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLabel" name="label">
+              <widget class="QLabel" name="manufacturerLabel">
                <property name="text">
-                <string>Symbol:</string>
+                <string>Manufacturer:</string>
                </property>
               </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLineEdit" name="partnumberEdit"/>
              </item>
              <item row="0" column="2">
-              <widget class="QLabel" name="label_2">
+              <widget class="QLabel" name="partnumberLabel">
                <property name="text">
-                <string>Package:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <widget class="QLabel" name="label_3">
-               <property name="text">
-                <string>Model:</string>
+                <string>Part Number:</string>
                </property>
               </widget>
              </item>
             </layout>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Link:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Parameters:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Description:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="componentPartnumber">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QComboBox" name="manufacturerBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="editable">
-             <bool>true</bool>
-            </property>
            </widget>
           </item>
          </layout>
@@ -300,6 +316,33 @@
     <item>
      <widget class="QWidget" name="widget_footer" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="packageButton">
+         <property name="text">
+          <string>Packages</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="symbolButton">
+         <property name="text">
+          <string>Symbols</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="modelButton">
+         <property name="text">
+          <string>Models</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <spacer name="spacer_footer">
          <property name="orientation">
@@ -315,6 +358,12 @@
        </item>
        <item>
         <widget class="QPushButton" name="export_button">
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="text">
           <string>Export</string>
          </property>
@@ -330,7 +379,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>640</width>
+     <width>800</width>
      <height>21</height>
     </rect>
    </property>
