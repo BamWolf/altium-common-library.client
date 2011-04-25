@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 
-import sys
 import os
+import sys
 
 import re
 import time
@@ -17,6 +17,21 @@ from kernel import objects
 from kernel.abstract import AppException
 
 ###########################
+
+SYMBOL = 'Symbol'
+PACKAGE = 'Package'
+MODEL = 'Model'
+
+CATEGORY = 'Category'
+
+URL = 'URL'
+DESCRIPTION = 'Description'
+
+AUTHOR = 'Author'
+CREATIONTIME = 'CreationTime'
+
+###########################
+
 
 def _(s):
 	return s
@@ -86,59 +101,18 @@ def load_module(modulename):
 def collect_components(xmlpath):
 
 	components = {}
-	symbols = {}
-	packages = {}
-	models = {}
- 
 	componentpath = os.path.join(xmlpath, 'components')
-	symbolpath = os.path.join(xmlpath, 'symbols')
-	packagepath = os.path.join(xmlpath, 'packages')
-	modelpath = os.path.join(xmlpath, 'models')
- 
-	""" составление списка символов """
-	for path, dirs, files in os.walk(symbolpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in symbols:
-					print 'Duplicate Error:', filename, path
- 
-				else:
-					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
- 
-	print 'symbols:', symbols
+
+	symbols = collect_symbols(xmlpath)
+	packages = collect_packages(xmlpath)
+	models = collect_models(xmlpath)
+
+	print 'SYMBOLS', symbols
 	print
-
-
-	""" составление списка корпусов """
-
-	for path, dirs, files in os.walk(packagepath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in packages:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
-
-
-	print 'packages:', packages
+	print 'PACKAGES', packages
 	print
-
-	""" составление списка моделей """
-
-	for path, dirs, files in os.walk(modelpath):
-		for filename in files:
-			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in models:
-					print 'Duplicate Error:', filename, path
-
-				else:
-					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
-
-
-	print 'models:', models
+	print 'MODELS', models
 	print
-
 
 	""" поиск компонентов """
 
@@ -146,7 +120,9 @@ def collect_components(xmlpath):
 		for filename in files:
 			if fnmatch.fnmatch(filename, '*.xml'):
 				if filename in components:
-					print 'Duplicate Error:', filename, path
+					message = 'duplicate found: %s\\%s' % (path, filename)
+					print message
+#					raise AppException(message)
 
 				else:
 					with open(os.path.abspath(os.path.join(path, filename))) as xmlfile:
@@ -155,12 +131,11 @@ def collect_components(xmlpath):
 					element = objects.Component()
 					element.parse(xmldata)
 
-					print
 					print element.id()
 
-					symbol = element.get('Symbol')
-					package = element.get('Package')
-					model = element.get('Model')
+					symbol = element.get(SYMBOL)
+					package = element.get(PACKAGE)
+					model = element.get(MODEL)
 
 					print
 					print '\tSymbol:', symbol
@@ -170,50 +145,21 @@ def collect_components(xmlpath):
 					""" добавление параметров символа """
 
 					if symbol and symbol in symbols:
-						try:
-							with open(symbols[symbol]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							symbol = objects.Symbol()
-							symbol.parse(xmldata)
-
-							for parameter in symbol:
-								element.set(objects.Parameter('.'.join(('Symbol', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 23'
+						for parameter in symbols[symbol]:
+							element.set(objects.Parameter('.'.join((SYMBOL, parameter.name())), parameter.value(), parameter.value()))
 
 					""" добавление параметров корпуса """
 
 					if package and package in packages:
-						try:
-							with open(packages[package]) as xmlfile:
-								xmldata = xmlfile.read()
+							for parameter in packages[package]:
+								element.set(objects.Parameter('.'.join((PACKAGE, parameter.name())), parameter.value(), parameter.value()))
 
-							package = objects.Package()
-							package.parse(xmldata)
-
-							for parameter in package:
-								element.set(objects.Parameter('.'.join(('Package', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 24'
 
 					""" добавление параметров модели """
 
 					if model and model in models:
-						try:
-							with open(models[model]) as xmlfile:
-								xmldata = xmlfile.read()
-
-							model = objects.Model()
-							model.parse(xmldata)
-
-							for parameter in model:
-								element.set(objects.Parameter('.'.join(('Model', parameter.name())), parameter.value(), parameter.value()))
-
-						except:
-							print 'ERROR 25'
+							for parameter in models[model]:
+								element.set(objects.Parameter('.'.join((MODEL, parameter.name())), parameter.value(), parameter.value()))
 
 
 					print
@@ -231,18 +177,30 @@ def collect_components(xmlpath):
 def collect_symbols(xmlpath):
 
 	symbols = {}
- 
 	symbolpath = os.path.join(xmlpath, 'symbols')
 
 	""" составление списка символов """
 	for path, dirs, files in os.walk(symbolpath):
 		for filename in files:
 			if fnmatch.fnmatch(filename, '*.xml'):
-				if filename in symbols:
-					print 'Duplicate Error:', filename, path
+				if filename[:-4] in symbols:
+					message = 'duplicate found: %s\\%s' % (path, filename)
+					print message
+#					raise AppException(message)
  
 				else:
-					symbols[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+					try:
+						filename = os.path.abspath(os.path.join(path, filename))
+						with open(filename) as xmlfile:
+							xmldata = xmlfile.read()
+
+						symbol = objects.Symbol()
+						symbol.parse(xmldata)
+						symbols[symbol.id()] = symbol
+
+					except Exception, e:
+						message = _('symbol parsing error^ %s') % (e,)
+						raise AppException(message)
 
 	return symbols
 
@@ -251,7 +209,6 @@ def collect_symbols(xmlpath):
 def collect_packages(xmlpath):
 
 	packages = {}
- 
 	packagepath = os.path.join(xmlpath, 'packages')
 
 	""" составление списка корпусов """
@@ -260,10 +217,23 @@ def collect_packages(xmlpath):
 		for filename in files:
 			if fnmatch.fnmatch(filename, '*.xml'):
 				if filename in packages:
-					print 'Duplicate Error:', filename, path
+					message = 'duplicate found: %s\\%s' % (path, filename)
+					print message
+#					raise AppException(message)
 
 				else:
-					packages[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+					try:
+						filename = os.path.abspath(os.path.join(path, filename))
+						with open(filename) as xmlfile:
+							xmldata = xmlfile.read()
+
+						package = objects.Package()
+						package.parse(xmldata)
+						packages[package.id()] = package
+
+					except Exception, e:
+						message = _('package parsing error^ %s') % (e,)
+						raise AppException(message)
 
 	return packages
 
@@ -271,8 +241,7 @@ def collect_packages(xmlpath):
 def collect_models(xmlpath):
 
 	models = {}
- 
-	modelpath = os.path.join(xmlpath, 'models')
+ 	modelpath = os.path.join(xmlpath, 'models')
 
 	""" составление списка моделей """
 
@@ -280,11 +249,23 @@ def collect_models(xmlpath):
 		for filename in files:
 			if fnmatch.fnmatch(filename, '*.xml'):
 				if filename in models:
-					print 'Duplicate Error:', filename, path
+					message = 'duplicate found: %s\\%s' % (path, filename)
+					print message
+#					raise AppException(message)
 
 				else:
-					models[filename[:-4]] = os.path.abspath(os.path.join(path, filename))
+					try:
+						filename = os.path.abspath(os.path.join(path, filename))
+						with open(filename) as xmlfile:
+							xmldata = xmlfile.read()
 
+						model = objects.Model()
+						model.parse(xmldata)
+						models[model.id()] = model
+
+					except Exception, e:
+						message = _('model parsing error^ %s') % (e,)
+						raise AppException(message)
 
 	return models
 

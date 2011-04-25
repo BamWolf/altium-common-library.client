@@ -39,9 +39,9 @@ def _(string):
 ### Preparing Main Window ###
 
 def prepare_view(self):
-	settings = self.appconfig()
+	self.settings = self.appconfig()
 
-	xmlpath = os.path.abspath(settings.option('DATA', 'xmlrepository'))
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
 	self.components = shared.collect_components(xmlpath)
 
 	self.symbols = shared.collect_symbols(xmlpath)
@@ -67,6 +67,7 @@ def prepare_view(self):
 
 
 def refresh_view(self):
+	### обновлять нужно - перечитывать
 	self.componentList.clear()
 	items = self.components.keys()
 	items.sort()	
@@ -517,6 +518,7 @@ def save_component(self):
 
 	if self.editable:
 		del self.components[self.editable]
+		### удаление файла
 
 	self.infoWidget.setEnabled(False)
 	self.components[component.id()] = component
@@ -540,31 +542,36 @@ def cancel_component(self):
 #
 ###############################
 
+def load_symbols(self):
+	self.settings = self.parent().appconfig()
+
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.symbols = shared.collect_symbols(xmlpath)
+
+	items = self.symbols.keys()
+	items.sort()
+
+	self.symbolList.addItems(items)
 
 def show_symbol(self, selected):
 	if selected:
-		print selected
 		symbol = self.symbols[unicode(selected.text())]
-		self.nameEdit.setText(symbol.name())
+		print symbol
+
+		self.nameEdit.setText(symbol.id())
+
 
 	else:
 		clear_symbol(self)
 
 def clear_symbol(self):
-		self.manufacturerBox.lineEdit().setText('')
-		self.partnumberEdit.setText('')
+	self.nameEdit.setText('')
 
-		self.categoryBox.lineEdit().setText('')
-
-		self.symbolBox.setCurrentIndex(-1)
-		self.packageBox.setCurrentIndex(-1)
-		self.modelBox.setCurrentIndex(-1)
-
-		self.linkEdit.setText('')
-		self.descriptionEdit.clear()
+	self.designatorBox.lineEdit().setText('')
+	self.descriptionEdit.clear()
 
 def create_symbol(self):
-	clear_info_view(self)
+	clear_symbol(self)
 
 	self.editable = None
 
@@ -572,73 +579,38 @@ def create_symbol(self):
 	self.listWidget.setEnabled(False)
 
 def edit_symbol(self):
-	self.editable = unicode(self.componentList.currentItem().text())
+	self.editable = unicode(self.symbolList.currentItem().text())
 
 	self.infoWidget.setEnabled(True)
 	self.listWidget.setEnabled(False)
 
 def save_symbol(self):
-	settings = self.appconfig()
+	name = unicode(self.nameEdit.text())
+	symbol = objects.Symbol(name)
 
-	manufacturer = unicode(self.manufacturerBox.currentText())
-	partnumber = unicode(self.partnumberEdit.text())
-
-	component = objects.Component(manufacturer, partnumber)
-
-	value = unicode(self.categoryBox.currentText())
+	value = unicode(self.designatorBox.currentText())
 	if value:
-		parameter = objects.Parameter(CATEGORY, value)
-		component.set(parameter)
-
-	value = unicode(self.symbolBox.currentText())
-	if value:
-		parameter = objects.Parameter(SYMBOL, value)
-		component.set(parameter)
-
-	value = unicode(self.packageBox.currentText())
-	if value:
-		parameter = objects.Parameter(PACKAGE, value)
-		component.set(parameter)
-
-	value = unicode(self.modelBox.currentText())
-	if value:
-		parameter = objects.Parameter(MODEL, value)
-		component.set(parameter)
+		parameter = objects.Parameter(u'Designator', value)
+		symbol.set(parameter)
 
 	value = unicode(self.descriptionEdit.toPlainText())
 	if value:
 		parameter = objects.Parameter(DESCRIPTION, value)
-		component.set(parameter)
+		symbol.set(parameter)
 
-	value = unicode(self.linkEdit.text())
-	if value:
-		parameter = objects.Parameter(URL, value)
-		component.set(parameter)
+#	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
+#	component.set(parameter)
 
-	row = 0
-	while row < self.parametersTable.rowCount():
-		# if not None
-		name = unicode(self.parametersTable.item(row, 0).text())
-		value = unicode(self.parametersTable.item(row, 1).text())
-		mode = unicode(self.parametersTable.item(row, 2).text())
-
-		parameter = objects.Parameter(name, value, mode)
-		component.set(parameter)
-		row = row + 1
-
-	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
-	component.set(parameter)
-
-	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
-	component.set(parameter)
+#	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
+#	component.set(parameter)
 
 	### сохранение файла
 
-	xmldata = component.xml()
+	xmldata = symbol.xml()
 
-	componentpath = os.path.join(settings.option('DATA', 'xmlrepository'), 'components')
-	container = '.'.join((manufacturer.upper(), partnumber.upper(), 'xml'))
-	filename = os.path.join(componentpath, container)
+	symbolpath = os.path.join(self.settings.option('DATA', 'xmlrepository'), 'symbols')
+	container = '.'.join((name.upper(), 'xml'))
+	filename = os.path.join(symbolpath, container)
 
 	try:
 		with (open(filename, 'w')) as xmlfile:
@@ -646,25 +618,26 @@ def save_symbol(self):
 
 	except IOError, e:
 		message = _('cannot save file: %s') % (e,)
-		self.statusbar.showMessage(message)
+#		self.statusbar.showMessage(message)
 		return
 
-	if self.editable:
-		del self.components[self.editable]
+	if self.editable == symbol.id():
+		del self.symbols[self.editable]
+		### удаление файла
 
 	self.infoWidget.setEnabled(False)
-	self.components[component.id()] = component
+	self.symbols[symbol.id()] = symbol
 	self.editable = None
-	refresh_view(self)
+#	refresh_symbols(self)
 	self.listWidget.setEnabled(True)
 
 def cancel_symbol(self):
 	self.infoWidget.setEnabled(False)
 	self.listWidget.setEnabled(True)
 
-	current = self.componentList.currentItem()
-	show_component(self, current)
-	self.statusbar.clearMessage()
+	current = self.symbolList.currentItem()
+	show_symbol(self, current)
+#	self.statusbar.clearMessage()
 
 
 ###############################
@@ -673,18 +646,16 @@ def cancel_symbol(self):
 #
 ###############################
 
-def clear_package(self):
-		self.manufacturerBox.lineEdit().setText('')
-		self.partnumberEdit.setText('')
+def load_packages(self):
+	self.settings = self.parent().appconfig()
 
-		self.categoryBox.lineEdit().setText('')
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.packages = shared.collect_packages(xmlpath)
 
-		self.packageBox.setCurrentIndex(-1)
-		self.packageBox.setCurrentIndex(-1)
-		self.modelBox.setCurrentIndex(-1)
+	items = self.packages.keys()
+	items.sort()
 
-		self.linkEdit.setText('')
-		self.descriptionEdit.clear()
+	self.packageList.addItems(items)
 
 def show_package(self, selected):
 
@@ -716,7 +687,20 @@ def show_package(self, selected):
 
 
 	else:
-		clear_info_view(self)
+		clear_package(self)
+
+def clear_package(self):
+	self.manufacturerBox.lineEdit().setText('')
+	self.partnumberEdit.setText('')
+
+	self.categoryBox.lineEdit().setText('')
+
+	self.packageBox.setCurrentIndex(-1)
+	self.packageBox.setCurrentIndex(-1)
+	self.modelBox.setCurrentIndex(-1)
+
+	self.linkEdit.setText('')
+	self.descriptionEdit.clear()
 
 def create_package(self):
 	clear_info_view(self)
@@ -733,8 +717,6 @@ def edit_package(self):
 	self.listWidget.setEnabled(False)
 
 def save_package(self):
-	settings = self.appconfig()
-
 	manufacturer = unicode(self.manufacturerBox.currentText())
 	partnumber = unicode(self.partnumberEdit.text())
 
@@ -781,7 +763,7 @@ def save_package(self):
 		component.set(parameter)
 		row = row + 1
 
-	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
+	parameter = objects.Parameter(AUTHOR, self.settings.option('ACCOUNT', 'user'))
 	component.set(parameter)
 
 	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
@@ -828,19 +810,24 @@ def cancel_package(self):
 #
 ###############################
 
+def load_models(self):
+	self.settings = self.parent().appconfig()
+
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.models = shared.collect_packages(xmlpath)
 
 def clear_model(self):
-		self.manufacturerBox.lineEdit().setText('')
-		self.partnumberEdit.setText('')
+	self.manufacturerBox.lineEdit().setText('')
+	self.partnumberEdit.setText('')
 
-		self.categoryBox.lineEdit().setText('')
+	self.categoryBox.lineEdit().setText('')
 
-		self.modelBox.setCurrentIndex(-1)
-		self.packageBox.setCurrentIndex(-1)
-		self.modelBox.setCurrentIndex(-1)
+	self.modelBox.setCurrentIndex(-1)
+	self.packageBox.setCurrentIndex(-1)
+	self.modelBox.setCurrentIndex(-1)
 
-		self.linkEdit.setText('')
-		self.descriptionEdit.clear()
+	self.linkEdit.setText('')
+	self.descriptionEdit.clear()
 
 def show_model(self, selected):
 
@@ -889,8 +876,6 @@ def edit_model(self):
 	self.listWidget.setEnabled(False)
 
 def save_model(self):
-	settings = self.appconfig()
-
 	manufacturer = unicode(self.manufacturerBox.currentText())
 	partnumber = unicode(self.partnumberEdit.text())
 
@@ -937,7 +922,7 @@ def save_model(self):
 		component.set(parameter)
 		row = row + 1
 
-	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
+	parameter = objects.Parameter(AUTHOR, self.settings.option('ACCOUNT', 'user'))
 	component.set(parameter)
 
 	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
@@ -957,7 +942,7 @@ def save_model(self):
 
 	except IOError, e:
 		message = _('cannot save file: %s') % (e,)
-		self.statusbar.showMessage(message)
+#		self.statusbar.showMessage(message)
 		return
 
 	if self.editable:
@@ -975,4 +960,4 @@ def cancel_model(self):
 
 	current = self.componentList.currentItem()
 	show_component_properties(self, current)
-	self.statusbar.clearMessage()
+#	self.statusbar.clearMessage()

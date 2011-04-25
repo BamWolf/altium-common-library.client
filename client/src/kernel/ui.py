@@ -63,7 +63,7 @@ class PyMainWindow(abstract.QWindow):
 #		dialog.setObjectName('Symbol Manager')
 		dialog.accepted.connect(self.on_symbol_dialog_accept, QtCore.Qt.QueuedConnection)
 		print 'SYMBOLS AGAIN', self.symbols
-		dialog.load(self.symbols)
+		dialog.load()
 		dialog.rewire()
 		dialog.show()
 
@@ -76,7 +76,7 @@ class PyMainWindow(abstract.QWindow):
 		dialog = PackageManager('ui/package.ui', self)
 #		dialog.setObjectName('Package Manager')
 		dialog.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
-		dialog.load(self.packages)
+		dialog.load()
 		dialog.show()
 
 	def on_package_dialog_accept(self, *args):
@@ -90,7 +90,7 @@ class PyMainWindow(abstract.QWindow):
 		dialog = ModelManager('ui/model.ui', self)
 #		dialog.setObjectName('Model Manager')
 		dialog.accepted.connect(self.on_model_dialog_accept, QtCore.Qt.QueuedConnection)
-		dialog.load(self.models)
+		dialog.load()
 		dialog.show()
 
 	def on_model_dialog_accept(self, data=None):
@@ -133,38 +133,6 @@ class PyMainWindow(abstract.QWindow):
 
 
 
-class ComponentWizard(abstract.QDialog):
-
-	def init(self):
-		pass
-#		self.worker = wrapper.PackageWorker()
-#		self.worker.load()
-
-	# okButton
-
-	@QtCore.pyqtSlot()
-	def on__clicked(self):
-		print 'OK'
-
-	@QtCore.pyqtSlot('PyQt_PyObject')
-	def on_rejected(self, data=None):
-		print 'Cancel'
-
-
-	def load(self, components={}):
-		""" загрузка начальных значений """
-		manufacturers = []
-
-		for component in components:
-			manufacturers.append(components[component].manufacturer())
-
-		manufacturers = list(set(manufacturers))
-		manufacturers.sort()
-		manufacturers.insert(0, ' ')
-
-		self.manufacturerBox.addItems(manufacturers)
-
-
 
 class SymbolManager(abstract.QDialog):
 
@@ -172,14 +140,8 @@ class SymbolManager(abstract.QDialog):
 		print 'generating Symbol XML'
 		self.accepted.emit('new symbol appeared')
 
-	def load(self, symbols={}):
-		self.symbols = symbols
-
-		items = symbols.keys()
-		items.sort()
-
-		self.symbolList.addItems(items)
-
+	def load(self):
+		wrapper.load_symbols(self)
 
 	def refresh(self):
 		wrapper.refresh_view(self)
@@ -231,14 +193,8 @@ class PackageManager(abstract.QDialog):
 		print 'generating Package XML'
 		self.accepted.emit('new package appeared')
 
-	def load(self, packages={}):
-		self.packages = packages
-
-		packs = packages.keys()
-		packs.sort()
-
-		self.packageList.addItems(packs)
-
+	def load(self):
+		wrapper.load_packages(self)
 
 
 class ModelManager(abstract.QDialog):
@@ -247,10 +203,5 @@ class ModelManager(abstract.QDialog):
 		print 'generating Model XML'
 		self.accepted.emit('new model appeared')
 
-	def load(self, items={}):
-		self.items = items
-
-		unsorted = items.keys()
-		sorted = unsorted.sort()
-
-		self.modelList.addItems(sorted)
+	def load(self):
+		wrapper.load_models(self)
