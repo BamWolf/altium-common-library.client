@@ -366,7 +366,7 @@ def show_symbol(self, selected):
 		print symbol
 
 		self.nameEdit.setText(symbol.id())
-		self.linkEdit.setText(symbol.get(u'Referrence'))
+		self.referrenceEdit.setText(symbol.get(u'Referrence'))
 
 		index = self.designatorBox.findText(symbol.get(u'Designator'))
 		self.designatorBox.setCurrentIndex(index)
@@ -379,7 +379,7 @@ def show_symbol(self, selected):
 
 def clear_symbol(self):
 	self.nameEdit.setText('')
-	self.linkEdit.setText('')
+	self.referrenceEdit.setText('')
 
 	self.designatorBox.lineEdit().setText('')
 	self.descriptionEdit.clear()
@@ -413,7 +413,7 @@ def save_symbol(self):
 		parameter = objects.Parameter(DESCRIPTION, value)
 		symbol.set(parameter)
 
-	value = unicode(self.linkEdit.text())
+	value = unicode(self.referrenceEdit.text())
 	if value:
 		parameter = objects.Parameter(u'Referrence', value)
 		symbol.set(parameter)
@@ -484,55 +484,39 @@ def load_packages(self):
 	items = self.packages.keys()
 	items.sort()
 
+	self.packageList.clear()
 	self.packageList.addItems(items)
 
 def show_package(self, selected):
 
 	if selected:
-		component = self.components[unicode(selected.text())]
+		package = self.packages[unicode(selected.text())]
 
-		index = self.categoryBox.findText(component.get(CATEGORY))
-		self.categoryBox.setCurrentIndex(index)
+		self.nameEdit.setText(package.id())
+		self.linkEdit.setText(package.get(URL))
 
-		self.manufacturerBox.lineEdit().setText(component.manufacturer())
-		self.partnumberEdit.setText(component.partnumber())
+		self.referrenceEdit.setText(package.get(u'Referrence'))
+		self.referrenceEdit2.setText(package.get(u'Referrence2'))
+		self.referrenceEdit3.setText(package.get(u'Referrence3'))
 
-#		self.packageBox.lineEdit().setText(component.get(package))
-#		self.packageBox.lineEdit().setText(component.get(PACKAGE))
-#		self.modelBox.lineEdit().setText(component.get(MODEL))
-
-		index = self.packageBox.findText(component.get(package))
-		self.packageBox.setCurrentIndex(index)
-
-		index = self.packageBox.findText(component.get(PACKAGE))
-		self.packageBox.setCurrentIndex(index)
-
-		index = self.modelBox.findText(component.get(MODEL))
-		self.modelBox.setCurrentIndex(index)
-
-		self.linkEdit.setText(component.get(URL))
 		self.descriptionEdit.clear()
-		self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
-
+		self.descriptionEdit.insertPlainText(package.get(DESCRIPTION))
 
 	else:
 		clear_package(self)
 
 def clear_package(self):
-	self.manufacturerBox.lineEdit().setText('')
-	self.partnumberEdit.setText('')
-
-	self.categoryBox.lineEdit().setText('')
-
-	self.packageBox.setCurrentIndex(-1)
-	self.packageBox.setCurrentIndex(-1)
-	self.modelBox.setCurrentIndex(-1)
-
+	self.nameEdit.setText('')
 	self.linkEdit.setText('')
+
+	self.referrenceEdit.setText('')
+	self.referrenceEdit2.setText('')
+	self.referrenceEdit3.setText('')
+
 	self.descriptionEdit.clear()
 
 def create_package(self):
-	clear_info_view(self)
+	clear_package(self)
 
 	self.editable = None
 
@@ -540,71 +524,55 @@ def create_package(self):
 	self.listWidget.setEnabled(False)
 
 def edit_package(self):
-	self.editable = unicode(self.componentList.currentItem().text())
+	self.editable = unicode(self.packageList.currentItem().text())
 
 	self.infoWidget.setEnabled(True)
 	self.listWidget.setEnabled(False)
 
 def save_package(self):
-	manufacturer = unicode(self.manufacturerBox.currentText())
-	partnumber = unicode(self.partnumberEdit.text())
+	name = unicode(self.nameEdit.text())
+	package = objects.Package(name)
 
-	component = objects.Component(manufacturer, partnumber)
-
-	value = unicode(self.categoryBox.currentText())
+	value = unicode(self.referrenceEdit.text())
 	if value:
-		parameter = objects.Parameter(CATEGORY, value)
-		component.set(parameter)
+		parameter = objects.Parameter(u'Referrence', value)
+		package.set(parameter)
 
-	value = unicode(self.packageBox.currentText())
+	value = unicode(self.referrenceEdit2.text())
 	if value:
-		parameter = objects.Parameter(package, value)
-		component.set(parameter)
+		parameter = objects.Parameter(u'Referrence2', value)
+		package.set(parameter)
 
-	value = unicode(self.packageBox.currentText())
+	value = unicode(self.referrenceEdit3.text())
 	if value:
-		parameter = objects.Parameter(PACKAGE, value)
-		component.set(parameter)
-
-	value = unicode(self.modelBox.currentText())
-	if value:
-		parameter = objects.Parameter(MODEL, value)
-		component.set(parameter)
+		parameter = objects.Parameter(u'Referrence3', value)
+		package.set(parameter)
 
 	value = unicode(self.descriptionEdit.toPlainText())
 	if value:
 		parameter = objects.Parameter(DESCRIPTION, value)
-		component.set(parameter)
+		package.set(parameter)
 
 	value = unicode(self.linkEdit.text())
 	if value:
 		parameter = objects.Parameter(URL, value)
-		component.set(parameter)
+		package.set(parameter)
 
-	row = 0
-	while row < self.parametersTable.rowCount():
-		# if not None
-		name = unicode(self.parametersTable.item(row, 0).text())
-		value = unicode(self.parametersTable.item(row, 1).text())
-		mode = unicode(self.parametersTable.item(row, 2).text())
 
-		parameter = objects.Parameter(name, value, mode)
-		component.set(parameter)
-		row = row + 1
 
-	parameter = objects.Parameter(AUTHOR, self.settings.option('ACCOUNT', 'user'))
-	component.set(parameter)
+#	parameter = objects.Parameter(AUTHOR, self.settings.option('ACCOUNT', 'user'))
+#	package.set(parameter)
 
-	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
-	component.set(parameter)
+#	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
+#	package.set(parameter)
 
 	### сохранение файла
 
-	xmldata = component.xml()
+	xmldata = package.xml()
 
-	componentpath = os.path.join(settings.option('DATA', 'xmlrepository'), 'components')
-	container = '.'.join((manufacturer.upper(), partnumber.upper(), 'xml'))
-	filename = os.path.join(componentpath, container)
+	packagepath = os.path.join(self.settings.option('DATA', 'xmlrepository'), 'packages')
+	container = '.'.join((name.upper(), 'xml'))
+	filename = os.path.abspath(os.path.join(packagepath, container))
 
 	try:
 		with (open(filename, 'w')) as xmlfile:
@@ -612,25 +580,47 @@ def save_package(self):
 
 	except IOError, e:
 		message = _('cannot save file: %s') % (e,)
-		self.statusbar.showMessage(message)
 		return
 
-	if self.editable:
-		del self.components[self.editable]
+	if self.editable == package.id():
+		del self.packages[self.editable]
+		### удаление файла
 
 	self.infoWidget.setEnabled(False)
-	self.components[component.id()] = component
+	self.packages[package.id()] = package
 	self.editable = None
-	refresh_view(self)
+	load_packages(self)
 	self.listWidget.setEnabled(True)
+
 
 def cancel_package(self):
 	self.infoWidget.setEnabled(False)
 	self.listWidget.setEnabled(True)
 
-	current = self.componentList.currentItem()
-	show_component_properties(self, current)
-	self.statusbar.clearMessage()
+	current = self.packageList.currentItem()
+	show_package(self, current)
+
+
+def open_package(self):
+	defaultpath = os.path.abspath(self.settings.option('DATA', 'datarepository'))
+	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .PCBLib file', defaultpath, 'PCB Library File (*.pcblib)')
+	symbol = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
+
+	self.referrenceEdit.setText(symbol)
+
+def open_package_2(self):
+	defaultpath = os.path.abspath(self.settings.option('DATA', 'datarepository'))
+	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .PCBLib file', defaultpath, 'PCB Library File (*.pcblib)')
+	symbol = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
+
+	self.referrenceEdit2.setText(symbol)
+
+def open_package_3(self):
+	defaultpath = os.path.abspath(self.settings.option('DATA', 'datarepository'))
+	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .PCBLib file', defaultpath, 'PCB Library File (*.pcblib)')
+	symbol = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
+
+	self.referrenceEdit3.setText(symbol)
 
 
 ###############################

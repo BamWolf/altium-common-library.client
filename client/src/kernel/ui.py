@@ -78,6 +78,7 @@ class PyMainWindow(abstract.QWindow):
 #		dialog.setObjectName('Package Manager')
 		dialog.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
 		dialog.load()
+		dialog.rewire()
 		dialog.show()
 
 	def on_package_dialog_accept(self, *args):
@@ -144,8 +145,8 @@ class SymbolManager(abstract.QDialog):
 	def load(self):
 		wrapper.load_symbols(self)
 
-	def refresh(self):
-		wrapper.refresh_view(self)
+#	def refresh(self):
+#		wrapper.load_symbols(self)
 
 	def rewire(self):
 		""" подключение сигналов """
@@ -190,10 +191,6 @@ class SymbolManager(abstract.QDialog):
 
 class PackageManager(abstract.QDialog):
 
-#	def rewire(self):
-#		self.worker = wrapper.PackageWorker()
-#		self.worker.load()
-
 	def success(self):
 		print 'generating Package XML'
 		self.accepted.emit('new package appeared')
@@ -201,11 +198,49 @@ class PackageManager(abstract.QDialog):
 	def load(self):
 		wrapper.load_packages(self)
 
+	def rewire(self):
+		""" подключение сигналов """
+		self.newButton.clicked.connect(self.on_new_button_clicked)
+		self.editButton.clicked.connect(self.on_edit_button_clicked)
+		self.saveButton.clicked.connect(self.on_save_button_clicked)
+		self.cancelButton.clicked.connect(self.on_cancel_button_clicked)
 
+		self.packageList.currentItemChanged.connect(self.on_package_changed)
 
+		self.openButton.clicked.connect(self.on_open_button_clicked)
+		self.openButton2.clicked.connect(self.on_open_button_2_clicked)
+		self.openButton3.clicked.connect(self.on_open_button_3_clicked)
+
+	# обработчики сигналов
+	def on_package_changed(self, current, previous):
+		if current:
+			self.editButton.setEnabled(True)
+			wrapper.show_package(self, current)
+
+		else:
+			self.editButton.setEnabled(False)
+
+	def on_new_button_clicked(self):
+		wrapper.create_package(self)
+
+	def on_edit_button_clicked(self):
+		wrapper.edit_package(self)
+
+	def on_save_button_clicked(self):
+		wrapper.save_package(self)
+
+	def on_cancel_button_clicked(self):
+		wrapper.cancel_package(self)
 
 	def on_open_button_clicked(self):
 		wrapper.open_package(self)
+
+	def on_open_button_2_clicked(self):
+		wrapper.open_package_2(self)
+
+	def on_open_button_3_clicked(self):
+		wrapper.open_package_3(self)
+
 
 class ModelManager(abstract.QDialog):
 
