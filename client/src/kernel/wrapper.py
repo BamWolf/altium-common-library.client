@@ -67,7 +67,7 @@ def prepare_view(self):
 
 
 def refresh_view(self):
-	### обновлять нужно - перечитывать
+	### при обновлении нужно перечитывать репозиторий
 	self.componentList.clear()
 	items = self.components.keys()
 	items.sort()	
@@ -106,214 +106,6 @@ def load_categories(self):
 	self.settings = utils.OptionManager(self.inifile)
 
 
-#def setup(self):
-
-#	self.settings = utils.OptionManager('settings.ini')
-
-
-
-### Add New Component ###
-
-def put_start(self):
-	self.putButton.setEnabled(False)
-
-	man = unicode(self.manufacturerBox.currentText())
-	num = unicode(self.pn_line.text())
-	component = objects.Component(man, num)
-
-	value = unicode(self.categoryBox.currentText())
-	component.set(u'Category', value)
-
-	value = unicode(self.symbolBox.currentText())
-	if value:
-		component.set(u'Symbol', value)
-
-	value = unicode(self.packageBox.currentText())
-	if value:
-		component.set(u'Package', value)
-
-	value = unicode(self.modelBox.currentText())
-	if value:
-		component.set(u'Model', value)
-
-	value = unicode(self.descriptionEdit.toPlainText())
-	if value:
-		component.set(u'Description', value)
-
-	value = unicode(self.linkEdit.text())
-	if value:
-		component.set(u'URL', value)
-
-	row = 0
-	while row < self.parametersTable.rowCount():
-		# if not None
-		parameter = unicode(self.parametersTable.item(row, 0).text())
-		value = unicode(self.parametersTable.item(row, 1).text())
-		mode = unicode(self.parametersTable.item(row, 2).text())
-
-		component.set(parameter, value, mode)
-		row = row + 1
-
-#	component.set('CreationDate', datetime.utcnow(), 'datetime')
-
-	self.pw = abstract.QWorker(self, shared.do_put_process, component)
-	self.connect(self.pw, QtCore.SIGNAL('exit(PyQt_PyObject)'), QtCore.SLOT('on_putButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)
-	self.pw.start()
-
-
-
-def put_respond(self, data):
-	self.disconnect(self.pw, QtCore.SIGNAL('exit(PyQt_PyObject)'), self.on_putButton_respond)
-	del self.pw
-
-	self.statusLabel.setText("Component %s have been added" % (data,))
-	print "Component %s have been added" % (data,)
-
-#	self.manufacturerBox.clearEditText()
-
-#	self.symbolBox.setCurrentIndex(0)
-#	self.packageBox.setCurrentIndex(0)
-#	self.modelBox.setCurrentIndex(0)
-
-	self.manufacturerBox.clear()
-
-	self.symbolBox.clear()
-	self.packageBox.clear()
-	self.modelBox.clear()
-
-	prepare_main_form(self)
-
-	self.pn_line.clear()
-	self.parametersTable.clearContents()
-	self.parametersTable.setRowCount(0)
-
-	if self.settings.modified:
-		self.settings.save()
-
-	self.putButton.setEnabled(True)
-
-
-
-### Get Update ###
-
-def download_start(self):
-	self.downloadButton.setEnabled(False)
-
-	self.dw = abstract.QWorker(self, shared.do_download, 'download')
-	self.connect(self.dw, QtCore.SIGNAL('exit(PyQt_PyObject)'), QtCore.SLOT('on_downloadButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)
-	self.dw.start()
-
-
-def download_respond(self, data):
-	self.disconnect(self.dw, QtCore.SIGNAL('exit(PyQt_PyObject)'), self.on_downloadButton_respond)
-	del self.dw
-
-	prepare_main_form(self)
-
-	self.statusLabel.setText(str(data))
-	self.downloadButton.setEnabled(True)
-
-
-def download_iter(self, data=None):
-	self.statusLabel.setText(str(data))
-
-
-### Send Update ###
-
-def upload_start(self):
-	self.uploadButton.setEnabled(False)
-
-	self.uw = abstract.QWorker(self, shared.do_upload, 'upload')
-	self.connect(self.uw, QtCore.SIGNAL('exit(PyQt_PyObject)'), QtCore.SLOT('on_uploadButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)
-	self.uw.start()
-
-
-def upload_respond(self, data):
-	self.disconnect(self.uw, QtCore.SIGNAL('exit(PyQt_PyObject)'), self.on_uploadButton_respond)
-	del self.uw
-
-	self.statusLabel.setText(str(data))
-	self.uploadButton.setEnabled(True)
-
-
-
-
-### Export ###
-
-def export_start(self):
-	self.exportButton.setEnabled(False)
-
-	self.ew = abstract.QWorker(self, shared.do_export, 'export')
-	self.connect(self.ew, QtCore.SIGNAL('exit(PyQt_PyObject)'), QtCore.SLOT('on_exportButton_respond(PyQt_PyObject)'), QtCore.Qt.QueuedConnection)
-	self.ew.start()
-
-
-def export_respond(self, data):
-	self.disconnect(self.ew, QtCore.SIGNAL('exit(PyQt_PyObject)'), self.on_exportButton_respond)
-
-	self.statusLabel.setText(str(data))
-
-	self.exportButton.setEnabled(True)
-
-
-
-
-
-def add_symbol(self):
-	defaultpath = self.settings.option('DATA', 'repository')
-	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .SCHLib file', defaultpath, 'SCH Library File (*.schlib)')
-	symbol = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
-
-	if not symbol:
-		return
-
-	print symbol
-
-	db = database.Database(self.dbname)
-
-	if not db.get_symbol(symbol):
-		db.set_symbol(symbol)
-
-	db.close()
-
-	prepare_main_form(self)
-	index = self.symbolBox.findText(symbol)
-
-	print index
-
-	self.symbolBox.setCurrentIndex(index)
-
-#	self.packageBox.setCurrentIndex(self.packageBox.count() - 1)
-
-def add_package(self):
-	defaultpath = self.settings.option('DATA', 'repository')
-	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .PCBLib file', defaultpath, 'PCB Library File (*.pcblib)')
-	package = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
-
-	if not package:
-		return
-
-	index = self.packageBox.findText(package)
-
-	print index
-
-	if index == -1:
-		db = database.Database(self.dbname)
-		db.set_package(package)
-		db.close()
-		self.packageBox.addItem(package)
-
-	print self.packageBox.count()
-
-	self.packageBox.setCurrentIndex(self.packageBox.count() - 1)
-
-
-def add_model(self):
-	defaultpath = self.settings.option('DATA', 'repository')
-	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .MDL file', defaultpath, 'Model Library File (*.mdl *.ckt)')
-	model = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
-
-	print model
 
 
 
@@ -342,12 +134,16 @@ def add_parameter(self):
 		self.stringRadio.setChecked(True)
 
 
+
+
 def sync(self):
 	try:
 		shared.sync(self)
 
 	except abstract.AppException, e:
 		print 'EXCEPTION:', e
+
+
 
 
 class PackageWorker():
@@ -551,7 +347,18 @@ def load_symbols(self):
 	items = self.symbols.keys()
 	items.sort()
 
+	self.symbolList.clear()
 	self.symbolList.addItems(items)
+
+	designators = set()
+
+	for symbol in self.symbols.values():
+		designators.add(symbol.get(u'Designator'))
+
+	designators = list(designators)
+	designators.sort()
+	self.designatorBox.addItems(designators)
+	self.designatorBox.setCurrentIndex(-1)
 
 def show_symbol(self, selected):
 	if selected:
@@ -559,13 +366,20 @@ def show_symbol(self, selected):
 		print symbol
 
 		self.nameEdit.setText(symbol.id())
+		self.linkEdit.setText(symbol.get(u'Referrence'))
 
+		index = self.designatorBox.findText(symbol.get(u'Designator'))
+		self.designatorBox.setCurrentIndex(index)
+
+		self.descriptionEdit.clear()
+		self.descriptionEdit.insertPlainText(symbol.get(DESCRIPTION))
 
 	else:
 		clear_symbol(self)
 
 def clear_symbol(self):
 	self.nameEdit.setText('')
+	self.linkEdit.setText('')
 
 	self.designatorBox.lineEdit().setText('')
 	self.descriptionEdit.clear()
@@ -586,6 +400,7 @@ def edit_symbol(self):
 
 def save_symbol(self):
 	name = unicode(self.nameEdit.text())
+
 	symbol = objects.Symbol(name)
 
 	value = unicode(self.designatorBox.currentText())
@@ -596,6 +411,11 @@ def save_symbol(self):
 	value = unicode(self.descriptionEdit.toPlainText())
 	if value:
 		parameter = objects.Parameter(DESCRIPTION, value)
+		symbol.set(parameter)
+
+	value = unicode(self.linkEdit.text())
+	if value:
+		parameter = objects.Parameter(u'Referrence', value)
 		symbol.set(parameter)
 
 #	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
@@ -610,7 +430,7 @@ def save_symbol(self):
 
 	symbolpath = os.path.join(self.settings.option('DATA', 'xmlrepository'), 'symbols')
 	container = '.'.join((name.upper(), 'xml'))
-	filename = os.path.join(symbolpath, container)
+	filename = os.path.abspath(os.path.join(symbolpath, container))
 
 	try:
 		with (open(filename, 'w')) as xmlfile:
@@ -628,8 +448,10 @@ def save_symbol(self):
 	self.infoWidget.setEnabled(False)
 	self.symbols[symbol.id()] = symbol
 	self.editable = None
-#	refresh_symbols(self)
+	load_symbols(self)
 	self.listWidget.setEnabled(True)
+
+
 
 def cancel_symbol(self):
 	self.infoWidget.setEnabled(False)
@@ -638,6 +460,13 @@ def cancel_symbol(self):
 	current = self.symbolList.currentItem()
 	show_symbol(self, current)
 #	self.statusbar.clearMessage()
+
+def open_symbol(self):
+	defaultpath = os.path.abspath(self.settings.option('DATA', 'datarepository'))
+	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .SCHLib file', defaultpath, 'SCH Library File (*.schlib)')
+	symbol = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
+
+	self.linkEdit.setText(symbol)
 
 
 ###############################

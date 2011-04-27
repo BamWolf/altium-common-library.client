@@ -67,6 +67,7 @@ class PyMainWindow(abstract.QWindow):
 		dialog.rewire()
 		dialog.show()
 
+
 	def on_symbol_dialog_accept(self, data=None):
 		print data
 
@@ -155,6 +156,8 @@ class SymbolManager(abstract.QDialog):
 
 		self.symbolList.currentItemChanged.connect(self.on_symbol_changed)
 
+		self.openButton.clicked.connect(self.on_open_button_clicked)
+
 #		wrapper.prepare_view(self)
 
 	# обработчики сигналов
@@ -181,6 +184,8 @@ class SymbolManager(abstract.QDialog):
 	def on_cancel_button_clicked(self):
 		wrapper.cancel_symbol(self)
 
+	def on_open_button_clicked(self):
+		wrapper.open_symbol(self)
 
 
 class PackageManager(abstract.QDialog):
@@ -197,6 +202,11 @@ class PackageManager(abstract.QDialog):
 		wrapper.load_packages(self)
 
 
+
+
+	def on_open_button_clicked(self):
+		wrapper.open_package(self)
+
 class ModelManager(abstract.QDialog):
 
 	def success(self):
@@ -205,3 +215,9 @@ class ModelManager(abstract.QDialog):
 
 	def load(self):
 		wrapper.load_models(self)
+
+
+
+
+	def on_open_button_clicked(self):
+		wrapper.open_model(self)
