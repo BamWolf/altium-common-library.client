@@ -60,43 +60,36 @@ class PyMainWindow(abstract.QWindow):
 	# symbolButton
 	def on_symbol_button_clicked(self):
 		dialog = SymbolManager('ui/symbol.ui', self)
-#		dialog.setObjectName('Symbol Manager')
 		dialog.accepted.connect(self.on_symbol_dialog_accept, QtCore.Qt.QueuedConnection)
-		print 'SYMBOLS AGAIN', self.symbols
 		dialog.load()
 		dialog.rewire()
 		dialog.show()
 
-
 	def on_symbol_dialog_accept(self, data=None):
-		print data
+		wrapper.refresh_symbolbox(self)
 
 
 	# packageButton
 	def on_package_button_clicked(self):
 		dialog = PackageManager('ui/package.ui', self)
-#		dialog.setObjectName('Package Manager')
 		dialog.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
 		dialog.load()
 		dialog.rewire()
 		dialog.show()
 
 	def on_package_dialog_accept(self, *args):
-		print args
-		print 'package manager accepted'
-
+		wrapper.refresh_packagebox(self)
 
 	# modelButton
 
 	def on_model_button_clicked(self):
 		dialog = ModelManager('ui/model.ui', self)
-#		dialog.setObjectName('Model Manager')
 		dialog.accepted.connect(self.on_model_dialog_accept, QtCore.Qt.QueuedConnection)
 		dialog.load()
 		dialog.show()
 
 	def on_model_dialog_accept(self, data=None):
-		print 'model manager says:', data
+		wrapper.refresh_modelbox(self)
 
 
 

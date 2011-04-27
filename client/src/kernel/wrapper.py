@@ -41,12 +41,7 @@ def _(string):
 def prepare_view(self):
 	self.settings = self.appconfig()
 
-	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
-	self.components = shared.collect_components(xmlpath)
-
-	self.symbols = shared.collect_symbols(xmlpath)
-	self.packages = shared.collect_packages(xmlpath)
-	self.models = shared.collect_models(xmlpath)
+	refresh_view(self)
 
 	manufacturers = set()
 	categories = set()
@@ -67,33 +62,64 @@ def prepare_view(self):
 
 
 def refresh_view(self):
-	### при обновлении нужно перечитывать репозиторий
-	self.componentList.clear()
+
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.components = shared.collect_components(xmlpath)
+
 	items = self.components.keys()
-	items.sort()	
+	items.sort()
+	self.componentList.clear()
 	self.componentList.addItems(items)
 
-	self.symbolBox.clear()
+	refresh_symbolbox(self)
+	refresh_packagebox(self)
+	refresh_modelbox(self)
+
+def refresh_symbolbox(self):
+
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.symbols = shared.collect_symbols(xmlpath)
+
 	items = self.symbols.keys()
 	items.append(u'')
 	items.sort()
+
+	self.symbolBox.clear()
 	self.symbolBox.addItems(items)
 
-	self.packageBox.clear()
+def refresh_packagebox(self):
+
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.packages = shared.collect_packages(xmlpath)
+
 	items = self.packages.keys()
 	items.append(u'')
 	items.sort()
+
+	self.packageBox.clear()
 	self.packageBox.addItems(items)
 
-	self.modelBox.clear()
+def refresh_modelbox(self):
+
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.models = shared.collect_models(xmlpath)
+
 	items = self.models.keys()
 	items.append(u'')
 	items.sort()
+
+	self.modelBox.clear()
 	self.modelBox.addItems(items)
 
 
+
+
+
+
+
+
+
 def load_categories(self):
-	
 
 	self.settings = utils.OptionManager('data/categories.ini')
 #	self.settings.load()
@@ -313,8 +339,13 @@ def save_component(self):
 		return
 
 	if self.editable:
-		del self.components[self.editable]
-		### удаление файла
+		try:
+			os.remove(self.components[self.editable])
+			del self.components[self.editable]
+
+		except OSError, e:
+			self.statusbar.showMessage(e)
+			return
 
 	self.infoWidget.setEnabled(False)
 	self.components[component.id()] = component
@@ -466,7 +497,7 @@ def open_symbol(self):
 	filename = QtGui.QFileDialog.getOpenFileName(self, 'Select .SCHLib file', defaultpath, 'SCH Library File (*.schlib)')
 	symbol = os.path.splitext(os.path.basename(unicode(filename)))[0].upper()
 
-	self.linkEdit.setText(symbol)
+	self.referrenceEdit.setText(symbol)
 
 
 ###############################
