@@ -145,20 +145,20 @@ def collect_components(xmlpath):
 					""" добавление параметров символа """
 
 					if symbol and symbol in symbols:
-						for parameter in symbols[symbol]:
+						for parameter in symbols[symbol][0]:
 							element.set(objects.Parameter('.'.join((SYMBOL, parameter.name())), parameter.value(), parameter.value()))
 
 					""" добавление параметров корпуса """
 
 					if package and package in packages:
-							for parameter in packages[package]:
+							for parameter in packages[package][0]:
 								element.set(objects.Parameter('.'.join((PACKAGE, parameter.name())), parameter.value(), parameter.value()))
 
 
 					""" добавление параметров модели """
 
 					if model and model in models:
-							for parameter in models[model]:
+							for parameter in models[model][0]:
 								element.set(objects.Parameter('.'.join((MODEL, parameter.name())), parameter.value(), parameter.value()))
 
 
@@ -167,7 +167,7 @@ def collect_components(xmlpath):
 					for parameter in element:
 						print '%s: %s' % (parameter.name(), parameter.value())
 
-					components[element.id()] = element
+					components[element.id()] = (element, os.path.abspath(os.path.join(path, filename)))
 
 	return components
 
@@ -196,7 +196,7 @@ def collect_symbols(xmlpath):
 
 						symbol = objects.Symbol()
 						symbol.parse(xmldata)
-						symbols[symbol.id()] = symbol
+						symbols[symbol.id()] = (symbol, os.path.abspath(os.path.join(path, filename)))
 
 					except Exception, e:
 						message = _('symbol parsing error^ %s') % (e,)
@@ -229,7 +229,7 @@ def collect_packages(xmlpath):
 
 						package = objects.Package()
 						package.parse(xmldata)
-						packages[package.id()] = package
+						packages[package.id()] = (package, os.path.abspath(os.path.join(path, filename)))
 
 					except Exception, e:
 						message = _('package parsing error^ %s') % (e,)
@@ -261,7 +261,7 @@ def collect_models(xmlpath):
 
 						model = objects.Model()
 						model.parse(xmldata)
-						models[model.id()] = model
+						models[model.id()] = (model, os.path.abspath(os.path.join(path, filename)))
 
 					except Exception, e:
 						message = _('model parsing error^ %s') % (e,)

@@ -47,8 +47,8 @@ def prepare_view(self):
 	categories = set()
 
 	for component in self.components.values():
-		manufacturers.add(component.manufacturer())
-		categories.add(component.get(CATEGORY))
+		manufacturers.add(component[0].manufacturer())
+		categories.add(component[0].get(CATEGORY))
 
 	manufacturers = list(manufacturers)
 	manufacturers.sort()
@@ -208,7 +208,7 @@ class PackageWorker():
 def show_component(self, selected):
 
 	if selected:
-		component = self.components[unicode(selected.text())]
+		component = self.components[unicode(selected.text())][0]
 
 		index = self.categoryBox.findText(component.get(CATEGORY))
 		self.categoryBox.setCurrentIndex(index)
@@ -340,7 +340,7 @@ def save_component(self):
 
 	if self.editable:
 		try:
-			os.remove(self.components[self.editable])
+			os.remove(self.components[self.editable][1])
 			del self.components[self.editable]
 
 		except OSError, e:
@@ -384,7 +384,7 @@ def load_symbols(self):
 	designators = set()
 
 	for symbol in self.symbols.values():
-		designators.add(symbol.get(u'Designator'))
+		designators.add(symbol[0].get(u'Designator'))
 
 	designators = list(designators)
 	designators.sort()
@@ -393,7 +393,7 @@ def load_symbols(self):
 
 def show_symbol(self, selected):
 	if selected:
-		symbol = self.symbols[unicode(selected.text())]
+		symbol = self.symbols[unicode(selected.text())][0]
 		print symbol
 
 		self.nameEdit.setText(symbol.id())
@@ -521,7 +521,7 @@ def load_packages(self):
 def show_package(self, selected):
 
 	if selected:
-		package = self.packages[unicode(selected.text())]
+		package = self.packages[unicode(selected.text())][0]
 
 		self.nameEdit.setText(package.id())
 		self.linkEdit.setText(package.get(URL))
@@ -682,30 +682,30 @@ def clear_model(self):
 def show_model(self, selected):
 
 	if selected:
-		component = self.components[unicode(selected.text())]
+		model = self.models[unicode(selected.text())][0]
 
-		index = self.categoryBox.findText(component.get(CATEGORY))
+		index = self.categoryBox.findText(model.get(CATEGORY))
 		self.categoryBox.setCurrentIndex(index)
 
-		self.manufacturerBox.lineEdit().setText(component.manufacturer())
-		self.partnumberEdit.setText(component.partnumber())
+		self.manufacturerBox.lineEdit().setText(model.manufacturer())
+		self.partnumberEdit.setText(model.partnumber())
 
-#		self.modelBox.lineEdit().setText(component.get(model))
-#		self.packageBox.lineEdit().setText(component.get(PACKAGE))
-#		self.modelBox.lineEdit().setText(component.get(MODEL))
+#		self.modelBox.lineEdit().setText(model.get(model))
+#		self.packageBox.lineEdit().setText(model.get(PACKAGE))
+#		self.modelBox.lineEdit().setText(model.get(MODEL))
 
-		index = self.modelBox.findText(component.get(model))
+		index = self.modelBox.findText(model.get(model))
 		self.modelBox.setCurrentIndex(index)
 
-		index = self.packageBox.findText(component.get(PACKAGE))
+		index = self.packageBox.findText(model.get(PACKAGE))
 		self.packageBox.setCurrentIndex(index)
 
-		index = self.modelBox.findText(component.get(MODEL))
+		index = self.modelBox.findText(model.get(MODEL))
 		self.modelBox.setCurrentIndex(index)
 
-		self.linkEdit.setText(component.get(URL))
+		self.linkEdit.setText(model.get(URL))
 		self.descriptionEdit.clear()
-		self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
+		self.descriptionEdit.insertPlainText(model.get(DESCRIPTION))
 
 
 	else:
