@@ -172,39 +172,6 @@ def sync(self):
 
 
 
-class PackageWorker():
-
-	def __init__(self):
-		pass
-
-	def load(self):
-		selfpath = os.path.abspath(os.curdir)
-
-		packagepath = os.path.join(selfpath, 'xml', 'packages')
-		print 'xmlpath:', packagepath
-
-		unique = {}
-
-		import fnmatch
-		import xml.etree.ElementTree as ElementTree
-
-		for path, dirs, files in os.walk(packagepath):
-
-			for filename in files:
-				if fnmatch.fnmatch(filename, '*.xml'):
-					if filename in unique:
-						print 'Duplicate Error:', filename, path
-
-					else:
-						unique[filename] = os.path.abspath(os.path.join(path, filename))
-
-		print unique
-
-#		self.package_list.addItems(unique.keys())
-
-
-
-
 def show_component(self, selected):
 
 	if selected:
@@ -338,7 +305,7 @@ def save_component(self):
 		self.statusbar.showMessage(message)
 		return
 
-	if self.editable:
+	if not self.editable  == component.id():
 		try:
 			os.remove(self.components[self.editable][1])
 			del self.components[self.editable]
@@ -472,9 +439,10 @@ def save_symbol(self):
 #		self.statusbar.showMessage(message)
 		return
 
-	if self.editable == symbol.id():
+	if not self.editable == symbol.id():
+		os.remove(self.symbols[self.editable][1])
 		del self.symbols[self.editable]
-		### удаление файла
+
 
 	self.infoWidget.setEnabled(False)
 	self.symbols[symbol.id()] = symbol
@@ -613,9 +581,9 @@ def save_package(self):
 		message = _('cannot save file: %s') % (e,)
 		return
 
-	if self.editable == package.id():
+	if not self.editable == package.id():
+		os.remove(self.packages[self.editable][1])
 		del self.packages[self.editable]
-		### удаление файла
 
 	self.infoWidget.setEnabled(False)
 	self.packages[package.id()] = package
@@ -795,7 +763,8 @@ def save_model(self):
 #		self.statusbar.showMessage(message)
 		return
 
-	if self.editable:
+	if not self.editable == model.id():
+		os.remove(self.models[self.editable][1])
 		del self.components[self.editable]
 
 	self.infoWidget.setEnabled(False)
@@ -811,3 +780,4 @@ def cancel_model(self):
 	current = self.componentList.currentItem()
 	show_component_properties(self, current)
 #	self.statusbar.clearMessage()
+
