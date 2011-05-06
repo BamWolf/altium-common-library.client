@@ -61,7 +61,6 @@ def sync(process):
 	print 'XML repository path:', xmlpath
 	print
 
-#	components = collect_components(xmlpath)
 	components = process.components
 
 	export_components(module, components.values())

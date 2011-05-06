@@ -305,7 +305,7 @@ def save_component(self):
 		self.statusbar.showMessage(message)
 		return
 
-	if not self.editable  == component.id():
+	if self.editable and not self.editable  == component.id():
 		try:
 			os.remove(self.components[self.editable][1])
 			del self.components[self.editable]

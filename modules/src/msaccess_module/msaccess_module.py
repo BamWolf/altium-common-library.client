@@ -48,15 +48,45 @@ class MDBExporter():
 		self.connect()
 
 		for category in data:
-			tablename, fieldlist, elements = data[category]
+			table, columns, elements = data[category]
 
-			columns = ', '.join([''.join(('[', s, ']')) for s in fieldlist])
+			significant = self.settings.option(table + '_SETTINGS', 'primary')
 
-			query = "INSERT INTO %s (%s) VALUES (%s);" % (tablename, columns, ', '.join('?'*len(fieldlist)))
-	                print query
+			if not significant:
+				raise AppException(_('no significant option'))
+
+			primary = [s.strip() for s in significant.split(';') ]
+
+			selectexpression = ' AND '.join(['[' + s + '] = ?' for s in primary])
+			updatexpression = ', '.join(['[' + s + '] = ?' for s in columns])
+			insertexpression = ', '.join(['[' + s + ']' for s in columns])
+
+			selectquery = "SELECT * FROM %s WHERE %s;" % (table, selectexpression)
+#			print selectquery
+
+			updatequery = "UPDATE %s SET %s WHERE %s;" % (table, updatexpression, selectexpression)
+#			print updatequery
+
+			insertquery = "INSERT INTO %s (%s) VALUES (%s);" % (table, insertexpression, ', '.join('?'*len(columns)))
+#			print insertquery
 
 			for element in elements:
-				raw = [element[i] for i in fieldlist]
+				selectraw = [element[i] for i in primary]
+				insertraw = [element[i] for i in columns]
+
+				try:
+					answer = self.cursor.execute(selectquery, selectraw).fetchall()
+
+				except Exception, e:
+					raise AppException(e)
+
+       			        if answer:
+					query = updatequery
+					raw = insertraw + selectraw
+
+				else:
+					query = insertquery
+					raw = insertraw
 
 				try:
 					self.cursor.execute(query, raw)
@@ -64,10 +94,10 @@ class MDBExporter():
 				except pyodbc.IntegrityError:
 					message = _('duplicate entry %s') % (raw,)
 					print message
-#					raise AppException(message)
+					raise AppException(message)
 
-#				except Exception, e:
-#					raise AppException('other error')
+				except Exception, e:
+					raise AppException(e)
 
 		self.disconnect()
 		print _('disconnected %s') % (self.settings.option('SETTINGS', 'outputpath', '', True),)
@@ -81,7 +111,7 @@ class MDBExporter():
                 if self.db:
 			self.db.commit()
 			self.db.close()
-			self.cursor = None
+			self.db = None
 
 
 	def __del__(self):

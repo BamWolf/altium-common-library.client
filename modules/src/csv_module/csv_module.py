@@ -31,7 +31,7 @@ class CSVExporter():
 			raise AppException(_('no data to save'))
 
 		for category in data:
-			filename, fieldlist, elements = data[category]
+			filename, columns, elements = data[category]
 
 			csvfilename = os.path.abspath(os.path.join(self.settings.option('SETTINGS', 'outputpath'), '.'.join((filename, 'csv'))))
 			print
@@ -46,10 +46,10 @@ class CSVExporter():
 				with open(csvfilename, 'wb+') as output:
 					writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
 
-					writer.writerow(fieldlist)
+					writer.writerow(columns)
 
 					for element in elements:
-						writer.writerow([element[field].encode(encoding) for field in fieldlist])
+						writer.writerow([element[column].encode(encoding) for column in columns])
 
 			except IOError, e:
 				raise AppException(e)
