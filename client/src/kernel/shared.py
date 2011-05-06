@@ -61,9 +61,7 @@ def sync(process):
 	print 'XML repository path:', xmlpath
 	print
 
-	components = process.components
-
-	export_components(module, components.values())
+	export_components(module, process.components.values())
 
 
 
@@ -327,8 +325,6 @@ def export_components(module, components):
 			el[field] = fieldvalue
 
 		result[category][2].append(el)
-
-		print
 
 #	print 'RESULT:'
 #	print result
