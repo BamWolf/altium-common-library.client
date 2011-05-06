@@ -94,8 +94,8 @@ class ResponseMessage():
 			self.error = e
 			return
 
-		print xmldata.tag
-		print xmldata.get('type')
+#		print xmldata.tag
+#		print xmldata.get('type')
 
 		self.type = xmldata.get('type')
 
@@ -108,7 +108,7 @@ class ResponseMessage():
 		for value in method.findall('value'):
 			self.values[value.get('name')] = value.get('value')
 
-		print 'VALUES', self.values
+#		print 'VALUES', self.values
 
 		data = xmldata.find('data')
 
@@ -132,7 +132,7 @@ class ResponseMessage():
 				value = parameter.get('value')
 				mode = parameter.get('type')
 
-				print '\t', name, value, mode
+#				print '\t', name, value, mode
 
 				el.set(name, value, mode)
 
@@ -542,14 +542,3 @@ class Parameter():
 		el.set('type', self.type())
 
 		return el
-
-if __name__ == '__main__':
-
-	with open('../debug/pretty.xml', 'r') as f:
-		xml = f.read()
-
-	q = Component()
-	q.parse(xml)
-
-	print
-	print q.xml()

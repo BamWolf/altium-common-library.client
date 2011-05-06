@@ -361,7 +361,6 @@ def load_symbols(self):
 def show_symbol(self, selected):
 	if selected:
 		symbol = self.symbols[unicode(selected.text())][0]
-		print symbol
 
 		self.nameEdit.setText(symbol.id())
 		self.referrenceEdit.setText(symbol.get(u'Referrence'))
@@ -770,7 +769,7 @@ def save_model(self):
 	self.infoWidget.setEnabled(False)
 	self.components[component.id()] = component
 	self.editable = None
-	refresh_view(self)
+	refresh_modelbox(self)
 	self.listWidget.setEnabled(True)
 
 def cancel_model(self):

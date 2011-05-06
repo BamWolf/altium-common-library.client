@@ -131,16 +131,16 @@ def collect_components(xmlpath):
 					element = objects.Component()
 					element.parse(xmldata)
 
-					print element.id()
+#					print element.id()
 
 					symbol = element.get(SYMBOL)
 					package = element.get(PACKAGE)
 					model = element.get(MODEL)
 
-					print
-					print '\tSymbol:', symbol
-					print '\tPackage:', package
-					print '\tModel:', model
+#					print
+#					print '\tSymbol:', symbol
+#					print '\tPackage:', package
+#					print '\tModel:', model
 
 					""" добавление параметров символа """
 
@@ -162,10 +162,10 @@ def collect_components(xmlpath):
 								element.set(objects.Parameter('.'.join((MODEL, parameter.name())), parameter.value(), parameter.value()))
 
 
-					print
+#					print
 
-					for parameter in element:
-						print '%s: %s' % (parameter.name(), parameter.value())
+#					for parameter in element:
+#						print '%s: %s' % (parameter.name(), parameter.value())
 
 					components[element.id()] = (element, os.path.abspath(os.path.join(path, filename)))
 
@@ -279,7 +279,8 @@ def export_components(module, components):
 
 	result = {}
 
-	for element in components:
+	for component in components:
+		element = component[0]
 		category = element.get('Category')
 
 		# наименование таблицы для текущей категории

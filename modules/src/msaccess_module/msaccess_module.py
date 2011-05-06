@@ -26,6 +26,6 @@ class MDBExporter():
 			raise AppException(_('no data to save'))
 
 		for category in data:
-			filename, fieldlist, elements = data[category]
+			tablename, fieldlist, elements = data[category]
 
-
+			print tablename

@@ -23,7 +23,7 @@ class PyClient(QtGui.QApplication):
 
 		self.ui = PyMainWindow(self, 'ui/mainwindow.ui')
 		self.ui.rewire()
-		self.ui.refresh()
+#		self.ui.refresh()
 		self.ui.show()
 
 
