@@ -331,7 +331,7 @@ def export_components(module, components):
 
 		print
 
-	print 'RESULT:'
-	print result
+#	print 'RESULT:'
+#	print result
 
 	module.set(result)

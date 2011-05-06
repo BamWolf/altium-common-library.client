@@ -188,15 +188,19 @@ class Component():
 		elif parameter.lower() == 'partnumber':
 			return self._partnumber
 
-		else:
-			if not self._parameters.get(parameter):
-				return u''
-
+		elif self._parameters.get(parameter):
 			if real:
 				return self._parameters.get(parameter).real()
 
 			else:
 				return self._parameters.get(parameter).value()
+
+		else:
+			if real:
+				return None
+
+			else:
+				return u''
 
 	def set(self, parameter):
 		""" добавляет новый параметр """
