@@ -305,7 +305,7 @@ def save_component(self):
 		self.statusbar.showMessage(message)
 		return
 
-	if self.editable and not self.editable  == component.id():
+	if self.editable and self.editable  != component.id():
 		try:
 			os.remove(self.components[self.editable][1])
 			del self.components[self.editable]
@@ -435,10 +435,10 @@ def save_symbol(self):
 
 	except IOError, e:
 		message = _('cannot save file: %s') % (e,)
-#		self.statusbar.showMessage(message)
+		print (message)
 		return
 
-	if not self.editable == symbol.id():
+	if self.editable and self.editable  != symbol.id():
 		os.remove(self.symbols[self.editable][1])
 		del self.symbols[self.editable]
 
@@ -578,9 +578,10 @@ def save_package(self):
 
 	except IOError, e:
 		message = _('cannot save file: %s') % (e,)
+		print (message)
 		return
 
-	if not self.editable == package.id():
+	if self.editable and self.editable  != package.id():
 		os.remove(self.packages[self.editable][1])
 		del self.packages[self.editable]
 
@@ -759,10 +760,10 @@ def save_model(self):
 
 	except IOError, e:
 		message = _('cannot save file: %s') % (e,)
-#		self.statusbar.showMessage(message)
+		print (message)
 		return
 
-	if not self.editable == model.id():
+	if self.editable and self.editable  != model.id():
 		os.remove(self.models[self.editable][1])
 		del self.components[self.editable]
 
