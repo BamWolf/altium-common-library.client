@@ -202,12 +202,17 @@ def show_component(self, selected):
 				index = self.modelBox.findText(component.get(MODEL))
 				self.modelBox.setCurrentIndex(index)
 	
-			elif parameter.name() == DESCRIPTION:
+			elif parameter.name() == URL:
 				self.linkEdit.setText(component.get(URL))
+
+			elif parameter.name() == DESCRIPTION:
 				self.descriptionEdit.clear()
 				self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
 	
 			elif parameter.name() == CREATIONTIME:
+				pass
+
+			elif '.' in parameter.name():
 				pass
 
 			else:
