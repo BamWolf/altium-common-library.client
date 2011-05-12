@@ -38,10 +38,10 @@ def _(string):
 
 ### Preparing Main Window ###
 
-def prepare_view(self):
-	self.settings = self.appconfig()
+def refresh_view(self):
 
-	refresh_view(self)
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.components = shared.collect_components(xmlpath)
 
 	manufacturers = set()
 	categories = set()
@@ -59,12 +59,6 @@ def prepare_view(self):
 	categories.sort()
 	self.categoryBox.addItems(categories)
 	self.categoryBox.setCurrentIndex(-1)
-
-
-def refresh_view(self):
-
-	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
-	self.components = shared.collect_components(xmlpath)
 
 	items = self.components.keys()
 	items.sort()
@@ -111,7 +105,17 @@ def refresh_modelbox(self):
 	self.modelBox.clear()
 	self.modelBox.addItems(items)
 
+def refresh_categorybox(self):
 
+	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
+	self.models = shared.collect_models(xmlpath)
+
+	items = self.models.keys()
+	items.append(u'')
+	items.sort()
+
+	self.modelBox.clear()
+	self.modelBox.addItems(items)
 
 
 
@@ -136,16 +140,14 @@ def load_categories(self):
 
 
 def add_parameter(self):
-	parameter = unicode(self.nameBox.currentText())
+	parameter = unicode(self.parameterBox.currentText())
 	value = unicode(self.valueEdit.text())
 
 	mode = None
-	for t in (self.stringRadio, self.numberRadio):	#, self.datetimeRadio):
+	for t in (self.stringRadio, self.floatRadio, self.datetimeRadio):
 		mode =  (t.isChecked() and t.text()) or mode
 
-	self.emit(QtCore.SIGNAL('add(PyQt_PyObject)'), (parameter, value, mode))
-
-#	self.disconnect(self.second, QtCore.SIGNAL('add(PyQt_PyObject)'), self.on_addButton_respond)
+	print parameter, value, mode
 
 	if parameter:
 		i = self.parametersTable.rowCount()
@@ -155,11 +157,13 @@ def add_parameter(self):
 		self.parametersTable.setItem(i, 1, QtGui.QTableWidgetItem(value))
 		self.parametersTable.setItem(i, 2, QtGui.QTableWidgetItem(mode))
 
-		self.nameBox.setCurrentIndex(0)
+		self.parameterBox.setCurrentIndex(-1)
 		self.valueEdit.setText('')
 		self.stringRadio.setChecked(True)
 
 
+def del_parameter(self):
+	self.parametersTable.removeRow(self.parametersTable.currentRow())
 
 
 def sync(self):
@@ -173,64 +177,87 @@ def sync(self):
 
 
 def show_component(self, selected):
+	clear_component(self)
 
 	if selected:
 		component = self.components[unicode(selected.text())][0]
 
-		index = self.categoryBox.findText(component.get(CATEGORY))
-		self.categoryBox.setCurrentIndex(index)
-
 		self.manufacturerBox.lineEdit().setText(component.manufacturer())
 		self.partnumberEdit.setText(component.partnumber())
 
-#		self.symbolBox.lineEdit().setText(component.get(SYMBOL))
-#		self.packageBox.lineEdit().setText(component.get(PACKAGE))
-#		self.modelBox.lineEdit().setText(component.get(MODEL))
+		for parameter in component:
+			if parameter.name() == CATEGORY:
+				index = self.categoryBox.findText(component.get(CATEGORY))
+				self.categoryBox.setCurrentIndex(index)
+	
+			elif parameter.name() == SYMBOL:
+				index = self.symbolBox.findText(component.get(SYMBOL))
+				self.symbolBox.setCurrentIndex(index)
+	
+			elif parameter.name() == PACKAGE:
+				index = self.packageBox.findText(component.get(PACKAGE))
+				self.packageBox.setCurrentIndex(index)
+	
+			elif parameter.name() == MODEL:
+				index = self.modelBox.findText(component.get(MODEL))
+				self.modelBox.setCurrentIndex(index)
+	
+			elif parameter.name() == DESCRIPTION:
+				self.linkEdit.setText(component.get(URL))
+				self.descriptionEdit.clear()
+				self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
+	
+			elif parameter.name() == CREATIONTIME:
+				pass
 
-		index = self.symbolBox.findText(component.get(SYMBOL))
-		self.symbolBox.setCurrentIndex(index)
+			else:
+				i = self.parametersTable.rowCount()
+				self.parametersTable.insertRow(i)
 
-		index = self.packageBox.findText(component.get(PACKAGE))
-		self.packageBox.setCurrentIndex(index)
+				self.parametersTable.setItem(i, 0, QtGui.QTableWidgetItem(parameter.name()))
+				self.parametersTable.setItem(i, 1, QtGui.QTableWidgetItem(parameter.value()))
+				self.parametersTable.setItem(i, 2, QtGui.QTableWidgetItem(parameter.type()))
 
-		index = self.modelBox.findText(component.get(MODEL))
-		self.modelBox.setCurrentIndex(index)
-
-		self.linkEdit.setText(component.get(URL))
-		self.descriptionEdit.clear()
-		self.descriptionEdit.insertPlainText(component.get(DESCRIPTION))
-
+		self.editButton.setEnabled(True)
 
 	else:
-		clear_component(self)
+		self.editButton.setEnabled(False)
 
 def clear_component(self):
-		self.manufacturerBox.lineEdit().setText('')
-		self.partnumberEdit.setText('')
+	self.manufacturerBox.lineEdit().setText('')
+	self.partnumberEdit.setText('')
 
-		self.categoryBox.lineEdit().setText('')
+#	self.categoryBox.lineEdit().setText('')
+	self.categoryBox.setCurrentIndex(-1)
 
-		self.symbolBox.setCurrentIndex(-1)
-		self.packageBox.setCurrentIndex(-1)
-		self.modelBox.setCurrentIndex(-1)
+	self.symbolBox.setCurrentIndex(-1)
+	self.packageBox.setCurrentIndex(-1)
+	self.modelBox.setCurrentIndex(-1)
 
-		self.linkEdit.setText('')
-		self.descriptionEdit.clear()
+	self.linkEdit.setText('')
+	self.descriptionEdit.clear()
 
-
+	self.parametersTable.clearContents()
+	self.parametersTable.setRowCount(0)
 
 def create_component(self):
 	clear_component(self)
 
 	self.editable = None
 
-	self.infoWidget.setEnabled(True)
+	self.infoTopWidget.setEnabled(True)
+	self.infoBottomWidget.setEnabled(True)
+	self.parameterButtonsWidget.setEnabled(True)
+
 	self.listWidget.setEnabled(False)
 
 def edit_component(self):
 	self.editable = unicode(self.componentList.currentItem().text())
 
-	self.infoWidget.setEnabled(True)
+	self.infoTopWidget.setEnabled(True)
+	self.infoBottomWidget.setEnabled(True)
+	self.parameterButtonsWidget.setEnabled(True)
+
 	self.listWidget.setEnabled(False)
 
 def save_component(self):
@@ -314,15 +341,23 @@ def save_component(self):
 			self.statusbar.showMessage(e)
 			return
 
-	self.infoWidget.setEnabled(False)
+	self.infoTopWidget.setEnabled(False)
+	self.infoBottomWidget.setEnabled(False)
+	self.parameterButtonsWidget.setEnabled(False)
+
 	self.components[component.id()] = component
 	self.editable = None
+
 	refresh_view(self)
+
 	self.listWidget.setEnabled(True)
 
 
 def cancel_component(self):
-	self.infoWidget.setEnabled(False)
+	self.infoTopWidget.setEnabled(False)
+	self.infoBottomWidget.setEnabled(False)
+	self.parameterButtonsWidget.setEnabled(False)
+
 	self.listWidget.setEnabled(True)
 
 	current = self.componentList.currentItem()

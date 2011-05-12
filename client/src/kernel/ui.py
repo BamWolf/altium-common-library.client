@@ -24,38 +24,45 @@ class PyMainWindow(abstract.QWindow):
 		self.packageButton.clicked.connect(self.on_package_button_clicked)
 		self.modelButton.clicked.connect(self.on_model_button_clicked)
 
+		self.addButton.clicked.connect(self.on_add_button_clicked)
+		self.delButton.clicked.connect(self.on_del_button_clicked)
+
+		self.exportButton.clicked.connect(self.on_export_button_clicked)
+
 		self.componentList.currentItemChanged.connect(self.on_component_changed)
 
-		wrapper.prepare_view(self)
+		self.settings = self.appconfig()
+
+		wrapper.refresh_view(self)
 
 
 	# обработчики сигналов
 	def on_component_changed(self, current, previous):
-		if current:
-			self.editButton.setEnabled(True)
-			wrapper.show_component(self, current)
+		wrapper.show_component(self, current)
 
-		else:
-			self.editButton.setEnabled(False)
-
-	# componentButton
+	# newButton
 	def on_new_button_clicked(self):
 		wrapper.create_component(self)
 
+	# editButton
 	def on_edit_button_clicked(self):
 		wrapper.edit_component(self)
 
+	# saveButton
 	def on_save_button_clicked(self):
 		wrapper.save_component(self)
 
+	# cancelButton
 	def on_cancel_button_clicked(self):
 		wrapper.cancel_component(self)
 
+	# addButton
+	def on_add_button_clicked(self):
+		wrapper.add_parameter(self)
 
-	def on_component_created(self):
-		print 'new component'
-		wrapper.refresh_view(self)
-
+	# delButton
+	def on_del_button_clicked(self):
+		wrapper.del_parameter(self)
 
 	# symbolButton
 	def on_symbol_button_clicked(self):
@@ -67,7 +74,6 @@ class PyMainWindow(abstract.QWindow):
 
 	def on_symbol_dialog_accept(self, data=None):
 		wrapper.refresh_symbolbox(self)
-
 
 	# packageButton
 	def on_package_button_clicked(self):
@@ -81,7 +87,6 @@ class PyMainWindow(abstract.QWindow):
 		wrapper.refresh_packagebox(self)
 
 	# modelButton
-
 	def on_model_button_clicked(self):
 		dialog = ModelManager('ui/model.ui', self)
 		dialog.accepted.connect(self.on_model_dialog_accept, QtCore.Qt.QueuedConnection)
@@ -93,39 +98,15 @@ class PyMainWindow(abstract.QWindow):
 
 
 
-	# exportButton
+	# on new component signal
+	def on_component_created(self):
+		wrapper.refresh_view(self)
 
-	@QtCore.pyqtSlot()
+
+
+	# exportButton
 	def on_export_button_clicked(self):
 		wrapper.sync(self)
-
-	@QtCore.pyqtSlot('PyQt_PyObject')
-	def on_exportButton_respond(self, data=None):
-		wrapper.export_respond(self, data)
-
-
-	# downloadButton
-
-	@QtCore.pyqtSlot()
-	def on_downloadButton_clicked(self):
-		wrapper.download_start(self)
-
-	@QtCore.pyqtSlot('PyQt_PyObject')
-	def on_downloadButton_respond(self, data=None):
-		wrapper.download_respond(self, data)
-
-
-	# uploadButton
-
-	@QtCore.pyqtSlot()
-	def on_uploadButton_clicked(self):
-		wrapper.upload_start(self)
-
-	@QtCore.pyqtSlot('PyQt_PyObject')
-	def on_uploadButton_respond(self, data=None):
-		wrapper.upload_respond(self, data)
-
-
 
 
 
