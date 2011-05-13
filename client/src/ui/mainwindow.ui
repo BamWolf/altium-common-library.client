@@ -457,16 +457,16 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QPushButton" name="packageButton">
+        <widget class="QPushButton" name="symbolButton">
          <property name="text">
-          <string>Packages</string>
+          <string>Symbols</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="symbolButton">
+        <widget class="QPushButton" name="packageButton">
          <property name="text">
-          <string>Symbols</string>
+          <string>Packages</string>
          </property>
         </widget>
        </item>

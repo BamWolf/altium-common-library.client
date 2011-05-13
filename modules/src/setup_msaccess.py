@@ -6,6 +6,7 @@ setup(
 	description = """MS ACCESS Export Plugin""",
 	author = 'Jack Krieger',
 	install_requires = ['pyodbc'],
+#	include_package_data = True,
 	packages = ['msaccess_module'],
 	entry_points = """
 	[db.engine]
