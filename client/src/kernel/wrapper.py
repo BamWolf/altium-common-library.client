@@ -27,6 +27,7 @@ URL = 'URL'
 DESCRIPTION = 'Description'
 
 AUTHOR = 'Author'
+EDITOR = 'Editor'
 CREATIONTIME = 'CreationTime'
 
 ###############################
@@ -314,10 +315,17 @@ def save_component(self):
 		component.set(parameter)
 		row = row + 1
 
-	parameter = objects.Parameter(AUTHOR, settings.option('ACCOUNT', 'user'))
+	if self.editable:
+		ACTOR = EDITOR
+
+	else:
+		ACTOR = AUTHOR
+
+	parameter = objects.Parameter(ACTOR, settings.option('ACCOUNT', 'user'))
 	component.set(parameter)
 
-	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
+#	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
+	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'), 'datetime')
 	component.set(parameter)
 
 	### сохранение файла
