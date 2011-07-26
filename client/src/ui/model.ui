@@ -24,56 +24,156 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QListWidget" name="modelList"/>
-      </item>
-      <item>
-       <widget class="QWidget" name="widget" native="true">
+       <widget class="QWidget" name="listWidget" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <layout class="QFormLayout" name="formLayout">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="filterEdit"/>
+         </item>
+         <item>
+          <widget class="QListWidget" name="modelList"/>
+         </item>
+         <item>
+          <widget class="QWidget" name="buttonsWidgetLeft" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="newButton">
+              <property name="text">
+               <string>New</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="editButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Edit</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="infoWidget" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_name">
+          <widget class="QLabel" name="nameLabel">
            <property name="text">
-            <string>Model Name</string>
+            <string>Model Name:</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_url">
+         <item row="1" column="0" colspan="4">
+          <widget class="QLineEdit" name="nameEdit"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="kindLabel">
            <property name="text">
-            <string>URL:</string>
+            <string>Kind:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="prefixLabel">
+         <item row="2" column="3">
+          <widget class="QLabel" name="subkindLabel">
+           <property name="text">
+            <string>SubKind:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QComboBox" name="kindBox"/>
+         </item>
+         <item row="3" column="2" colspan="2">
+          <widget class="QComboBox" name="subkindBox"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="prefixLabel_2">
            <property name="text">
             <string>SIM Prefix:</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="categoryLabel">
+         <item row="4" column="1" colspan="3">
+          <widget class="QComboBox" name="prefixBox"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="linkLabel">
            <property name="text">
-            <string>SIM Category:</string>
+            <string>Link:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="foot1"/>
+         <item row="7" column="0">
+          <widget class="QLabel" name="descriptionLabel">
+           <property name="text">
+            <string>Description:</string>
+           </property>
+          </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="foot2"/>
+         <item row="8" column="0" colspan="4">
+          <widget class="QPlainTextEdit" name="descriptionEdit"/>
          </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QLineEdit" name="url"/>
+         <item row="9" column="0" colspan="4">
+          <widget class="QWidget" name="buttonsWidgetRight" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="saveButton">
+              <property name="text">
+               <string>Save</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cancelButton">
+              <property name="text">
+               <string>Cancel</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QLineEdit" name="name"/>
+         <item row="6" column="0" colspan="4">
+          <widget class="QLineEdit" name="linkEdit"/>
          </item>
         </layout>
        </widget>

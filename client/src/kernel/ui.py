@@ -29,7 +29,7 @@ class PyMainWindow(abstract.QWindow):
 
 		self.exportButton.clicked.connect(self.on_export_button_clicked)
 
-		self.componentList.currentItemChanged.connect(self.on_component_changed)
+		self.componentList.currentItemChanged.connect(self.on_item_changed)
 
 		self.settings = self.appconfig()
 
@@ -37,8 +37,13 @@ class PyMainWindow(abstract.QWindow):
 
 
 	# обработчики сигналов
-	def on_component_changed(self, current, previous):
-		wrapper.show_component(self, current)
+	def on_item_changed(self, current, previous):
+		if current:
+			self.editButton.setEnabled(True)
+			wrapper.show_component(self, current)
+
+		else:
+			self.editButton.setEnabled(False)
 
 	# newButton
 	def on_new_button_clicked(self):
@@ -91,6 +96,7 @@ class PyMainWindow(abstract.QWindow):
 		dialog = ModelManager('ui/model.ui', self)
 		dialog.accepted.connect(self.on_model_dialog_accept, QtCore.Qt.QueuedConnection)
 		dialog.load()
+		dialog.rewire()
 		dialog.show()
 
 	def on_model_dialog_accept(self, data=None):
@@ -129,31 +135,28 @@ class SymbolManager(abstract.QDialog):
 		self.saveButton.clicked.connect(self.on_save_button_clicked)
 		self.cancelButton.clicked.connect(self.on_cancel_button_clicked)
 
-		self.symbolList.currentItemChanged.connect(self.on_symbol_changed)
+		self.symbolList.currentItemChanged.connect(self.on_item_changed)
 
 		self.openButton.clicked.connect(self.on_open_button_clicked)
 
 #		wrapper.prepare_view(self)
 
 	# обработчики сигналов
-	def on_symbol_changed(self, current, previous):
-		if current:
-			self.editButton.setEnabled(True)
-			wrapper.show_symbol(self, current)
+	def on_item_changed(self, current, previous):
+#		if current:
+#			self.editButton.setEnabled(True)
+		wrapper.show_symbol(self, current)
 
-		else:
-			self.editButton.setEnabled(False)
+#		else:
+#			self.editButton.setEnabled(False)
 
 	def on_new_button_clicked(self):
-		print 'new'
 		wrapper.create_symbol(self)
 
 	def on_edit_button_clicked(self):
-		print 'edit'
 		wrapper.edit_symbol(self)
 
 	def on_save_button_clicked(self):
-		print 'new'
 		wrapper.save_symbol(self)
 
 	def on_cancel_button_clicked(self):
@@ -179,14 +182,14 @@ class PackageManager(abstract.QDialog):
 		self.saveButton.clicked.connect(self.on_save_button_clicked)
 		self.cancelButton.clicked.connect(self.on_cancel_button_clicked)
 
-		self.packageList.currentItemChanged.connect(self.on_package_changed)
+		self.packageList.currentItemChanged.connect(self.on_item_changed)
 
 		self.openButton.clicked.connect(self.on_open_button_clicked)
 		self.openButton2.clicked.connect(self.on_open_button_2_clicked)
 		self.openButton3.clicked.connect(self.on_open_button_3_clicked)
 
 	# обработчики сигналов
-	def on_package_changed(self, current, previous):
+	def on_item_changed(self, current, previous):
 		if current:
 			self.editButton.setEnabled(True)
 			wrapper.show_package(self, current)
@@ -225,8 +228,35 @@ class ModelManager(abstract.QDialog):
 	def load(self):
 		wrapper.load_models(self)
 
+	def rewire(self):
+		""" подключение сигналов """
+		self.newButton.clicked.connect(self.on_new_button_clicked)
+		self.editButton.clicked.connect(self.on_edit_button_clicked)
+		self.saveButton.clicked.connect(self.on_save_button_clicked)
+		self.cancelButton.clicked.connect(self.on_cancel_button_clicked)
 
+		self.modelList.currentItemChanged.connect(self.on_item_changed)
 
+	# обработчики сигналов
+	def on_item_changed(self, current, previous):
+		if current:
+			self.editButton.setEnabled(True)
+			wrapper.show_model(self, current)
+
+		else:
+			self.editButton.setEnabled(False)
+
+	def on_new_button_clicked(self):
+		wrapper.create_model(self)
+
+	def on_edit_button_clicked(self):
+		wrapper.edit_model(self)
+
+	def on_save_button_clicked(self):
+		wrapper.save_model(self)
+
+	def on_cancel_button_clicked(self):
+		wrapper.cancel_model(self)
 
 	def on_open_button_clicked(self):
 		wrapper.open_model(self)

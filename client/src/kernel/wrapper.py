@@ -22,6 +22,9 @@ PACKAGE = 'Package'
 MODEL = 'Model'
 
 CATEGORY = 'Category'
+KIND = 'Kind'
+SUBKIND = 'Subkind'
+PREFIX = 'Prefix'
 
 URL = 'URL'
 DESCRIPTION = 'Description'
@@ -680,19 +683,22 @@ def load_models(self):
 	self.settings = self.parent().appconfig()
 
 	xmlpath = os.path.abspath(self.settings.option('DATA', 'xmlrepository'))
-	self.models = shared.collect_packages(xmlpath)
+	self.models = shared.collect_models(xmlpath)
+
+	items = self.models.keys()
+	items.sort()
+
+	self.modelList.clear()
+	self.modelList.addItems(items)
 
 def clear_model(self):
-	self.manufacturerBox.lineEdit().setText('')
-	self.partnumberEdit.setText('')
-
-	self.categoryBox.lineEdit().setText('')
-
-	self.modelBox.setCurrentIndex(-1)
-	self.packageBox.setCurrentIndex(-1)
-	self.modelBox.setCurrentIndex(-1)
-
+	self.nameEdit.setText('')
 	self.linkEdit.setText('')
+
+	self.kindBox.setCurrentIndex(-1)
+	self.subkindBox.setCurrentIndex(-1)
+	self.prefixBox.setCurrentIndex(-1)
+
 	self.descriptionEdit.clear()
 
 def show_model(self, selected):
@@ -700,35 +706,27 @@ def show_model(self, selected):
 	if selected:
 		model = self.models[unicode(selected.text())][0]
 
-		index = self.categoryBox.findText(model.get(CATEGORY))
-		self.categoryBox.setCurrentIndex(index)
-
-		self.manufacturerBox.lineEdit().setText(model.manufacturer())
-		self.partnumberEdit.setText(model.partnumber())
-
-#		self.modelBox.lineEdit().setText(model.get(model))
-#		self.packageBox.lineEdit().setText(model.get(PACKAGE))
-#		self.modelBox.lineEdit().setText(model.get(MODEL))
-
-		index = self.modelBox.findText(model.get(model))
-		self.modelBox.setCurrentIndex(index)
-
-		index = self.packageBox.findText(model.get(PACKAGE))
-		self.packageBox.setCurrentIndex(index)
-
-		index = self.modelBox.findText(model.get(MODEL))
-		self.modelBox.setCurrentIndex(index)
-
+		self.nameEdit.setText(model.id())
 		self.linkEdit.setText(model.get(URL))
+
+		index = self.kindBox.findText(model.get(KIND))
+		self.kindBox.setCurrentIndex(index)
+
+		index = self.subkindBox.findText(model.get(SUBKIND))
+		self.subkindBox.setCurrentIndex(index)
+
+		index = self.prefixBox.findText(model.get(PREFIX))
+		self.prefixBox.setCurrentIndex(index)
+
 		self.descriptionEdit.clear()
 		self.descriptionEdit.insertPlainText(model.get(DESCRIPTION))
 
 
 	else:
-		clear_info_view(self)
+		clear_model(self)
 
 def create_model(self):
-	clear_info_view(self)
+	clear_model(self)
 
 	self.editable = None
 
@@ -736,71 +734,64 @@ def create_model(self):
 	self.listWidget.setEnabled(False)
 
 def edit_model(self):
-	self.editable = unicode(self.componentList.currentItem().text())
+	self.editable = unicode(self.modelList.currentItem().text())
 
 	self.infoWidget.setEnabled(True)
 	self.listWidget.setEnabled(False)
 
 def save_model(self):
-	manufacturer = unicode(self.manufacturerBox.currentText())
-	partnumber = unicode(self.partnumberEdit.text())
+	name = unicode(self.nameEdit.text())
+	model = objects.Model(name)
 
-	component = objects.Component(manufacturer, partnumber)
-
-	value = unicode(self.categoryBox.currentText())
+	value = unicode(self.kindBox.currentText())
 	if value:
-		parameter = objects.Parameter(CATEGORY, value)
-		component.set(parameter)
+		parameter = objects.Parameter(KIND, value)
+		model.set(parameter)
 
-	value = unicode(self.modelBox.currentText())
+	value = unicode(self.subkindBox.currentText())
 	if value:
-		parameter = objects.Parameter(model, value)
-		component.set(parameter)
+		parameter = objects.Parameter(SUBKIND, value)
+		model.set(parameter)
 
-	value = unicode(self.packageBox.currentText())
+	value = unicode(self.prefixBox.currentText())
 	if value:
-		parameter = objects.Parameter(PACKAGE, value)
-		component.set(parameter)
-
-	value = unicode(self.modelBox.currentText())
-	if value:
-		parameter = objects.Parameter(MODEL, value)
-		component.set(parameter)
+		parameter = objects.Parameter(PREFIX, value)
+		model.set(parameter)
 
 	value = unicode(self.descriptionEdit.toPlainText())
 	if value:
 		parameter = objects.Parameter(DESCRIPTION, value)
-		component.set(parameter)
+		package.set(parameter)
 
 	value = unicode(self.linkEdit.text())
 	if value:
 		parameter = objects.Parameter(URL, value)
-		component.set(parameter)
+		package.set(parameter)
 
-	row = 0
-	while row < self.parametersTable.rowCount():
-		# if not None
-		name = unicode(self.parametersTable.item(row, 0).text())
-		value = unicode(self.parametersTable.item(row, 1).text())
-		mode = unicode(self.parametersTable.item(row, 2).text())
+#	row = 0
+#	while row < self.parametersTable.rowCount():
+#		# if not None
+#		name = unicode(self.parametersTable.item(row, 0).text())
+#		value = unicode(self.parametersTable.item(row, 1).text())
+#		mode = unicode(self.parametersTable.item(row, 2).text())
 
-		parameter = objects.Parameter(name, value, mode)
-		component.set(parameter)
-		row = row + 1
+#		parameter = objects.Parameter(name, value, mode)
+#		component.set(parameter)
+#		row = row + 1
 
 	parameter = objects.Parameter(AUTHOR, self.settings.option('ACCOUNT', 'user'))
-	component.set(parameter)
+	model.set(parameter)
 
 	parameter = objects.Parameter(CREATIONTIME, datetime.utcnow().isoformat(' '), 'datetime')
-	component.set(parameter)
+	model.set(parameter)
 
 	### сохранение файла
 
-	xmldata = component.xml()
+	xmldata = model.xml()
 
-	componentpath = os.path.join(settings.option('DATA', 'xmlrepository'), 'components')
-	container = '.'.join((manufacturer.upper(), partnumber.upper(), 'xml'))
-	filename = os.path.join(componentpath, container)
+	modelpath = os.path.join(self.settings.option('DATA', 'xmlrepository'), 'models')
+	container = '.'.join((name.upper(), 'xml'))
+	filename = os.path.join(modelpath, container)
 
 	try:
 		with (open(filename, 'w')) as xmlfile:
@@ -813,19 +804,19 @@ def save_model(self):
 
 	if self.editable and self.editable  != model.id():
 		os.remove(self.models[self.editable][1])
-		del self.components[self.editable]
+		del self.models[self.editable]
 
 	self.infoWidget.setEnabled(False)
-	self.components[component.id()] = component
+	self.models[model.id()] = model
 	self.editable = None
-	refresh_modelbox(self)
+	load_models(self)
 	self.listWidget.setEnabled(True)
 
 def cancel_model(self):
 	self.infoWidget.setEnabled(False)
 	self.listWidget.setEnabled(True)
 
-	current = self.componentList.currentItem()
-	show_component_properties(self, current)
-#	self.statusbar.clearMessage()
+	current = self.modelList.currentItem()
+	show_model(self, current)
+
 
