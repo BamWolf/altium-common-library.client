@@ -4,6 +4,8 @@ cd src
 python setup_csv.py bdist_egg --dist-dir ..\release
 IF ERRORLEVEL 1 pause
 
+rd build /q /s
+
 python setup_msaccess.py bdist_egg --dist-dir ..\release
 IF ERRORLEVEL 1 pause
 

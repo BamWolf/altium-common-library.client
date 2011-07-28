@@ -14,13 +14,13 @@ if __name__ == '__main__':
 
 	else:
 		CONSOLE = []
-		WINDOWS = ['wizard.py']
+		WINDOWS = {'script': 'wizard.py', 'icon_resources': [()]}
 
 	OPTIONS = {'py2exe': {
 			'includes': ['decimal', 'datetime', 'sip'],
 			'excludes' : [],
 			'dll_excludes': ['msvcr71.dll', 'msvcp90.dll'],
-			'packages': [],
+#			'packages': ['pyodbc'],
 			'bundle_files': 2,
 			'dist_dir': '../release',
 			'compressed': True

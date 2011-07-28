@@ -13,6 +13,7 @@ cd ..\release
 del w9xpopen.exe
 
 md data
+md data\xml
 md modules
 md ui
 rem md debug
@@ -21,7 +22,7 @@ cd ..
 
 xcopy src\*.ini release\*.ini
 xcopy src\ui\* release\ui\*
-xcopy /e /h /q src\data\* release\data\*
+xcopy /e /q src\data\* release\data\*
 xcopy src\modules\* release\modules\*
 
 rem pause
