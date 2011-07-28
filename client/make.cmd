@@ -1,5 +1,5 @@
 @echo off
-rd /s /q dist
+rd /s /q release
 
 cd src
 
@@ -8,19 +8,20 @@ IF ERRORLEVEL 1 PAUSE
 
 rd /s /q build
 
-cd ..\dist
+cd ..\release
 
 del w9xpopen.exe
 
-rem md data
-rem md debug
+md data
 md modules
 md ui
+rem md debug
 
 cd ..
 
-copy src\*.ini dist\*.ini
-copy src\ui\*.* dist\ui\*.*
-copy src\modules\*.* dist\modules\*.*
+xcopy src\*.ini release\*.ini
+xcopy src\ui\* release\ui\*
+xcopy /e /h /q src\data\* release\data\*
+xcopy src\modules\* release\modules\*
 
 rem pause

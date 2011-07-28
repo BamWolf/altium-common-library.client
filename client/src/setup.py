@@ -5,32 +5,36 @@ import sys
 import py2exe
 
 
+if __name__ == '__main__':
 
-sys.argv.append('py2exe')
+	if 'debug' in sys.argv:
+		CONSOLE = ['wizard.py']
+		WINDOWS = []
+		sys.argv.remove('debug')
 
-opts =	{
-	"py2exe":	{
+	else:
+		CONSOLE = []
+		WINDOWS = ['wizard.py']
+
+	OPTIONS = {'py2exe': {
 			'includes': ['decimal', 'datetime', 'sip'],
 			'excludes' : [],
-			'dll_excludes': ['msvcr71.dll', 'MSVCP90.dll'],
+			'dll_excludes': ['msvcr71.dll', 'msvcp90.dll'],
 			'packages': [],
 			'bundle_files': 2,
-			'dist_dir': '../dist',
+			'dist_dir': '../release',
 			'compressed': True
 			}
-	}
+		}
 
-print opts
-
-
-setup	(
-	name = 'Crowd Library Component Wizard',
-	version = '0.3',
-	description = '<Description>',
-	author = 'Jack Krieger',
-
-#	console = ['wizard.py'],
-	windows = ['wizard.py'],
-	options = opts,
-	zipfile = None
-	)
+	setup (
+		name = 'OpenVault Component Wizard',
+		version = '0.3',
+		description = '<Description>',
+		author = 'Jack Krieger',
+	
+		console = CONSOLE,
+		windows = WINDOWS,
+		options = OPTIONS,
+		zipfile = None
+		)

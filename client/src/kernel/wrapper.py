@@ -716,6 +716,7 @@ def show_model(self, selected):
 		self.subkindBox.setCurrentIndex(index)
 
 		index = self.prefixBox.findText(model.get(PREFIX))
+		if index == -1: index = 0
 		self.prefixBox.setCurrentIndex(index)
 
 		self.descriptionEdit.clear()
@@ -761,12 +762,12 @@ def save_model(self):
 	value = unicode(self.descriptionEdit.toPlainText())
 	if value:
 		parameter = objects.Parameter(DESCRIPTION, value)
-		package.set(parameter)
+		model.set(parameter)
 
 	value = unicode(self.linkEdit.text())
 	if value:
 		parameter = objects.Parameter(URL, value)
-		package.set(parameter)
+		model.set(parameter)
 
 #	row = 0
 #	while row < self.parametersTable.rowCount():

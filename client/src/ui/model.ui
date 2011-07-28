@@ -96,47 +96,24 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="3">
-          <widget class="QLabel" name="subkindLabel">
-           <property name="text">
-            <string>SubKind:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QComboBox" name="kindBox"/>
-         </item>
-         <item row="3" column="2" colspan="2">
-          <widget class="QComboBox" name="subkindBox"/>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="prefixLabel_2">
-           <property name="text">
-            <string>SIM Prefix:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1" colspan="3">
-          <widget class="QComboBox" name="prefixBox"/>
-         </item>
-         <item row="5" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="linkLabel">
            <property name="text">
             <string>Link:</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
+         <item row="9" column="0">
           <widget class="QLabel" name="descriptionLabel">
            <property name="text">
             <string>Description:</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0" colspan="4">
+         <item row="10" column="0" colspan="4">
           <widget class="QPlainTextEdit" name="descriptionEdit"/>
          </item>
-         <item row="9" column="0" colspan="4">
+         <item row="11" column="0" colspan="4">
           <widget class="QWidget" name="buttonsWidgetRight" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <property name="margin">
@@ -172,8 +149,190 @@
            </layout>
           </widget>
          </item>
-         <item row="6" column="0" colspan="4">
+         <item row="8" column="0" colspan="4">
           <widget class="QLineEdit" name="linkEdit"/>
+         </item>
+         <item row="4" column="1" colspan="2">
+          <widget class="QComboBox" name="subkindBox">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QComboBox" name="kindBox">
+           <property name="currentIndex">
+            <number>-1</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>General</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Current Source</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Initial Condition</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Switch</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Transistor</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Transmission Line</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Voltage Source</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="3">
+          <widget class="QComboBox" name="prefixBox">
+           <item>
+            <property name="text">
+             <string>A</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>B</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>C</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>D</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>E</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>F</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>G</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>H</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>G</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>K</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>L</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>M</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>O</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Q</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>R</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>S</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>T</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>V</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>W</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>X</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Y</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Z</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="subkindLabel">
+           <property name="text">
+            <string>SubKind:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLabel" name="prefixLabel_2">
+           <property name="text">
+            <string>SIM Prefix:</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
