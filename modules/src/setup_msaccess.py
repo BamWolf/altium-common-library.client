@@ -5,9 +5,9 @@ setup(
 	version = "0.1",
 	description = """MS ACCESS Export Plugin""",
 	author = 'Jack Krieger',
-	install_requires = ['pyodbc'],
+#	install_requires = ['pyodbc'],
 	packages = ['msaccess_module'],
-	package_data = {'': ['*.pyd']},
+	package_data = {'': ['pyodbc.*']},
 	entry_points = """
 	[db.engine]
 	instance = msaccess_module.msaccess_module:MDBExporter
