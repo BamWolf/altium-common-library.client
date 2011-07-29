@@ -25,6 +25,8 @@ CATEGORY = 'Category'
 KIND = 'Kind'
 SUBKIND = 'Subkind'
 PREFIX = 'Prefix'
+NETLIST = 'Netlist'
+PORTMAP = 'Portmap'
 
 URL = 'URL'
 DESCRIPTION = 'Description'
@@ -699,6 +701,9 @@ def clear_model(self):
 	self.subkindBox.setCurrentIndex(-1)
 	self.prefixBox.setCurrentIndex(-1)
 
+	self.netlistEdit.clear()
+	self.portmapEdit.clear()
+
 	self.descriptionEdit.clear()
 
 def show_model(self, selected):
@@ -712,12 +717,15 @@ def show_model(self, selected):
 		index = self.kindBox.findText(model.get(KIND))
 		self.kindBox.setCurrentIndex(index)
 
-		index = self.subkindBox.findText(model.get(SUBKIND))
-		self.subkindBox.setCurrentIndex(index)
+		self.subkindBox.lineEdit().setText(model.get(SUBKIND))
+#		index = self.subkindBox.findText(model.get(SUBKIND))
+#		self.subkindBox.setCurrentIndex(index)
 
 		index = self.prefixBox.findText(model.get(PREFIX))
-		if index == -1: index = 0
 		self.prefixBox.setCurrentIndex(index)
+
+		self.netlistEdit.setText(model.get(NETLIST))
+		self.portmapEdit.setText(model.get(PORTMAP))
 
 		self.descriptionEdit.clear()
 		self.descriptionEdit.insertPlainText(model.get(DESCRIPTION))
@@ -759,6 +767,16 @@ def save_model(self):
 		parameter = objects.Parameter(PREFIX, value)
 		model.set(parameter)
 
+	value = unicode(self.netlistEdit.text())
+	if value:
+		parameter = objects.Parameter(NETLIST, value)
+		model.set(parameter)
+
+	value = unicode(self.portmapEdit.text())
+	if value:
+		parameter = objects.Parameter(PORTMAP, value)
+		model.set(parameter)
+
 	value = unicode(self.descriptionEdit.toPlainText())
 	if value:
 		parameter = objects.Parameter(DESCRIPTION, value)
@@ -770,11 +788,11 @@ def save_model(self):
 		model.set(parameter)
 
 #	row = 0
-#	while row < self.parametersTable.rowCount():
+#	while row < self.portmapTable.rowCount():
 #		# if not None
-#		name = unicode(self.parametersTable.item(row, 0).text())
-#		value = unicode(self.parametersTable.item(row, 1).text())
-#		mode = unicode(self.parametersTable.item(row, 2).text())
+#		name = unicode(self.portmapTable.item(row, 0).text())
+#		value = unicode(self.portmapTable.item(row, 1).text())
+#		mode = unicode(self.portmapTable.item(row, 2).text())
 
 #		parameter = objects.Parameter(name, value, mode)
 #		component.set(parameter)

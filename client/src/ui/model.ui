@@ -103,17 +103,17 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
+         <item row="13" column="0">
           <widget class="QLabel" name="descriptionLabel">
            <property name="text">
             <string>Description:</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="0" colspan="4">
+         <item row="14" column="0" colspan="4">
           <widget class="QPlainTextEdit" name="descriptionEdit"/>
          </item>
-         <item row="11" column="0" colspan="4">
+         <item row="15" column="0" colspan="4">
           <widget class="QWidget" name="buttonsWidgetRight" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <property name="margin">
@@ -323,16 +323,36 @@
          <item row="2" column="1">
           <widget class="QLabel" name="subkindLabel">
            <property name="text">
-            <string>SubKind:</string>
+            <string>Subkind:</string>
            </property>
           </widget>
          </item>
          <item row="2" column="3">
           <widget class="QLabel" name="prefixLabel_2">
            <property name="text">
-            <string>SIM Prefix:</string>
+            <string>Prefix:</string>
            </property>
           </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="netlistLabel">
+           <property name="text">
+            <string>Netlist:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="4">
+          <widget class="QLineEdit" name="netlistEdit"/>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="portmapLabel">
+           <property name="text">
+            <string>Port map:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="4">
+          <widget class="QLineEdit" name="portmapEdit"/>
          </item>
         </layout>
        </widget>
