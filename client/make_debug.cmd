@@ -4,7 +4,7 @@ rd /s /q release
 cd src
 
 python setup.py debug py2exe
-IF ERRORLEVEL 1 PAUSE
+IF ERRORLEVEL 1 GOTO END
 
 rd /s /q build
 
@@ -25,4 +25,9 @@ xcopy src\ui\* release\ui\*
 xcopy /e /q src\data\* release\data\*
 xcopy src\modules\* release\modules\*
 
-rem pause
+GOTO CLOSE
+
+:END
+PAUSE
+
+:CLOSE
