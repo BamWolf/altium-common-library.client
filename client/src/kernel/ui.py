@@ -15,6 +15,9 @@ class PyMainWindow(abstract.QWindow):
 
 	def rewire(self):
 		""" подключение сигналов """
+		self.actionSettings.triggered.connect(self.on_settings_menu)
+		self.actionExit.triggered.connect(self.application.exit)
+
 		self.newButton.clicked.connect(self.on_new_button_clicked)
 		self.editButton.clicked.connect(self.on_edit_button_clicked)
 		self.saveButton.clicked.connect(self.on_save_button_clicked)
@@ -37,6 +40,10 @@ class PyMainWindow(abstract.QWindow):
 
 
 	# обработчики сигналов
+	def on_settings_menu(self):
+		import os
+		os.system('settings.ini')
+
 	def on_item_changed(self, current, previous):
 		if current:
 			self.editButton.setEnabled(True)
