@@ -408,10 +408,14 @@ def load_symbols(self):
 
 	designators = list(designators)
 	designators.sort()
+
+	self.designatorBox.clear()
 	self.designatorBox.addItems(designators)
 	self.designatorBox.setCurrentIndex(-1)
 
 def show_symbol(self, selected):
+	clear_symbol(self)
+
 	if selected:
 		symbol = self.symbols[unicode(selected.text())][0]
 
@@ -424,8 +428,10 @@ def show_symbol(self, selected):
 		self.descriptionEdit.clear()
 		self.descriptionEdit.insertPlainText(symbol.get(DESCRIPTION))
 
+		self.editButton.setEnabled(True)
+
 	else:
-		clear_symbol(self)
+		self.editButton.setEnabled(False)
 
 def clear_symbol(self):
 	self.nameEdit.setText('')
@@ -539,6 +545,7 @@ def load_packages(self):
 	self.packageList.addItems(items)
 
 def show_package(self, selected):
+	clear_package(self)
 
 	if selected:
 		package = self.packages[unicode(selected.text())][0]
@@ -553,8 +560,10 @@ def show_package(self, selected):
 		self.descriptionEdit.clear()
 		self.descriptionEdit.insertPlainText(package.get(DESCRIPTION))
 
+		self.editButton.setEnabled(True)
+
 	else:
-		clear_package(self)
+		self.editButton.setEnabled(False)
 
 def clear_package(self):
 	self.nameEdit.setText('')
@@ -707,6 +716,7 @@ def clear_model(self):
 	self.descriptionEdit.clear()
 
 def show_model(self, selected):
+	clear_model(self)
 
 	if selected:
 		model = self.models[unicode(selected.text())][0]
@@ -730,9 +740,10 @@ def show_model(self, selected):
 		self.descriptionEdit.clear()
 		self.descriptionEdit.insertPlainText(model.get(DESCRIPTION))
 
+		self.editButton.setEnabled(True)
 
 	else:
-		clear_model(self)
+		self.editButton.setEnabled(False)
 
 def create_model(self):
 	clear_model(self)
