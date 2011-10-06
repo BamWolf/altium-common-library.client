@@ -216,8 +216,8 @@ class Component():
 		el.set('manufacturer', self.manufacturer())
 		el.set('partnumber', self.partnumber())
 
-		for parameter in self:
-			el.append(parameter.build())
+		for parameter in sorted(self._parameters.keys()):
+			el.append(self._parameters[parameter].build())
 
 		return el
 
@@ -299,8 +299,8 @@ class Symbol():
 
 		el.set('name', self.id())
 
-		for parameter in self:
-			el.append(parameter.build())
+		for parameter in sorted(self._parameters.keys()):
+			el.append(self._parameters[parameter].build())
 
 		return el
 
@@ -380,8 +380,8 @@ class Package():
 
 		el.set('name', self.id())
 
-		for parameter in self:
-			el.append(parameter.build())
+		for parameter in sorted(self._parameters.keys()):
+			el.append(self._parameters[parameter].build())
 
 		return el
 
@@ -461,8 +461,8 @@ class Model():
 
 		el.set('name', self.id())
 
-		for parameter in self:
-			el.append(parameter.build())
+		for parameter in sorted(self._parameters.keys()):
+			el.append(self._parameters[parameter].build())
 
 		return el
 
