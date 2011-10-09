@@ -13,6 +13,8 @@ from kernel import database
 from kernel import utils
 from datetime import datetime
 
+import webbrowser
+
 ###############################
 
 accountoptionlist = {'login': '', 'password': ''}
@@ -250,6 +252,11 @@ def clear_component(self):
 
 	self.parametersTable.clearContents()
 	self.parametersTable.setRowCount(0)
+
+def open_component_link(self):
+	url = unicode(self.linkEdit.text())
+	if url:
+		webbrowser.open(url, 2)
 
 def create_component(self):
 	clear_component(self)

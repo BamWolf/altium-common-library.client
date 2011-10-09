@@ -33,6 +33,9 @@ class PyMainWindow(abstract.QWindow):
 		self.exportButton.clicked.connect(self.on_export_button_clicked)
 
 		self.componentList.currentItemChanged.connect(self.on_item_changed)
+		self.componentList.itemDoubleClicked.connect(self.on_item_doubleclicked)
+
+		self.linkButton.clicked.connect(self.on_link_button_clicked)
 
 		self.settings = self.appconfig()
 
@@ -51,6 +54,10 @@ class PyMainWindow(abstract.QWindow):
 
 		else:
 			self.editButton.setEnabled(False)
+
+	def on_item_doubleclicked(self, current):
+			wrapper.show_component(self, current)
+			wrapper.edit_component(self)
 
 	# newButton
 	def on_new_button_clicked(self):
@@ -109,7 +116,9 @@ class PyMainWindow(abstract.QWindow):
 	def on_model_dialog_accept(self, data=None):
 		wrapper.refresh_modelbox(self)
 
-
+	# component link
+	def on_link_button_clicked(self):
+		wrapper.open_component_link(self)
 
 	# on new component signal
 	def on_component_created(self):
