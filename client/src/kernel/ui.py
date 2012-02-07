@@ -38,6 +38,7 @@ class PyMainWindow(abstract.QWindow):
 		self.linkButton.clicked.connect(self.on_link_button_clicked)
 
 		self.settings = self.appconfig()
+		self.locale = self.settings.option('ACCOUNT', 'language') or 'en'
 
 		wrapper.refresh_view(self)
 
@@ -85,7 +86,7 @@ class PyMainWindow(abstract.QWindow):
 
 	# symbolButton
 	def on_symbol_button_clicked(self):
-		dialog = SymbolManager('ui/symbol.ui', self)
+		dialog = SymbolManager('ui/' + self.locale + '/symbol.ui', self)
 		dialog.accepted.connect(self.on_symbol_dialog_accept, QtCore.Qt.QueuedConnection)
 		dialog.load()
 		dialog.rewire()
@@ -96,7 +97,7 @@ class PyMainWindow(abstract.QWindow):
 
 	# packageButton
 	def on_package_button_clicked(self):
-		dialog = PackageManager('ui/package.ui', self)
+		dialog = PackageManager('ui/' + self.locale + '/package.ui', self)
 		dialog.accepted.connect(self.on_package_dialog_accept, QtCore.Qt.QueuedConnection)
 		dialog.load()
 		dialog.rewire()
@@ -107,7 +108,7 @@ class PyMainWindow(abstract.QWindow):
 
 	# modelButton
 	def on_model_button_clicked(self):
-		dialog = ModelManager('ui/model.ui', self)
+		dialog = ModelManager('ui/' + self.locale + '/model.ui', self)
 		dialog.accepted.connect(self.on_model_dialog_accept, QtCore.Qt.QueuedConnection)
 		dialog.load()
 		dialog.rewire()

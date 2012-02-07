@@ -21,7 +21,11 @@ class PyClient(QtGui.QApplication):
 
 		self.settings = OptionManager(inifile)
 
-		self.ui = PyMainWindow(self, 'ui/mainwindow.ui')
+		locale = self.settings.option('ACCOUNT', 'language')
+
+		self.locale = self.settings.option('ACCOUNT', 'language') or 'en'
+
+		self.ui = PyMainWindow(self, 'ui/' + self.locale + '/wizard.ui')
 		self.setWindowIcon(QtGui.QIcon('wizard.ico'))
 		self.ui.rewire()
 #		self.ui.refresh()
