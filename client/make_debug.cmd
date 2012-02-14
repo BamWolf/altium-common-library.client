@@ -21,7 +21,7 @@ rem md debug
 cd ..
 
 xcopy src\*.ini release\*.ini
-xcopy src\ui\* release\ui\*
+xcopy /e src\ui\* release\ui\*
 xcopy /e /q src\data\* release\data\*
 xcopy src\modules\* release\modules\*
 

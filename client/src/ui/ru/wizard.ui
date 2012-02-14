@@ -342,6 +342,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
+               </property>
                <property name="alternatingRowColors">
                 <bool>true</bool>
                </property>
@@ -435,9 +438,9 @@
                  <widget class="QLineEdit" name="valueEdit"/>
                 </item>
                 <item>
-                 <widget class="QRadioButton" name="stringRadio">
+                 <widget class="QRadioButton" name="floatRadio">
                   <property name="text">
-                   <string>строка</string>
+                   <string>число</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>
@@ -445,9 +448,9 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QRadioButton" name="floatRadio">
+                 <widget class="QRadioButton" name="stringRadio">
                   <property name="text">
-                   <string>число</string>
+                   <string>строка</string>
                   </property>
                  </widget>
                 </item>

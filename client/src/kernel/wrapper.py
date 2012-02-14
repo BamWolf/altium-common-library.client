@@ -266,6 +266,7 @@ def create_component(self):
 	self.infoTopWidget.setEnabled(True)
 	self.infoBottomWidget.setEnabled(True)
 	self.parameterButtonsWidget.setEnabled(True)
+	self.parametersTable.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked)
 
 	self.listWidget.setEnabled(False)
 
@@ -275,6 +276,7 @@ def edit_component(self):
 	self.infoTopWidget.setEnabled(True)
 	self.infoBottomWidget.setEnabled(True)
 	self.parameterButtonsWidget.setEnabled(True)
+	self.parametersTable.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked)
 
 	self.listWidget.setEnabled(False)
 
@@ -369,6 +371,8 @@ def save_component(self):
 	self.infoTopWidget.setEnabled(False)
 	self.infoBottomWidget.setEnabled(False)
 	self.parameterButtonsWidget.setEnabled(False)
+	self.parametersTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+
 
 	self.components[component.id()] = component
 	self.editable = None
@@ -382,6 +386,7 @@ def cancel_component(self):
 	self.infoTopWidget.setEnabled(False)
 	self.infoBottomWidget.setEnabled(False)
 	self.parameterButtonsWidget.setEnabled(False)
+	self.parametersTable.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
 	self.listWidget.setEnabled(True)
 
