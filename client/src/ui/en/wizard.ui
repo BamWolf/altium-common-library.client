@@ -28,7 +28,7 @@
      <number>6</number>
     </property>
     <item>
-     <widget class="QWidget" name="widget_footer" native="true">
+     <widget class="QWidget" name="widget_header" native="true">
       <layout class="QHBoxLayout" name="horisontalLayout_3">
        <property name="leftMargin">
         <number>6</number>
@@ -93,27 +93,21 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox_body">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>Components</string>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <widget class="QWidget" name="widget_body" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
        <property name="margin">
-        <number>6</number>
+        <number>0</number>
        </property>
        <item>
-        <widget class="QWidget" name="listWidget" native="true">
+        <widget class="QGroupBox" name="listGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Components</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <property name="margin">
