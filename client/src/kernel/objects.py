@@ -222,7 +222,7 @@ class Component():
 		return el
 
 	def xml(self):
-		""" возвращает pretty_printed XML компонента НЕ НУЖЕН ТУТ """
+		""" возвращает pretty_printed XML компонента """
 		xmlobject = self.build()
 
 		if lxml_installed:
@@ -281,7 +281,7 @@ class Symbol():
 			return u''
 
 		if real:
-			return self._parameters.get(parameter).value()
+			return self._parameters.get(parameter).real()
 
 		else:
 			return self._parameters.get(parameter).value()
@@ -294,7 +294,7 @@ class Symbol():
 		self._parameters[parameter.name()] = parameter
 
 	def build(self):
-		""" возвращает Element компонента """
+		""" возвращает Element символа """
 		el = xmltree.Element('symbol')
 
 		el.set('name', self.id())
@@ -305,7 +305,7 @@ class Symbol():
 		return el
 
 	def xml(self):
-		""" возвращает pretty_printed XML символа НЕ НУЖЕН ТУТ """
+		""" возвращает pretty_printed XML символа """
 		xmlobject = self.build()
 
 		if lxml_installed:
@@ -362,7 +362,7 @@ class Package():
 			return u''
 
 		if real:
-			return self._parameters.get(parameter).value()
+			return self._parameters.get(parameter).real()
 
 		else:
 			return self._parameters.get(parameter).value()
@@ -375,7 +375,7 @@ class Package():
 		self._parameters[parameter.name()] = parameter
 
 	def build(self):
-		""" возвращает Element компонента """
+		""" возвращает Element корпуса """
 		el = xmltree.Element('package')
 
 		el.set('name', self.id())
@@ -386,7 +386,7 @@ class Package():
 		return el
 
 	def xml(self):
-		""" возвращает pretty_printed XML символа НЕ НУЖЕН ТУТ """
+		""" возвращает pretty_printed XML символа """
 		xmlobject = self.build()
 
 		if lxml_installed:
@@ -443,7 +443,7 @@ class Model():
 			return u''
 
 		if real:
-			return self._parameters.get(parameter).value()
+			return self._parameters.get(parameter).real()
 
 		else:
 			return self._parameters.get(parameter).value()
@@ -456,7 +456,7 @@ class Model():
 		self._parameters[parameter.name()] = parameter
 
 	def build(self):
-		""" возвращает Element компонента """
+		""" возвращает Element модели """
 		el = xmltree.Element('model')
 
 		el.set('name', self.id())
@@ -467,7 +467,7 @@ class Model():
 		return el
 
 	def xml(self):
-		""" возвращает pretty_printed XML символа НЕ НУЖЕН ТУТ """
+		""" возвращает pretty_printed XML символа """
 		xmlobject = self.build()
 
 		if lxml_installed:
@@ -528,7 +528,7 @@ class Parameter():
 		return self._type
 
 	def real(self):
-		""" возвращает приведенное значение параметра НЕПРОВЕРЕНО """
+		""" возвращает приведенное значение параметра """
 		if self._type == 'string':
 			return unicode(self._value)
 

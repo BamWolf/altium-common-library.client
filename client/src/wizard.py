@@ -7,7 +7,7 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 from kernel.ui import PyMainWindow
-from kernel.utils import OptionManager
+from kernel.settings import OptionManager
 
 #import gettext
 from kernel import i18n

@@ -5,7 +5,7 @@ import sys
 import csv
 
 from kernel.abstract import AppException
-from kernel.utils import OptionManager
+from kernel.settings import OptionManager
 
 #from kernel import i18n
 

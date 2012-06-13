@@ -10,7 +10,7 @@ from kernel import abstract
 from kernel import shared
 from kernel import objects
 from kernel import database
-from kernel import utils
+from kernel import settings
 from datetime import datetime
 
 import webbrowser
@@ -133,7 +133,7 @@ def refresh_categorybox(self):
 
 def load_categories(self):
 
-	self.settings = utils.OptionManager('data/categories.ini')
+	self.settings = settings.OptionManager('data/categories.ini')
 #	self.settings.load()
 
 	categories = self.settings.options('GOST', {}).keys()
@@ -141,7 +141,7 @@ def load_categories(self):
 
 	self.categoryBox.addItems(categories)
 
-	self.settings = utils.OptionManager(self.inifile)
+	self.settings = settings.OptionManager(self.inifile)
 
 
 
