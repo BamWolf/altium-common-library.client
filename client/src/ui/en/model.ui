@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Model Manager</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="mainframe">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QWidget" name="listWidget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="filterEdit"/>
+         </item>
+         <item>
+          <widget class="QListWidget" name="modelList"/>
+         </item>
+         <item>
+          <widget class="QWidget" name="buttonsWidgetLeft" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="newButton">
+              <property name="text">
+               <string>New</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="editButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Edit</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="infoWidget" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="nameLabel">
+           <property name="text">
+            <string>Model Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="4">
+          <widget class="QLineEdit" name="nameEdit"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="kindLabel">
+           <property name="text">
+            <string>Kind:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="linkLabel">
+           <property name="text">
+            <string>Link:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="0">
+          <widget class="QLabel" name="descriptionLabel">
+           <property name="text">
+            <string>Description:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="0" colspan="4">
+          <widget class="QPlainTextEdit" name="descriptionEdit"/>
+         </item>
+         <item row="15" column="0" colspan="4">
+          <widget class="QWidget" name="buttonsWidgetRight" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="saveButton">
+              <property name="text">
+               <string>Save</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="cancelButton">
+              <property name="text">
+               <string>Cancel</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="4">
+          <widget class="QLineEdit" name="linkEdit"/>
+         </item>
+         <item row="4" column="1" colspan="2">
+          <widget class="QComboBox" name="subkindBox">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QComboBox" name="kindBox">
+           <property name="currentIndex">
+            <number>-1</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>General</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Current Source</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Initial Condition</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Switch</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Transistor</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Transmission Line</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Voltage Source</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="3">
+          <widget class="QComboBox" name="prefixBox">
+           <item>
+            <property name="text">
+             <string>A</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>B</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>C</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>D</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>E</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>F</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>G</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>H</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>G</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>K</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>L</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>M</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>O</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Q</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>R</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>S</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>T</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>U</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>V</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>W</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>X</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Y</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Z</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="subkindLabel">
+           <property name="text">
+            <string>Subkind:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLabel" name="prefixLabel_2">
+           <property name="text">
+            <string>Prefix:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="netlistLabel">
+           <property name="text">
+            <string>Netlist:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="4">
+          <widget class="QLineEdit" name="netlistEdit"/>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="portmapLabel">
+           <property name="text">
+            <string>Port map:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0" colspan="4">
+          <widget class="QLineEdit" name="portmapEdit"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
